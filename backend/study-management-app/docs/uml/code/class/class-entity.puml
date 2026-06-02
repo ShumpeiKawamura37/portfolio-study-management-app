@@ -1,0 +1,31 @@
+@startuml
+
+class User { 
+  - Long userId 
+  - String userName 
+  - String email 
+  - String password 
+  - LocalDateTime createdAt
+  - Boolean status 
+} 
+class Category { 
+  - Long categoryId 
+  - String categoryName 
+  - LocalDateTime createdAt 
+  - Boolean status 
+}
+class StudyLog { 
+  - Long studyLogId 
+  - LocalDateTime startTime 
+  - LocalDateTime endTime 
+  - Integer studyMinutes 
+  - String memo 
+  - LocalDateTime createdAt 
+  - LocalDateTime updatedAt
+}
+
+User "1" -- "0..*" Category : owns
+Category "1" -- "0..*" StudyLog : contains
+User "1" -- "0..*" StudyLog : records
+Category "1" -- "0..1" -- "0..*" Category : parent-child
+@enduml

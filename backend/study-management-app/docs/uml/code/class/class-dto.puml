@@ -1,0 +1,18 @@
+@startuml
+class LoginRequestDto {
+  - String email
+  - String password
+}
+
+class CreateUserRequestDto {
+  - String email
+  - String password
+}
+
+class UpdateUserRequestDto {
+  - String name
+  - String email
+  - String password
+}
+
+@enduml
