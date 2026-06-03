@@ -18,7 +18,7 @@ class StudyLog {
   - Long studyLogId 
   - LocalDateTime startTime 
   - LocalDateTime endTime 
-  - Integer studyMinutes 
+  - Integer studySeconds
   - String memo 
   - LocalDateTime createdAt 
   - LocalDateTime updatedAt
