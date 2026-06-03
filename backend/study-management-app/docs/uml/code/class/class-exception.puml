@@ -1,0 +1,32 @@
+@startuml
+class GlobalExceptionHandler {
+  + handleInvalidTokenException()
+  + handleValidationException()
+  + handleNotFoundException()
+  + handleDuplicateException()
+}
+
+class InvalidTokenException {
+  + InvalidTokenException(String message)
+}
+class ValidationException {
+  + ValidationException(String message)
+}
+class NotFoundException {
+  + NotFoundException(String message)
+}
+class DuplicateException {
+  + DuplicateException(String message)
+}
+
+RuntimeException <|-- InvalidTokenException
+RuntimeException <|-- ValidationExceptio
+RuntimeException <|-- NotFoundException
+RuntimeException <|-- DuplicateException
+
+GlobalExceptionHandler ..> InvalidTokenException
+GlobalExceptionHandler ..> ValidationException
+GlobalExceptionHandler ..> NotFoundException
+GlobalExceptionHandler ..> DuplicateExceptionß
+
+@enduml

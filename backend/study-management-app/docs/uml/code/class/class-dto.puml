@@ -15,4 +15,56 @@ class UpdateUserRequestDto {
   - String password
 }
 
+class CreateStudyLogRequestDto {
+  - LocalDateTime startTime
+  - LocalDateTime endTime
+  - Integer totalStudySeconds
+  - Long categoryId
+  - String memo
+}
+
+class CreateCategoryRequestDto {
+  - Long parentCategoryId
+}
+
+class UpdateCategoryRequestDto {
+  - String categoryName
+}
+
+class ApiResponseDto {
+  - String status
+  - T data
+  - String message
+}
+
+class LoginResponseDto {
+  - String token
+}
+
+class UserResponseDto {
+  - String name
+  - String email
+}
+class CategoryResponseDto {
+  - Long categoryId
+  - String categoryName
+  - List<CategoryResponseDto> children
+}
+
+class StudyLogResponseDto {
+  - Long studyLogId
+  - String categoryName
+  - LocalDateTime startTime
+  - LocalDateTime endTime
+  - String memo
+}
+
+class AnalyticsResponseDto {
+  - Integer totalStudySeconds
+  - String studyDayCount
+  - Integer averageStudySeconds
+  - String longestStudyCategoryName
+  - Double studyDayRate
+  - Integer studyStreak
+}
 @enduml
