@@ -1,0 +1,98 @@
+@startuml
+
+class User { 
+  - Long userId 
+  - String userName 
+  - String email 
+  - String password 
+  - LocalDateTime createdAt
+  - Boolean status 
+} 
+class Category { 
+  - Long categoryId
+  - User user
+  - Category parentCategory
+  - List<Category> children
+  - String categoryName
+  - LocalDateTime createdAt
+  - Boolean status
+}
+class StudyLog { 
+  - Long studyLogId 
+  - User user
+  - Category category
+  - LocalDateTime startTime 
+  - LocalDateTime endTime 
+  - Integer studySeconds
+  - String memo 
+  - LocalDateTime createdAt 
+  - LocalDateTime updatedAt
+}
+
+class AuthController {
+  + login(LoginRequestDto) : ApiResponseDto<LoginResponseDto>
+}
+
+class AuthService {
+  + authenticate(LoginRequestDto) : String
+}
+
+class UserController {
+  + createUser(CreateUserRequestDto) : ApiResponseDto<UserResponseDto>
+  + updateUser(UpdateUserRequestDto) : ApiResponseDto<UserResponseDto>
+  + deleteUser() : ApiResponseDto<Void>
+}
+
+class UserService {
+  + createUser(CreateUserRequestDto) : UserResponseDto
+  + updateUser(UpdateUserRequestDto) : UserResponseDto
+  + deleteUser() : void
+}
+
+class UserRepository {
+  + findByEmail(String) : Optional<User>
+}
+
+class CategoryController {
+  + getCategories() : ApiResponseDto<List<CategoryResponseDto>>
+  + createCategory(CreateCategoryRequestDto) : ApiResponseDto<CategoryResponseDto>
+  + updateCategory(Long, UpdateCategoryRequestDto) : ApiResponseDto<CategoryResponseDto>
+  + deleteCategory(Long) : ApiResponseDto<Void>
+}
+
+class CategoryService {
+  + getCategoriesByUserId() : List<CategoryResponseDto>
+  + createCategory(CreateCategoryRequestDto) : CategoryResponseDto
+  + updateCategory(Long, UpdateCategoryRequestDto) : CategoryResponseDto
+  + deleteCategory(Long) : void
+  + todto (Category) : CategoryResponseDto
+  + toTree(List<Category>) : List<CategoryResponseDto>
+}
+
+class CategoryRepository {
+  findByUserId(Long) : List<Category>
+}
+
+class StudyLogController {
+  + getStudyLogbyDate(LocalDate) : ApiResponseDto<List<StudyLogResponseDto>>
+  + createStudyLog(StudyLogRequestDto) : ApiResponseDto<Void>
+  + getAnalytics() : ApiResponseDto<AnalyticsResponseDto> 
+}
+
+class StudyLogService {
+  + getStudyLogbyDate(LocalDate) : List<StudyLogResponseDto>
+  + CreateStudyLog(CreateStudyLogRequestDto) : void
+  + getAnalytics() : AnalyticsResponseDto
+  + todto (StudyLog) : StudyLogResponseDto
+}
+
+class StudyLogRepository {
+  + findByUserId(Long) : List<StudyLog>
+  + findByUserIdAndDate(Long, LocalDate) : List<StudyLog>
+}
+
+User "1" -- "0..*" Category : owns
+Category "1" -- "0..*" StudyLog : contains
+User "1" -- "0..*" StudyLog : records
+Category "1" -- "0..1" -- "0..*" Category : parent-child
+@enduml

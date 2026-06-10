@@ -1,0 +1,160 @@
+@startuml
+actor User
+participant User
+participant UserResponseDto
+participant UserController
+participant UserService
+participant UserRepository
+participant GlobalExceptionHandler
+participant ApiResponseDto
+participant JwtProvider
+participant JwtFilter
+participant UsernamePasswordAuthenticationToken
+participant Authentication
+participant SecurityContextHolder
+participant PasswordEncoder
+database DB
+
+== create user ==
+User -> UserController : POST api/user createUser(CreateUserRequestDto)
+UserController -> UserService : createUser(CreateUserRequestDto)
+UserService -> UserRepository : findByEmail(email)
+UserRepository -> DB : SELECT * FROM users WHERE email=?
+
+alt email already exists
+  UserRepository --> UserService : User
+  UserService --> GlobalExceptionHandler : throw DuplicateException
+  GlobalExceptionHandler --> User : 409 "ERROR" ApiResponseDto<Void> "既に登録されているメールアドレスです。"
+
+else OK
+  UserRepository --> UserService : null
+  UserService -> PasswordEncoder : encode(req.password)
+  PasswordEncoder --> UserService : encoded password
+  UserService -> User : new(req.email, encoded password)
+  UserService --> UserService : use1r
+  UserService -> UserRepository : save(user)
+  UserRepository -> DB : INSERT INTO users ...
+  DB --> UserRepository : createdUser
+  UserRepository --> UserService : ureatedUser
+  UserService -> UserResponseDto : new(createdUser.name, createUser.email)
+  UserResponseDto --> UserService : res
+  UserService --> UserController : res
+  UserController --> User : 201 "SUCCESS" ApiResponseDto<UserResponseDto>
+end
+
+== update user ==
+User -> JwtFilter : GET api/category Authorization: Bearer <token> 
+JwtFilter -> JwtProvider : validateToken(token)
+
+alt token invalid 
+  JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+  GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+else token valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider -> UserRepository : findByUserId(userId)
+  UserRepository -> DB :  SELECT * FROM users WHERE user_id=?
+
+  alt user not found
+    DB --> UserRepository : null
+    UserRepository --> JwtProvider : null
+    JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+    GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+  else OK
+    DB --> UserRepository : user data
+    UserRepository --> JwtProvider : user data
+    JwtProvider --> JwtFilter : userId
+    JwtFilter -> UsernamePasswordAuthenticationToken : new(principal, null, authorities) 
+    UsernamePasswordAuthenticationToken --> JwtFilter : auth
+    JwtFilter -> SecurityContextHolder : getContext().setAuthentication(auth)
+    SecurityContextHolder --> JwtFilter : void
+    JwtFilter -> FilterChain : doFilter(req, res)
+    FilterChain -> UserController : updateUser(UpdateUserRequestDto)
+
+    UserController -> UserService : updateUser(UpdateUserRequestDto)
+    UserService -> Authentication : getPrincipal()
+    Authentication --> UserService : userId
+    UserService -> UserRepository : findById(userId)
+    UserRepository -> DB : SELECT * FROM users WHERE user_id=?
+    DB --> UserRepository : User
+    UserRepository --> UserService : User 
+
+    opt req.userName != null
+        UserService -> User : setUserName(req.userName)
+    end
+
+    opt req.email != null
+        UserService -> User : setEmail(req.email)
+    end
+
+    opt req.password != null
+        UserService -> PasswordEncoder : encode(password)
+        PasswordEncoder --> UserService : encodedPassword
+        UserService -> User : setPassword(encodedPassword)
+    end
+
+    UserService -> UserRepository : save(user)
+    UserRepository -> DB : UPDATE users SET ... WHERE user_id=?
+    DB --> UserRepository : updatedUser 
+    UserRepository --> UserService : updatedUser
+    UserService -> UserResponseDto : new(updatedUser.name, updatedUser.email)
+    UserResponseDto --> UserService : res
+    UserService --> UserController : res 
+    UserController --> User : 200 "SUCCESS" ApiResponseDto<UserResponseDto>
+  end
+end
+
+== delete user ==
+User -> JwtFilter : GET api/category Authorization: Bearer <token> 
+JwtFilter -> JwtProvider : validateToken(token)
+
+alt token invalid 
+  JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+  GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+else token valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider -> UserRepository : findByUserId(userId)
+  UserRepository -> DB :  SELECT * FROM users WHERE user_id=?
+
+  alt user not found
+    DB --> UserRepository : null
+    UserRepository --> JwtProvider : null
+    JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+    GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+  else OK
+    DB --> UserRepository : user data
+    UserRepository --> JwtProvider : user data
+    JwtProvider --> JwtFilter : userId
+    JwtFilter -> UsernamePasswordAuthenticationToken : new(principal, null, authorities) 
+    UsernamePasswordAuthenticationToken --> JwtFilter : auth
+    JwtFilter -> SecurityContextHolder : getContext().setAuthentication(auth)
+    SecurityContextHolder --> JwtFilter : void
+    JwtFilter -> FilterChain : doFilter(req, res)
+  FilterChain -> UserController : deleteUser()
+
+  UserController -> UserService : deleteUser()
+  UserService -> Authentication : getPrincipal()
+  Authentication --> UserService : userId
+  UserService -> UserRepository : findByEmail(email)
+  UserRepository -> DB : SELECT * FROM users WHERE email=?
+  alt user not found
+    DB --> UserRepository : null
+    UserRepository --> UserService : null
+    UserService --> GlobalExceptionHandler : throw NotFoundException
+    GlobalExceptionHandler --> User : 404 "ERROR" ApiResponseDto<Void>
+  else OK
+    DB --> UserRepository : user data
+    UserRepository --> UserService : user data
+    UserService -> User : setStatus(false)
+    UserService -> UserRepository : save(user)
+    UserRepository -> DB : UPDATE users SET status=false WHERE user_id=?
+    DB --> UserRepository : updated user data
+    UserRepository --> UserService : updated user
+    UserService --> UserController : void
+    UserController --> User : 200 "SUCCESS" ApiResponseDto<Void>
+  end
+
+@enduml
