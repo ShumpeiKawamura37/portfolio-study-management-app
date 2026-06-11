@@ -94,5 +94,5 @@ class StudyLogRepository {
 User "1" -- "0..*" Category : owns
 Category "1" -- "0..*" StudyLog : contains
 User "1" -- "0..*" StudyLog : records
-Category "1" -- "0..1" -- "0..*" Category : parent-child
+Category "0..1" -- "0..*" Category : parent-child
 @enduml
