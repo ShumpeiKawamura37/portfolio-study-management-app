@@ -20,13 +20,13 @@ class DuplicateException {
 }
 
 RuntimeException <|-- InvalidTokenException
-RuntimeException <|-- ValidationExceptio
+RuntimeException <|-- ValidationException
 RuntimeException <|-- NotFoundException
 RuntimeException <|-- DuplicateException
 
 GlobalExceptionHandler ..> InvalidTokenException
 GlobalExceptionHandler ..> ValidationException
 GlobalExceptionHandler ..> NotFoundException
-GlobalExceptionHandler ..> DuplicateExceptionß
+GlobalExceptionHandler ..> DuplicateException
 
 @enduml

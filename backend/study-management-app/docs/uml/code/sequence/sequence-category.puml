@@ -1,0 +1,275 @@
+@startuml
+actor User
+participant User
+participant JwtProvider
+participant JwtFilter
+participant UsernamePasswordAuthenticationToken
+participant SecurityContextHolder
+participant FilterChain
+participant Category
+participant CategoryResponseDto
+participant CategoryController
+participant CategoryService
+participant CategoryRepository
+participant UserRepository
+participant Authentication
+participant GlobalExceptionHandler
+
+database DB
+
+== get categories ==
+User -> JwtFilter : GET api/category Authorization: Bearer <token> 
+JwtFilter -> JwtProvider : validateToken(token)
+
+alt token invalid 
+  JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+  GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+else token valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider -> UserRepository : findByUserId(userId)
+  UserRepository -> DB :  SELECT * FROM users WHERE user_id=?
+
+  alt user not found
+    DB --> UserRepository : empty
+    UserRepository --> JwtProvider : Optional.empty
+    JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+    GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+  else OK
+    DB --> UserRepository :User
+    UserRepository --> JwtProvider : User
+    JwtProvider --> JwtFilter : userId
+    JwtFilter -> UsernamePasswordAuthenticationToken : new(principal, null, authorities) 
+    UsernamePasswordAuthenticationToken --> JwtFilter : auth
+    JwtFilter -> SecurityContextHolder : getContext().setAuthentication(auth)
+    SecurityContextHolder --> JwtFilter : void
+    JwtFilter -> FilterChain : doFilter(req, res)
+    FilterChain -> CategoryController : getCategories()
+
+    CategoryController -> CategoryService : getCategoriesByUserId()
+    CategoryService -> Authentication : getPrincipal()
+    Authentication --> CategoryService : userId
+    CategoryService -> CaategoryRepository : findByUserId(userId)
+    CategoryRepository -> DB : SELECT * FROM categories WHERE user_id=?
+    DB --> CategoryRepository : List<Category>
+    CategoryRepository --> CategoryService : categories
+
+    alt categories is empty
+      CategoryService --> CategoryController : Optional.empty
+      CategoryController --> User : 200 "SUCCESS" ApiResponseDto<List<CategoryResponseDto>>
+
+    else categories is exist
+      CategoryService -> CategoryService : toTree(categories)
+    
+      loop Category : category
+        CategoryService -> CategoryService : toDto(categories)
+        CategoryService --> CategoryService : categoryResponseDto
+      end
+
+      CategoryService --> CategoryService : List<CategoryResponseDto>
+      CategoryService --> CategoryController : List<CategoryResponseDto>
+      CategoryController --> User : 200 "SUCCESS" ApiResponseDto<List<CategoryResponseDto>>
+    end
+  end
+end
+
+== create category ==
+User -> JwtFilter : POST api/category Authorization: Bearer <token> 
+JwtFilter -> JwtProvider : validateToken(token)
+
+alt token invalid 
+  JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+  GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+else token valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider -> UserRepository : findByUserId(userId)
+  UserRepository -> DB :  SELECT * FROM users WHERE user_id=?
+
+  alt user not found
+    DB --> UserRepository : empty
+    UserRepository --> JwtProvider : Optional.empty
+    JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+    GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+  else OK
+    DB --> UserRepository : User
+    UserRepository --> JwtProvider : User
+    JwtProvider --> JwtFilter : userId
+    JwtFilter -> UsernamePasswordAuthenticationToken : new(principal, null, authorities) 
+    UsernamePasswordAuthenticationToken --> JwtFilter : auth
+    JwtFilter -> SecurityContextHolder : getContext().setAuthentication(auth)
+    SecurityContextHolder --> JwtFilter : void
+    JwtFilter -> FilterChain : doFilter(req, res)
+    FilterChain -> CategoryController : createCategory(CreateCategoryRequestDto)
+
+    CategoryController -> CategoryService : createCategory(CreateCategoryRequestDto)
+    CategoryService -> Authentication : getPrincipal()
+    Authentication --> CategoryService : userId
+    CategoryService -> UserRepository : findByUserId(userId)
+    UserRepository -> DB : SELECT * FROM users WHERE user_id=?
+    DB --> UserRepository : User
+    UserRepository --> CategoryService : User
+
+    opt parentCategoryId exists
+      CategoryService -> CategoryRepository : findById(parentCategoryId)
+
+      CategoryRepository -> DB : SELECT * FROM categories WHERE category_id=?
+
+      alt category not found
+        DB --> CategoryRepository : empty
+        CategoryRepository --> CategoryService : Optional.empty
+        CategoryService -> GlobalExceptionHandler : throws NotFoundException
+        GlobalExceptionHandler --> User : ApiResponseDto<Void> "データの作成に失敗しました。"
+
+      else OK
+        DB --> CategoryRepository : parentCategory
+        CategoryRepository --> CategoryService : parentCategory
+      end
+    end 
+
+    CategoryService -> Category : new Category(user, parentCategory, req.name)
+    Category --> CategoryService : category
+    CategoryService  -> CategoryRepository : save(category)
+    CaategoryRepository -> DB :  INSERT INTO categories...
+    DB --> CategoryRepository : createdCategory
+    CaategoryRepository --> CategoryService : createdCategory
+    CategoryService -> CategoryResponseDto : new(createCategory.id, createCategory.name, createCategory.List.of())
+    CategoryResponseDto --> CategoryService : res
+    CategoryService --> CategoryController : res
+    CategoryController --> User : 201 "SUCCESS" ApiResponseDto<CategoryResponseDto>
+  end
+end
+
+== update category ==
+User -> JwtFilter : PUT api/category/{categoryId} Authorization: Bearer <token> 
+JwtFilter -> JwtProvider : validateToken(token)
+
+alt token invalid 
+  JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+  GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+else token valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider -> UserRepository : findByUserId(userId)
+  UserRepository -> DB :  SELECT * FROM users WHERE user_id=?
+
+  alt user not found
+    DB --> UserRepository : empty
+    UserRepository --> JwtProvider : Optional.empty
+    JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+    GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+    
+  else OK
+    DB --> UserRepository : User
+    UserRepository --> JwtProvider : User
+    JwtProvider --> JwtFilter : userId
+    JwtFilter -> UsernamePasswordAuthenticationToken : new(principal, null, authorities) 
+    UsernamePasswordAuthenticationToken --> JwtFilter : auth
+    JwtFilter -> SecurityContextHolder : getContext().setAuthentication(auth)
+    SecurityContextHolder --> JwtFilter : void
+    JwtFilter -> FilterChain : doFilter(req, res)
+    FilterChain -> CategoryController : updateCategory(Long, CategoryRequestDto)
+
+    CategoryController -> CategoryService : updateCategory(Long, CategoryRequestDto)
+    CategoryService -> Authentication : getPrincipal()
+    Authentication --> CategoryService : userId
+    CategoryService -> CategoryRepository : findById(categoryId)
+    CategoryRepository -> DB : SELECT * FROM categories WHERE category_id=?
+
+    alt category not found
+      DB --> CategoryRepository : empty
+      CategoryRepository --> CategoryService : Optional.empty
+      CategoryService -> GlobalExceptionHandler : throw NotFoundException
+      GlobalExceptionHandler --> User : 400 "ERROR" ApiResponseDto<Void>  "データ更新に失敗しました。"
+    
+    else OK
+
+      DB --> CategoryRepository : Category
+      CategoryRepository --> CategoryService : Category
+
+    alt category.userId != userId
+      CategoryService -> GlobalExceptionHandler : throw ValidationException
+      GlobalExceptionHandler --> User : 400 "ERROR" ApiResponseDto<Void> "データ更新に失敗しました。"
+    else OK
+      CategoryService -> Category : setName(req.name)
+      CategoryService -> CategoryRepository : save(category)
+      CategoryRepository -> DB : UPDATE categories SET ... WHERE category_id=?
+      DB --> CategoryRepository : updatedCategory
+      CategoryRepository --> CategoryService : updatedCategory
+      CategoryService -> CategoryService : toDto(updatedCategory.children)
+      CategoryService --> CategoryService : childrenDto
+      CategoryService -> CategoryResponseDto : new(updatedCategory.id, updatedCategory.name, childrenDto)
+      CategoryResponseDto --> CategoryService : res
+      CategoryService --> CategoryController : res
+      CategoryController --> User : 200 "SUCCESS" ApiResponseDto<CategoryResponseDto>
+    end
+  end
+end
+
+== delete category ==
+
+User -> JwtFilter : DELETE api/category{categoryId} Authorization: Bearer <token> 
+JwtFilter -> JwtProvider : validateToken(token)
+
+alt token invalid 
+  JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+  GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+else token valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider -> UserRepository : findByUserId(userId)
+  UserRepository -> DB :  SELECT * FROM users WHERE user_id=?
+
+  alt user not found
+    DB --> UserRepository : empty
+    UserRepository --> JwtProvider : Optional.empty
+    JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+    GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+  else OK
+    DB --> UserRepository :User
+    UserRepository --> JwtProvider : User
+    JwtProvider --> JwtFilter : userId
+    JwtFilter -> UsernamePasswordAuthenticationToken : new(principal, null, authorities) 
+    UsernamePasswordAuthenticationToken --> JwtFilter : auth
+    JwtFilter -> SecurityContextHolder : getContext().setAuthentication(auth)
+    SecurityContextHolder --> JwtFilter : void
+    JwtFilter -> FilterChain : doFilter(req, res)
+    FilterChain -> CategoryController : deleteCategory(Long)
+
+    CategoryController -> CategoryService : deleteCategory(Long) 
+    CategoryService -> CategoryRepository : findById
+    CategoryRepository -> DB : SELECT * FROM categories WHERE category_id=?
+
+    alt category not found
+      DB --> CategoryRepository : empty
+      CategoryRepository --> CategoryService : Optional.empty
+      CategoryService -> GlobalExceptionHandler : throw NotFoundException
+      GlobalExceptionHandler --> User : 400 "ERROR" ApiResponseDto<Void>  "データ更新に失敗しました。"
+
+    else OK
+      DB --> CaategoryRepository : Category
+      CategoryRepository --> CategoryService : Category
+
+      alt category.userId != userId
+        CategoryService -> GlobalExceptionHandler : throw ValidationException
+        GlobalExceptionHandler --> User : 400 "ERROR" ApiResponseDto<Void>  "データ更新に失敗しました。"
+
+      else OK
+        CategoryService -> Category : setStatus(false)
+        CategoryService -> CategoryRepository : save(category)
+        CategoryRepository -> DB : UPDATE categories SET status=false WHERE category_id=?
+        DB --> CategoryRepository : OK
+        CategoryRepository --> CategoryService : OK
+        CategoryService --> CategoryController : OK
+        CategoryController --> User : 200 "SUCESS" ApiResponseDto<Void>
+      end
+  end
+end
+
+@enduml
