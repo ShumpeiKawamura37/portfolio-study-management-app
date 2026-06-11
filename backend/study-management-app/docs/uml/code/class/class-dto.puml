@@ -24,10 +24,11 @@ class CreateStudyLogRequestDto {
 }
 
 class CreateCategoryRequestDto {
+  - String categoryName
   - Long parentCategoryId
 }
 
-class UpdateCategoryRequestDto {
+class CategoryRequestDto {
   - String categoryName
 }
 
@@ -45,6 +46,7 @@ class UserResponseDto {
   - String name
   - String email
 }
+
 class CategoryResponseDto {
   - Long categoryId
   - String categoryName

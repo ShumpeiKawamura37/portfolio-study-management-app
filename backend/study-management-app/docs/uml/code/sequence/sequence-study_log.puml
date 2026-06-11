@@ -1,0 +1,230 @@
+@startuml
+actor User
+participant User
+participant Category
+participant StudyLog
+participant StudyLogResponseDto
+participant JwtProvider
+participant JwtFilter
+participant UsernamePasswordAuthenticationToken
+participant SecurityContextHolder
+participant FilterChain
+participant Authentication
+participant Category
+participant UserRepository
+participant CategoryRepository
+participant StudyLogController
+participant StudyLogService
+participant StudyLogRepository
+participant GlobalExceptionHandler
+participant ApiResponseDto
+database DB
+
+== get studyLog by date ==
+User -> JwtFilter : GET api/stugylog Authorization: Bearer <token> 
+JwtFilter -> JwtProvider : validateToken(token)
+
+alt token invalid 
+  JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+  GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+else token valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider -> UserRepository : findByUserId(userId)
+  UserRepository -> DB :  SELECT * FROM users WHERE user_id=?
+
+  alt user not found
+    DB --> UserRepository : empty
+    UserRepository --> JwtProvider : Optional.empty
+    JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+    GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+  else OK
+    DB --> UserRepository :User
+    UserRepository --> JwtProvider : User
+    JwtProvider --> JwtFilter : userId
+    JwtFilter -> UsernamePasswordAuthenticationToken : new(principal, null, authorities) 
+    UsernamePasswordAuthenticationToken --> JwtFilter : auth
+    JwtFilter -> SecurityContextHolder : getContext().setAuthentication(auth)
+    SecurityContextHolder --> JwtFilter : void
+    JwtFilter -> FilterChain : doFilter(req, res)
+    FilterChain -> StudyLogController : getStudyLogbyDate(LocalDate)
+
+    StudyLogController -> StudyLogService : getStudyLogbyDate(LocalDate)
+    StudyLogService -> Authentication : getPrincipal()
+    Authentication --> StudyLogService : userId
+    StudyLogService -> StudyLogRepository : findByUserIdAndDate(userId, date)
+    StudyLogRepository -> DB : SELECT * FROM study_logs WHERE user_id=? AND date=...
+    
+    alt studyLog is empty
+      DB --> StudyLogRepository : Optional.empty
+      StudyLogRepository --> StudyLogService : Optional.empty
+      StudyLogService -> StudyLogController : Optional.empty
+      StudyLogController --> User : 200 "SUCCESS" ApiResponseDto<List<StudyLogResponseDto>> []
+    
+    else studyLog is exists
+      DB --> StudyLogRepository : List<StudyLog>
+      StudyLogRepository --> StudyLogService :  List<StudyLog>
+
+      loop Studylog : studylog
+        StudyLogService -> StudyLogService : toDto(StudyLog)
+        StudyLogService --> StudyLogService : StudyLogResponseDto
+      end
+      StudyLogService -> StudyLogController : List<StudyLogResponseDto>
+      StudyLogController --> User : 200 "SUCCESS" ApiResponseDto<List<StudyLogResponseDto>> 
+    end
+  end
+end
+
+== create studyLog ==
+User -> JwtFilter : POST api/stugylog Authorization: Bearer <token> 
+JwtFilter -> JwtProvider : validateToken(token)
+
+alt token invalid 
+  JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+  GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+else token valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider -> UserRepository : findByUserId(userId)
+  UserRepository -> DB :  SELECT * FROM users WHERE user_id=?
+
+  alt user not found
+    DB --> UserRepository : empty
+    UserRepository --> JwtProvider : Optional.empty
+    JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+    GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+  else OK
+    DB --> UserRepository :User
+    UserRepository --> JwtProvider : User
+    JwtProvider --> JwtFilter : userId
+    JwtFilter -> UsernamePasswordAuthenticationToken : new(principal, null, authorities) 
+    UsernamePasswordAuthenticationToken --> JwtFilter : auth
+    JwtFilter -> SecurityContextHolder : getContext().setAuthentication(auth)
+    SecurityContextHolder --> JwtFilter : void
+    JwtFilter -> FilterChain : doFilter(req, res)
+    FilterChain -> StudyLogController : createStudyLog(CreateStudyLogRequestDto)
+
+    StudyLogController -> StudyLogService : createStudyLog(CreateStudyLogRequestDto)
+
+    StudyLogService -> Authentication : getPrincipal()
+    Authentication --> StudyLogService : userId
+
+    StudyLogService -> UserRepository : findById(userId)
+    UserRepository -> DB : SELECT * FROM users WHERE user_id=?
+    DB --> UserRepository : User
+    UserRepository --> StudyLogService : User
+
+    StudyLogService -> CategoryRepository : findById(req.categoryId)
+    CategoryRepository -> DB : SELECT * FROM categories WHERE category_id =?
+
+    alt category not found
+      DB --> CategoryRepository : empty
+      CategoryRepository --> StudyLogService : empty
+      StudyLogService -> GlobalExceptionHandler : throw NotFoundException
+      GlobalExceptionHandler --> User : 400 "ERROR" ApiResponseDto<Void> "データの作成に失敗しました。"
+
+    else OK
+      DB --> CategoryRepository : Category
+      CategoryRepository --> StudyLogService : Category
+
+      alt category.userId != userId 
+        StudyLogService -> GlobalExceptionHandler : throw InvalidTokenException
+        GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "データの作成に失敗しました。"
+      else OK
+        StudyLogService -> StudyLog : new (user, category, req.startTime, req.endTime, req.studySeconds, req.memo)
+        StudyLog --> StudyLogService : studyLog
+        StudyLogService -> StudyLogRepository : save(studyLog)
+        StudyLogRepository -> DB : INSERT INTO study_logs ...
+        DB --> StudyLogRepository : createdStudyLog
+        StudyLogRepository --> StudyLogService : createdStudyLog
+        StudyLogService -> StudyLogResponseDto : new(createdStudyLog.id, createdStudyLog.categoryName, createStudyLog.startTime, createdStudyLog.endTime, createdStudyLog.memo)
+        StudyLogResponseDto --> StudyLogService : res
+        StudyLogService --> StudyLogController : res
+        StudyLogController --> User : 201 "SUCCESS" ApiResponseDto<StudyLogResponseDto>
+      end
+    end
+  end
+end
+
+== get analytics ==
+User -> JwtFilter : GET api/stugylog/analytics Authorization: Bearer <token> 
+JwtFilter -> JwtProvider : validateToken(token)
+
+alt token invalid 
+  JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+  GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+else token valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider -> UserRepository : findByUserId(userId)
+  UserRepository -> DB :  SELECT * FROM users WHERE user_id=?
+
+  alt user not found
+    DB --> UserRepository : empty
+    UserRepository --> JwtProvider : Optional.empty
+    JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+    GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+  else OK
+    DB --> UserRepository :User
+    UserRepository --> JwtProvider : User
+    JwtProvider --> JwtFilter : userId
+    JwtFilter -> UsernamePasswordAuthenticationToken : new(principal, null, authorities) 
+    UsernamePasswordAuthenticationToken --> JwtFilter : auth
+    JwtFilter -> SecurityContextHolder : getContext().setAuthentication(auth)
+    SecurityContextHolder --> JwtFilter : void
+    JwtFilter -> FilterChain : doFilter(req, res)
+    FilterChain -> StudyLogController : getAnalytics()
+
+    StudyLogController -> StudyLogService : getAnalytics()
+    StudyLogService -> Authentication : getPrincipal()
+    Authentication --> StudyLogService : userId
+
+    StudyLogService -> StudyLogRepository : findByUserId(userId)
+    StudyLogRepository -> DB : SELECT * FROM study_logs WHERE user_id=?
+    DB --> StudyLogRepository : List<StudyLog>
+    StudyLogRepository --> StudyLogService : List<StudyLog>
+
+    alt studyLog is empty
+      StudyLogRepository --> StudyLogService : empty
+      StudyLogService -> StudyLogController : empty
+      StudyLogController --> User : 200 "SUCCESS" ApiResponseDto<AnalyticsResponseDto> empty
+
+    else studyLog is exists
+      StudyLogRepository --> StudyLogService : List<StudyLog>
+      
+
+      StudyLogService -> StudyLogService : sum(studySeconds) 
+      StudyLogService --> StudyLogService : totalStudySeconds 
+
+      StudyLogService -> StudyLogService : countDistinct(createdAt.toLocalDate())    
+      StudyLogService --> StudyLogService : studyDayCount
+
+      StudyLogService -> StudyLogService : calcAverage(totalStudySeconds, studyDayCount)
+      StudyLogService --> StudyLogService : averageStudySeconds 
+
+      StudyLogService -> StudyLogService : groupBy(category)    
+      StudyLogService --> StudyLogService : longestStudyCategoryName 
+
+      StudyLogService -> StudyLogService : calcStudyDayRate()    
+      StudyLogService --> StudyLogService : studyDayRate    
+
+      StudyLogService -> StudyLogService : calcStudyStreak()    
+      StudyLogService --> StudyLogService : studyStreak    
+
+      StudyLogService -> AnalyticsResponseDto : new(        totalStudySeconds, studyDayCount, averageStudySeconds,longestStudyCategoryName, studyDayRate, studyStreak) 
+
+      AnalyticsResponseDto --> StudyLogService : analytics 
+      StudyLogService --> StudyLogController : analytics    
+      StudyLogController --> User : 200 "SUCCESS" ApiResponseDto<AnalyticsResponseDto>
+    end
+  end
+end
+@enduml
+
+@テーブル定義を完成させる
