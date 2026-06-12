@@ -34,12 +34,10 @@ else OK
   UserService --> UserService : use1r
   UserService -> UserRepository : save(user)
   UserRepository -> DB : INSERT INTO users ...
-  DB --> UserRepository : createdUser
-  UserRepository --> UserService : ureatedUser
-  UserService -> UserResponseDto : new(createdUser.name, createUser.email)
-  UserResponseDto --> UserService : res
-  UserService --> UserController : res
-  UserController --> User : 201 "SUCCESS" ApiResponseDto<UserResponseDto>
+  DB --> UserRepository : OK
+  UserRepository --> UserService : OK
+  UserService --> UserController : void
+  UserController --> User : 201 "SUCCESS" ApiResponseDto<Void>
 end
 
 == update user ==
@@ -138,8 +136,8 @@ else token valid
   UserController -> UserService : deleteUser()
   UserService -> Authentication : getPrincipal()
   Authentication --> UserService : userId
-  UserService -> UserRepository : findByEmail(email)
-  UserRepository -> DB : SELECT * FROM users WHERE email=?
+  UserService -> UserRepository : findById(userId)
+  UserRepository -> DB : SELECT * FROM users WHERE user_id=?
   alt user not found
     DB --> UserRepository : null
     UserRepository --> UserService : null
