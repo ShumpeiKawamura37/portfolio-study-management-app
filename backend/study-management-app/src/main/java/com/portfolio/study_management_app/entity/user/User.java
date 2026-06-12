@@ -13,14 +13,19 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "users")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "user_id")
+    private Long userId;
 
     @NotBlank
     @Column(nullable = false)
@@ -28,49 +33,35 @@ public class User {
     @Pattern(regexp = "^[ぁ-んァ-ヶ一-龯a-zA-Z]+(?: [ぁ-んァ-ヶ一-龯a-zA-Z]+)*$")
     private String username;
 
-    @NotNull
+    @NotBlank
     @Email
     @Size(max = 255)
     @Column(nullable = false, unique = true)
     private String email;
 
-    @NotNull
+    @NotBlank
     @Column(nullable = false)
     @Size(min = 8)
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)\\S+$")
     private String password;
+
+    @NotBlank   
+    @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    @NotBlank
+    @Column(nullable = false)
     private boolean status;
 
     // Constructors
-    public User() {}
+    protected User() {}
 
-    public User(String username, String email) {
+    public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
+        this.password = password;
+        this.createdAt = LocalDateTime.now();
+        this.status = true;
     }
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 }
