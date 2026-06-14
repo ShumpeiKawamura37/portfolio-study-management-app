@@ -1,0 +1,81 @@
+package com.portfolio.study_management_app.service;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.portfolio.study_management_app.dto.user.CreateUserRequestDto;
+import com.portfolio.study_management_app.entity.user.User;
+import com.portfolio.study_management_app.exception.ValidationException;
+import com.portfolio.study_management_app.repository.user.UserRepository;
+
+@ExtendWith(MockitoExtension.class)
+public class UserServiceTest {
+  @Mock UserRepository userRepository;
+  @Mock PasswordEncoder passwordEncoder;
+  @InjectMocks UserService userService;
+
+  @Test
+  @DisplayName("正常系: 新規ユーザーならUser登録成功")
+  void createUser_success() {
+    CreateUserRequestDto req = new CreateUserRequestDto(
+      "test@example.com", 
+      "password123"
+    );
+
+    when(userRepository.findByEmail(req.email()))
+      .thenReturn(null);
+    
+    when(passwordEncoder.encode(req.password()))
+      .thenReturn("encodedPassword");
+    
+    userService.createUser(req);
+
+    ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+
+    verify(userRepository).save(captor.capture());
+
+    User savedUser = captor.getValue();
+
+    assertEquals("no name", savedUser.getUsername());
+    assertEquals("test@example.com", savedUser.getEmail());
+    assertEquals("encodedPassword", savedUser.getPassword());
+  }
+
+  @Test
+  @DisplayName("異常系: メールアドレス重複していれば登録失敗")
+  void createUser_duplicateEmail() {
+    CreateUserRequestDto req = new CreateUserRequestDto(
+      "test@example.com", 
+      "password123"
+    );
+
+    User user = new User("test", "test@exapmle.com", "password123");
+
+    when(userRepository.findByEmail(req.email()))
+      .thenReturn(user);
+
+    when(userRepository.findByEmail(req.email()))
+      .thenReturn(user);
+
+    assertThrows(
+        ValidationException.class,
+        () -> userService.createUser(req)
+    );
+
+    verify(userRepository, never())
+        .save(any(User.class));
+  }
+}

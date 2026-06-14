@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: study-postgres
+    restart: always
+
+    environment:
+      POSTGRES_DB: study_management
+      POSTGRES_USER: owner
+      POSTGRES_PASSWORD: 123
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:

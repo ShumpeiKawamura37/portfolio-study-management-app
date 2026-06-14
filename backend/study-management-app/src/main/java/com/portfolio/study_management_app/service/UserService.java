@@ -1,15 +1,15 @@
 package com.portfolio.study_management_app.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import com.portfolio.study_management_app.dto.user.CreateUserRequestDto;
-import com.portfolio.study_management_app.dto.user.UserResponseDto;
 import com.portfolio.study_management_app.entity.user.User;
+import com.portfolio.study_management_app.exception.ValidationException;
 import com.portfolio.study_management_app.repository.user.UserRepository;
 
-import jakarta.validation.ValidationException;
 
-
+@Service
 public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
