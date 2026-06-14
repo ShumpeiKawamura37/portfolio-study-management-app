@@ -45,11 +45,10 @@ public class User {
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)\\S+$")
     private String password;
 
-    @NotBlank   
+    @NotNull  
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @NotBlank
     @Column(nullable = false)
     private boolean status;
 
