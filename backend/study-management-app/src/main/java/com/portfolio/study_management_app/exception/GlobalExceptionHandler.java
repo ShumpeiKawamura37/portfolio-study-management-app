@@ -9,9 +9,15 @@ import com.portfolio.study_management_app.dto.common.ApiResponseDto;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
   @ExceptionHandler(ValidationException.class)
   public ResponseEntity<ApiResponseDto<Void>> handleValidationException(ValidationException e) {
     ApiResponseDto<Void> res = new ApiResponseDto<>("ERROR", null, e.getMessage());
     return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(res);
+  }
+  @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponseDto<Void>> handleAuthException(AuthenticationException e) {
+    ApiResponseDto<Void> res = new ApiResponseDto<>("EEROR", null, e.getMessage());
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(res);
   }
 }

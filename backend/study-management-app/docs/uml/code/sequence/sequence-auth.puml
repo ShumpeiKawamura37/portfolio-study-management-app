@@ -16,43 +16,34 @@ database DB
 User -> AuthController : POST api/auth/login login(AuthRequestDto)
 AuthController -> AuthService : authenticate(AuthRequestDto)
 
-alt email or password is empty
-  AuthService --> GlobalExceptionHandler : throw ValidationException
-  GlobalExceptionHandler --> User : 400 "ERROR" ApiResponseDto<String> "メールアドレスまたはパスワードが正しくありません。"
+AuthService -> UserRepository : findByEmail(email)
+UserRepository -> DB : SELECT * FROM users WHERE email=?
 
-else email is not valid
-  AuthService --> GlobalExceptionHandler : throw ValidationException
-  GlobalExceptionHandler --> User : 400 "ERROR" ApiResponseDto<String> "正しいメールアドレスを入力してください。"
-
-else OK
-  AuthService -> UserRepository : findByEmail(email)
-  UserRepository -> DB : SELECT * FROM users WHERE email=?
-
-  alt user not found
-    DB --> UserRepository : null
-    UserRepository --> AuthService : null
-    AuthService --> GlobalExceptionHandler : throw AuthenticationException
-    GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<String> "メールアドレスまたはパスワードが正しくありません。。"
-      
-  else OK
-    DB --> UserRepository : user data
-    UserRepository --> AuthService :user
-    AuthService -> User : getStatus()
-    alt status is deleted
-      User --> AuthService : Status.DELETED
-      AuthService --> GlobalExceptionHandler : throw AuthenticationException
-      GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<String> "メールアドレスまたはパスワードが正しくありません。"
+alt user not found
+  DB --> UserRepository : null
+  UserRepository --> AuthService : null
+  AuthService --> GlobalExceptionHandler : throw AuthenticationException
+  GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<String> "メールアドレスまたはパスワードが正しくありません。。"
     
-    else OK
-      User --> AuthService : true
-      AuthService -> User : getPassword()
-    AuthService -> PasswordEncoder : matches(req.password, user.password)
+else OK
+  DB --> UserRepository : user data
+  UserRepository --> AuthService :user
+  AuthService -> User : getStatus()
+  alt status is deleted
+    User --> AuthService : Status.DELETED
+    AuthService --> GlobalExceptionHandler : throw AuthenticationException
+    GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<String> "メールアドレスまたはパスワードが正しくありません。"
+  
+  else OK
+    User --> AuthService : true
+    AuthService -> User : getPassword()
+  AuthService -> PasswordEncoder : matches(req.password, user.password)
 
   alt password does not match
     PasswordEncoder --> AuthService : false
     AuthService --> GlobalExceptionHandler : throw AuthenticationException
     GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<String> "メールアドレスまたはパスワードが正しくありません。"
-  
+
   else OK
     AuthService -> JwtProvider : genetateToken(id)
     JwtProvider --> AuthService : token

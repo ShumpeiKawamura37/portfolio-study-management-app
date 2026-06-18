@@ -18,7 +18,7 @@ import com.portfolio.study_management_app.service.UserService;
 
 @SpringBootTest
 @Transactional
-public class IntegrationTest {
+public class IntegrationUserTest {
   @Autowired UserService userService;
   @Autowired UserRepository userRepository;
 

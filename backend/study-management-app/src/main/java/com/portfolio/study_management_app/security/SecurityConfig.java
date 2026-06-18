@@ -2,6 +2,7 @@ package com.portfolio.study_management_app.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,8 +24,11 @@ public class SecurityConfig {
       http
           .csrf(csrf -> csrf.disable())
           .authorizeHttpRequests(auth -> auth
-              .requestMatchers("/api/user").permitAll()
-              .anyRequest().authenticated()
+            .requestMatchers(HttpMethod.POST,  "/api/user")
+            .permitAll()
+            .requestMatchers("/api/auth/**")
+            .permitAll()
+            .anyRequest().authenticated()
           );
 
       return http.build();
