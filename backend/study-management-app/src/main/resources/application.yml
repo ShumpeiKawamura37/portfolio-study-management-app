@@ -1,0 +1,3 @@
+jwt:
+  secret: 8dK4mP2xQ9vN7rT5yF1cH6jL3sW0zA8bE4nR7uY2iO5pM9q 
+  expiration: 86400000 #1000 * 60 * 60 * 24 = 24h

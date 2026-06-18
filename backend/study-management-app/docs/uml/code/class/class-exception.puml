@@ -4,6 +4,7 @@ class GlobalExceptionHandler {
   + handleValidationException()
   + handleNotFoundException()
   + handleDuplicateException()
+  + handleAuthException()
 }
 
 class InvalidTokenException {
@@ -18,15 +19,20 @@ class NotFoundException {
 class DuplicateException {
   + DuplicateException(String message)
 }
+class AuthException {
+  + AuthException(String message)
+}
 
 RuntimeException <|-- InvalidTokenException
 RuntimeException <|-- ValidationException
 RuntimeException <|-- NotFoundException
 RuntimeException <|-- DuplicateException
+RuntimeException <|-- AuthException
 
 GlobalExceptionHandler ..> InvalidTokenException
 GlobalExceptionHandler ..> ValidationException
 GlobalExceptionHandler ..> NotFoundException
 GlobalExceptionHandler ..> DuplicateException
+GlobalExceptionHandler ..> AuthException
 
 @enduml
