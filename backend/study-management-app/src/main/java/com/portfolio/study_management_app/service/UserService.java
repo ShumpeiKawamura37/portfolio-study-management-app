@@ -37,9 +37,11 @@ public class UserService {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Long userId = (Long) authentication.getPrincipal();
 
+    // User取得
     User user = userRepository.findById(userId)
       .orElseThrow(() -> new InvalidTokenException( "認証エラーが発生しました。再度ログインしてください。"));
 
+    // 変更箇所があれば更新する
     if(!req.username().equals(user.getUsername())) {
       user.setUsername(req.username());
     }
@@ -50,11 +52,26 @@ public class UserService {
       user.setPassword(passwordEncoder.encode(req.password()));
     }
     
+
     User savedUser = userRepository.save(user);
 
     return new UserResponseDto(
       savedUser.getUsername(),
       savedUser.getEmail()
     );
+  }
+
+  public void deleteUser() {
+    //認証情報からuserIdを取得
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    Long userId = (Long) authentication.getPrincipal();
+
+    // User取得
+    User user = userRepository.findById(userId)
+      .orElseThrow(() -> new InvalidTokenException( "認証エラーが発生しました。再度ログインしてください。"));
+
+    user.setStatus(false);
+
+    userRepository.save(user);
   }
 }

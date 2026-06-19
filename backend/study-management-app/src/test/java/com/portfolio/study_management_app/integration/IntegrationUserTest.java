@@ -3,6 +3,7 @@ package com.portfolio.study_management_app.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -120,5 +121,29 @@ public class IntegrationUserTest {
       "updated@example.com",
       result.email()
     );
+  }
+  @Test
+  @DisplayName("正常系: user削除成功")
+  void deleteUser_success() {
+    User user = new User("test", "test@example.com", "Password123");
+
+    userRepository.save(user);
+    
+    Authentication auth =
+    new UsernamePasswordAuthenticationToken(
+        user.getUserId(),
+        null,
+        null
+    );
+
+    SecurityContextHolder
+      .getContext()
+      .setAuthentication(auth);
+    
+    userService.deleteUser();
+
+    User deletedUser = userRepository.findByEmail(user.getEmail());
+
+    assertEquals(false, deletedUser.isStatus());
   }
 }
