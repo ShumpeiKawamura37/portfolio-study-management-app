@@ -1,5 +1,6 @@
 package com.portfolio.study_management_app.controller.user;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,5 +31,11 @@ public class UserController {
   public ApiResponseDto<UserResponseDto> updateUser(@RequestBody UpdateUserRequestDto req) {
     UserResponseDto res = userService.updateUser(req);
     return new ApiResponseDto<>("SUCCESS", res, null);
+  }
+
+  @DeleteMapping
+  public ApiResponseDto<Void> deleteUser() {
+    userService.deleteUser();
+    return new ApiResponseDto<>("SUCCESS", null, null);
   }
 }
