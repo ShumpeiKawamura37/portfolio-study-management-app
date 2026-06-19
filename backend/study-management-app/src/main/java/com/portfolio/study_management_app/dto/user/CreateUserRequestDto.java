@@ -13,8 +13,8 @@ public record CreateUserRequestDto(
   String email,
 
   @NotBlank
-    @Column(nullable = false)
-    @Size(min = 8)
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)\\S+$")
-    String password
+  @Column(nullable = false)
+  @Size(min = 8)
+  @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)\\S+$")
+  String password
 ) {} 

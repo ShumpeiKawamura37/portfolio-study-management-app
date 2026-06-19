@@ -7,19 +7,25 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.portfolio.study_management_app.entity.user.User;
 import com.portfolio.study_management_app.exception.AuthenticationException;
+import com.portfolio.study_management_app.exception.InvalidTokenException;
+import com.portfolio.study_management_app.repository.user.UserRepository;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+
 @Component
 public class JwtFilter extends OncePerRequestFilter  {
   private final JwtProvider jwtProvider;
+  private final UserRepository userRepository;
 
-  public JwtFilter(JwtProvider jwtProvider) {
+  public JwtFilter(JwtProvider jwtProvider, UserRepository userRepository) {
     this.jwtProvider = jwtProvider;
+    this.userRepository = userRepository;
   }
 
   @Override
@@ -48,7 +54,16 @@ public class JwtFilter extends OncePerRequestFilter  {
           return;
       }
       Long userId = jwtProvider.getUserId(token);
+
+      User user = userRepository.findById(userId)
+        .orElseThrow(() -> new InvalidTokenException("認証エラーが発生しました。再度ログインしてください。"));
+      
+      if(!user.isStatus()) {
+        throw new InvalidTokenException("認証エラーが発生しました。再度ログインしてください。");
+      }
+      
       UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userId, null, null);
+      
 
       SecurityContextHolder.getContext().setAuthentication(auth);
     } catch(AuthenticationException e) {
