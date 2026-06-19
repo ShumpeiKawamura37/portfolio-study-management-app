@@ -21,13 +21,13 @@ import jakarta.transaction.Transactional;
 @AutoConfigureMockMvc
 @Transactional
 public class AuthControllerApiTest {
-  @Autowired MockMvc mockMvc;
-  @Autowired private UserRepository userRepository;
-  @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired MockMvc mockMvc;
+    @Autowired private UserRepository userRepository;
+    @Autowired private PasswordEncoder passwordEncoder;
 
-  @Test
-  @DisplayName("正常系: ログイン成功")
-  void authenticate_success() throws Exception {
+    @Test
+    @DisplayName("正常系: ログイン成功")
+    void authenticate_success() throws Exception {
 
     User user = new User(
         "テスト",
@@ -39,21 +39,21 @@ public class AuthControllerApiTest {
 
     String json = """
     {
-      "email":"test@example.com",
-      "password":"Password123"
+        "email":"test@example.com",
+        "password":"Password123"
     }
     """;
 
-    mockMvc.perform(
+        mockMvc.perform(
             post("/api/auth/login")
-                .contentType(
+            .contentType(
                     org.springframework.http.MediaType.APPLICATION_JSON)
                 .content(json)
-        )
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.status").value("SUCCESS"))
-        .andExpect(jsonPath("$.data.token").exists());
-  }
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("SUCCESS"))
+            .andExpect(jsonPath("$.data.token").exists());
+    }
 
     @Test
     @DisplayName("異常系: ユーザーが見つからなければログイン失敗")
@@ -61,8 +61,8 @@ public class AuthControllerApiTest {
 
         String json = """
         {
-          "email":"test@example.com",
-          "password":"Password123"
+            "email":"test@example.com",
+            "password":"Password123"
         }
         """;
 
@@ -75,61 +75,60 @@ public class AuthControllerApiTest {
             .andExpect(status().isUnauthorized());
     }
 
-  @Test
-  @DisplayName("異常系: ユーザーが削除済みならログイン失敗")
-  void deleted_user() throws Exception {
+    @Test
+    @DisplayName("異常系: ユーザーが削除済みならログイン失敗")
+    void deleted_user() throws Exception {
 
-      User user = new User(
-          "テスト",
-          "test@example.com",
-          passwordEncoder.encode("Password123")
-      );
+    User user = new User(
+        "テスト",
+        "test@example.com",
+        passwordEncoder.encode("Password123")
+    );
 
-      user.setStatus(false);
+    user.setStatus(false);
 
-      userRepository.save(user);
+    userRepository.save(user);
 
-      String json = """
-      {
+    String json = """
+    {
         "email":"test@example.com",
         "password":"Password123"
-      }
-      """;
+    }
+    """;
 
-      mockMvc.perform(
-              post("/api/auth/login")
-                  .contentType(
-                      org.springframework.http.MediaType.APPLICATION_JSON)
-                  .content(json)
-          )
-          .andExpect(status().isUnauthorized());
-  }
+    mockMvc.perform(
+        post("/api/auth/login")
+            .contentType(
+                org.springframework.http.MediaType.APPLICATION_JSON)
+            .content(json)
+        )
+        .andExpect(status().isUnauthorized());
+    }
 
-  @Test
-  @DisplayName("異常系: パスワードが一致しなければログイン失敗")
-  void wrong_password() throws Exception {
+    @Test
+    @DisplayName("異常系: パスワードが一致しなければログイン失敗")
+    void wrong_password() throws Exception {
 
-      User user = new User(
-          "テスト",
-          "test@example.com",
-          passwordEncoder.encode("Password123")
-      );
+        User user = new User(
+            "テスト",
+            "test@example.com",
+            passwordEncoder.encode("Password123")
+        );
 
-      userRepository.save(user);
+        userRepository.save(user);
 
-      String json = """
-      {
-        "email":"test@example.com",
-        "password":"WrongPassword"
-      }
-      """;
+        String json = """
+            {
+                "email":"test@example.com",
+                "password":"WrongPassword"
+            }
+            """;
 
-      mockMvc.perform(
-              post("/api/auth/login")
-                  .contentType(
-                      org.springframework.http.MediaType.APPLICATION_JSON)
-                  .content(json)
-          )
-          .andExpect(status().isUnauthorized());
-  }
+        mockMvc.perform(
+            post("/api/auth/login")
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON
+                ).content(json)
+            )
+            .andExpect(status().isUnauthorized());
+    }
 }

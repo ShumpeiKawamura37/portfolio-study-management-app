@@ -7,6 +7,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,9 +16,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.portfolio.study_management_app.dto.user.CreateUserRequestDto;
+import com.portfolio.study_management_app.dto.user.UpdateUserRequestDto;
+import com.portfolio.study_management_app.dto.user.UserResponseDto;
 import com.portfolio.study_management_app.entity.user.User;
 import com.portfolio.study_management_app.exception.ValidationException;
 import com.portfolio.study_management_app.repository.user.UserRepository;
@@ -77,5 +84,55 @@ public class UserServiceTest {
 
     verify(userRepository, never())
         .save(any(User.class));
+  }
+
+  @Test
+  @DisplayName("正常系: User更新成功")
+  void updateUser_success() {
+    User user = new User(
+      "test", 
+      "test@example.com", 
+      "Password123"
+    );
+    user.setUserId(1L);
+
+    UpdateUserRequestDto req = new UpdateUserRequestDto("updated", "updated@example.com", "UpdatedPassword");
+
+    Authentication auth =
+    new UsernamePasswordAuthenticationToken(
+        1L,
+        null,
+        null
+    );
+
+    SecurityContextHolder
+      .getContext()
+      .setAuthentication(auth);
+
+    when(userRepository.findById(1L))
+      .thenReturn(Optional.of(user));
+    
+    when(passwordEncoder.matches(req.password(), user.getPassword()))
+      .thenReturn(false);
+
+    when(passwordEncoder.encode(req.password()))
+      .thenReturn("encodedNewPassword");
+
+    when(userRepository.save(any(User.class)))
+      .thenAnswer(invocation -> invocation.getArgument(0));
+
+
+    UserResponseDto result = userService.updateUser(req);
+
+    ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+
+    verify(userRepository).save(captor.capture());
+
+    User savedUser = captor.getValue();
+
+
+    assertEquals("updated", result.username());
+    assertEquals("updated@example.com", result.email());
+    assertEquals("encodedNewPassword", savedUser.getPassword());
   }
 }

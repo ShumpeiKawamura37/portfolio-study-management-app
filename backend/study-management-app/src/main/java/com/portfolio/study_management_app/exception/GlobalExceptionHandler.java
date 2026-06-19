@@ -13,11 +13,19 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(ValidationException.class)
   public ResponseEntity<ApiResponseDto<Void>> handleValidationException(ValidationException e) {
     ApiResponseDto<Void> res = new ApiResponseDto<>("ERROR", null, e.getMessage());
-    return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(res);
+    return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
   }
   @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiResponseDto<Void>> handleAuthException(AuthenticationException e) {
-    ApiResponseDto<Void> res = new ApiResponseDto<>("EEROR", null, e.getMessage());
+    ApiResponseDto<Void> res = new ApiResponseDto<>("ERROR", null, e.getMessage());
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(res);
+  }
+
+  @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ApiResponseDto<Void>> handleInvalidTokenException(InvalidTokenException e) {
+    ApiResponseDto<Void> res = new ApiResponseDto<>("ERROR", null, e.getMessage());
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(res);
   }
 }
+
+
