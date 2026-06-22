@@ -1,4 +1,4 @@
-package com.portfolio.study_management_app.service;
+package com.portfolio.study_management_app.service.user;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

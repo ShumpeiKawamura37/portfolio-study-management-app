@@ -1,4 +1,4 @@
-package com.portfolio.study_management_app.repository;
+package com.portfolio.study_management_app.repository.user;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,14 +12,12 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import com.portfolio.study_management_app.entity.user.User;
-import com.portfolio.study_management_app.repository.user.UserRepository;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 class UserRepositoryTest {
 
-        @Autowired
-        private UserRepository userRepository;
+        @Autowired private UserRepository userRepository;
 
         @Test
         @DisplayName("正常系: emailでユーザー取得")

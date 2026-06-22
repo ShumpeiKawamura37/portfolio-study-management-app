@@ -1,4 +1,4 @@
-package com.portfolio.study_management_app.controller;
+package com.portfolio.study_management_app.controller.user;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,8 +45,8 @@ public class UserControllerApiTest {
 
     String json = """
         {
-          "email":"test@example.com",
-          "password": "password123"
+            "email":"test@example.com",
+            "password": "password123"
         }
         """;
     mockMvc.perform(
@@ -106,7 +106,7 @@ public class UserControllerApiTest {
 
   @Test
   @DisplayName("正常系: User削除成功")
-  void deleteUser_success() throws Exception{
+  void deleteUser_success() throws Exception {
     User user = new User(
         "test",
         "test@example.com",
@@ -115,11 +115,11 @@ public class UserControllerApiTest {
     userRepository.save(user);
     String token = jwtProvider.generateToken(user.getUserId());
     mockMvc.perform(
-      delete("/api/user")
-      .header("Authorization", "Bearer " + token)
-      .with(csrf()))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.status").value("SUCCESS"));
+        delete("/api/user")
+            .header("Authorization", "Bearer " + token)
+            .with(csrf()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SUCCESS"));
 
     User deletedUser = userRepository.findByEmail(user.getEmail());
 

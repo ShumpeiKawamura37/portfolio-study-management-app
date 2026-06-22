@@ -1,16 +1,12 @@
-package com.portfolio.study_management_app.integration;
+package com.portfolio.study_management_app.integration.user;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,7 +21,7 @@ import com.portfolio.study_management_app.dto.user.UserResponseDto;
 import com.portfolio.study_management_app.entity.user.User;
 import com.portfolio.study_management_app.exception.ValidationException;
 import com.portfolio.study_management_app.repository.user.UserRepository;
-import com.portfolio.study_management_app.service.UserService;
+import com.portfolio.study_management_app.service.user.UserService;
 
 @SpringBootTest
 @Transactional
