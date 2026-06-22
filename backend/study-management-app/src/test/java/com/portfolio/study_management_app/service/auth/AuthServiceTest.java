@@ -1,4 +1,4 @@
-package com.portfolio.study_management_app.service;
+package com.portfolio.study_management_app.service.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

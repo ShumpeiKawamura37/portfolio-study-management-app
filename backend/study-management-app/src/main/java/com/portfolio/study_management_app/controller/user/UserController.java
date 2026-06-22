@@ -11,7 +11,7 @@ import com.portfolio.study_management_app.dto.common.ApiResponseDto;
 import com.portfolio.study_management_app.dto.user.CreateUserRequestDto;
 import com.portfolio.study_management_app.dto.user.UpdateUserRequestDto;
 import com.portfolio.study_management_app.dto.user.UserResponseDto;
-import com.portfolio.study_management_app.service.UserService;
+import com.portfolio.study_management_app.service.user.UserService;
 
 @RestController
 @RequestMapping("/api/user")

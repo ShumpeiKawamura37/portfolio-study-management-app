@@ -1,4 +1,4 @@
-package com.portfolio.study_management_app.service;
+package com.portfolio.study_management_app.service.auth;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

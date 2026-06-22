@@ -1,9 +1,7 @@
-package com.portfolio.study_management_app.integration;
+package com.portfolio.study_management_app.integration.auth;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +14,7 @@ import com.portfolio.study_management_app.dto.auth.LoginResponseDto;
 import com.portfolio.study_management_app.entity.user.User;
 import com.portfolio.study_management_app.exception.AuthenticationException;
 import com.portfolio.study_management_app.repository.user.UserRepository;
-import com.portfolio.study_management_app.service.AuthService;
+import com.portfolio.study_management_app.service.auth.AuthService;
 
 import jakarta.transaction.Transactional;
 

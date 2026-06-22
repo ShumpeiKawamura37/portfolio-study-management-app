@@ -1,4 +1,4 @@
-package com.portfolio.study_management_app.service;
+package com.portfolio.study_management_app.service.user;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -95,7 +95,8 @@ public class UserServiceTest {
         "Password123");
     user.setUserId(1L);
 
-    UpdateUserRequestDto req = new UpdateUserRequestDto("updated", "updated@example.com", "UpdatedPassword");
+    UpdateUserRequestDto req = new UpdateUserRequestDto("updated", "updated@example.com",
+        "UpdatedPassword");
 
     Authentication auth = new UsernamePasswordAuthenticationToken(
         1L,
@@ -144,8 +145,7 @@ public class UserServiceTest {
     Authentication auth = new UsernamePasswordAuthenticationToken(
         1L,
         null,
-        null
-    );
+        null);
 
     SecurityContextHolder
         .getContext()

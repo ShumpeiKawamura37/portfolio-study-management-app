@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.portfolio.study_management_app.dto.auth.LoginRequestDto;
 import com.portfolio.study_management_app.dto.auth.LoginResponseDto;
 import com.portfolio.study_management_app.dto.common.ApiResponseDto;
-import com.portfolio.study_management_app.service.AuthService;
+import com.portfolio.study_management_app.service.auth.AuthService;
 
 @RestController
 @RequestMapping("/api/auth/login")
