@@ -64,4 +64,9 @@ public class Category {
     this.user = user;
     this.parentCategory = parentCategory;
   }
+
+  public void addChild(Category child) {
+    children.add(child);
+    child.setParentCategory(this);
+  }
 }

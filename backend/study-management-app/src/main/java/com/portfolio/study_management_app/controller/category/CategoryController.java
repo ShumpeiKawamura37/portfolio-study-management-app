@@ -1,5 +1,8 @@
 package com.portfolio.study_management_app.controller.category;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +20,13 @@ public class CategoryController {
 
   public CategoryController(CategoryService categoryService) {
     this.categoryService = categoryService;
+  }
+
+  @GetMapping
+  public ApiResponseDto<List<CategoryResponseDto>> getCategories() {
+    List<CategoryResponseDto> res =categoryService.getCategoriesByUserId();
+
+    return new ApiResponseDto<>("SUCCESS", res, null);
   }
 
   @PostMapping
