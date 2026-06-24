@@ -15,14 +15,6 @@ class UpdateUserRequestDto {
   - String password
 }
 
-class CreateStudyLogRequestDto {
-  - LocalDateTime startTime
-  - LocalDateTime endTime
-  - Integer totalStudySeconds
-  - Long categoryId
-  - String memo
-}
-
 class CreateCategoryRequestDto {
   - String categoryName
   - Long parentCategoryId
@@ -30,6 +22,14 @@ class CreateCategoryRequestDto {
 
 class CategoryRequestDto {
   - String categoryName
+}
+
+class CreateStudyLogRequestDto {
+  - LocalDateTime startTime
+  - LocalDateTime endTime
+  - Integer totalStudySeconds
+  - Long categoryId
+  - String memo
 }
 
 class ApiResponseDto {
