@@ -67,8 +67,28 @@ public class CategoryControllerApiTest {
         .andExpect(jsonPath("$.data.categoryName").value("test"));
   }
 
-  // @Test
-  // @DisplayName("異常系: parentCategoryIdが存在しない場合Category登録失敗")
+  @Test
+  @DisplayName("異常系: parentCategoryIdが存在しない場合Category登録失敗")
+  void faild_createCategory_By_parentCategory_notFound() throws Exception {
+    User user = new User("test", "test@example.com", "Password123");
+    User savedUser = userRepository.save(user);
+
+    String token = jwtProvider.generateToken(savedUser.getUserId());
+
+    String json = """
+          {
+            "categoryName":"test",
+            "parentCategoryId": "1L"
+          }
+        """;
+    mockMvc.perform(
+        post("/api/category")
+            .header("Authorization", "Bearer " + token)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+            .andExpect(status().isBadRequest());
+  }
 
   @Test
   @DisplayName("正常系: List<Category>取得成功")
@@ -76,9 +96,9 @@ public class CategoryControllerApiTest {
     User user = new User("test", "test@example.com", "Password123");
     User savedUser = userRepository.save(user);
 
-        Category parentCategory = new Category("parent", user, null);
+    Category parentCategory = new Category("parent", savedUser, null);
 
-    Category childCategory = new Category("child", user, parentCategory);
+    Category childCategory = new Category("child", savedUser, parentCategory);
 
     Category grandChildCategory = new Category("grandChild", savedUser, childCategory);
 
@@ -89,21 +109,19 @@ public class CategoryControllerApiTest {
     categoryRepository.save(childCategory);
     categoryRepository.save(grandChildCategory);
 
-    List<Category> categories = List.of(parentCategory, childCategory, grandChildCategory);
-
     String token = jwtProvider.generateToken(savedUser.getUserId());
 
     mockMvc.perform(
-      get("/api/category")
-        .contentType(MediaType.APPLICATION_JSON)
-        .header("Authorization", "Bearer " + token)
-        .with(csrf()))
-      .andExpect(jsonPath("$.status").value("SUCCESS"))
-      .andExpect(jsonPath("$.data[0].categoryName")
-        .value("parent"))
-      .andExpect(jsonPath("$.data[0].children[0].categoryName")
-        .value("child"))
-      .andExpect(jsonPath("$.data[0].children[0].children[0].categoryName")
-        .value("grandChild"));
+        get("/api/category")
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization", "Bearer " + token)
+            .with(csrf()))
+        .andExpect(jsonPath("$.status").value("SUCCESS"))
+        .andExpect(jsonPath("$.data[0].categoryName")
+            .value("parent"))
+        .andExpect(jsonPath("$.data[0].children[0].categoryName")
+            .value("child"))
+        .andExpect(jsonPath("$.data[0].children[0].children[0].categoryName")
+            .value("grandChild"));
   }
 }

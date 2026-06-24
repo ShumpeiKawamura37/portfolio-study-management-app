@@ -2,9 +2,13 @@ package com.portfolio.study_management_app.integration.category;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +22,7 @@ import com.portfolio.study_management_app.dto.category.CategoryResponseDto;
 import com.portfolio.study_management_app.dto.category.CreateCategoryRequestDto;
 import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.user.User;
+import com.portfolio.study_management_app.exception.ValidationException;
 import com.portfolio.study_management_app.repository.category.CategoryRepository;
 import com.portfolio.study_management_app.repository.user.UserRepository;
 import com.portfolio.study_management_app.service.category.CategoryService;
@@ -37,7 +42,7 @@ public class IntegrationCategoryTest {
   @Test
   @DisplayName("正常系: Category登録成功")
   void createCategory_success() {
-
+    // 認証セット
     User user = new User("test", "test@exapmle.com", "Password123");
 
     userRepository.save(user);
@@ -55,6 +60,8 @@ public class IntegrationCategoryTest {
         .getContext()
         .setAuthentication(auth);
 
+    
+    // リクエスト準備
     CreateCategoryRequestDto req = new CreateCategoryRequestDto("test", null);
 
     CategoryResponseDto result = categoryService.createCategory(req);
@@ -66,12 +73,37 @@ public class IntegrationCategoryTest {
     assertEquals("test", savedCategory.getCategoryName());
   }
 
-  // @Test
-  // @DisplayName("異常系: parentCategoryIdが存在しない場合Category登録失敗")
+  @Test
+  @DisplayName("異常系: parentCategoryIdが存在しない場合Category登録失敗")
+  void faild_createCategory_By_parentCategory_notFound(){
+    // 認証セット
+    User user = new User("test", "test@example.com", "Password123");
+
+    userRepository.save(user);
+    
+    Authentication auth =
+    new UsernamePasswordAuthenticationToken(
+        user.getUserId(),
+        null,
+        null
+    );
+
+    SecurityContextHolder
+      .getContext()
+      .setAuthentication(auth); 
+
+    // リクエストの準備
+    CreateCategoryRequestDto req = new CreateCategoryRequestDto("test", 99L);
+
+    // 実行・エラーの確認
+    assertThrows(ValidationException.class,
+        () -> categoryService.createCategory(req));
+  }
 
   @Test
   @DisplayName("正常系: List<Catefgory>取得成功")
   void getCategoryByUserId_success() {
+    // 認証セット
     User user = new User("test", "test@example.com", "Password123");
 
     userRepository.save(user);

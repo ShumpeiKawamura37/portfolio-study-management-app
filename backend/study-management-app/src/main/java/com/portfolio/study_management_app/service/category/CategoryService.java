@@ -10,10 +10,10 @@ import com.portfolio.study_management_app.dto.category.CategoryResponseDto;
 import com.portfolio.study_management_app.dto.category.CreateCategoryRequestDto;
 import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.user.User;
+import com.portfolio.study_management_app.exception.ValidationException;
 import com.portfolio.study_management_app.repository.category.CategoryRepository;
 import com.portfolio.study_management_app.repository.user.UserRepository;
 
-import jakarta.validation.ValidationException;
 
 @Service
 public class CategoryService {
