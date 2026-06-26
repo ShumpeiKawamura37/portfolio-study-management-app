@@ -191,10 +191,6 @@ else token valid
       DB --> CategoryRepository : Category
       CategoryRepository --> CategoryService : Category
 
-    alt category.userId != userId
-      CategoryService -> GlobalExceptionHandler : throw ValidationException
-      GlobalExceptionHandler --> User : 400 "ERROR" ApiResponseDto<Void> "データ更新に失敗しました。"
-    else OK
       CategoryService -> Category : setName(req.name)
       CategoryService -> CategoryRepository : save(category)
       CategoryRepository -> DB : UPDATE categories SET ... WHERE category_id=?

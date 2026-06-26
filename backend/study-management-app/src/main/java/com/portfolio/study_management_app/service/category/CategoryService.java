@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.portfolio.study_management_app.dto.category.CategoryRequestDto;
 import com.portfolio.study_management_app.dto.category.CategoryResponseDto;
 import com.portfolio.study_management_app.dto.category.CreateCategoryRequestDto;
 import com.portfolio.study_management_app.entity.category.Category;
@@ -13,7 +14,6 @@ import com.portfolio.study_management_app.entity.user.User;
 import com.portfolio.study_management_app.exception.ValidationException;
 import com.portfolio.study_management_app.repository.category.CategoryRepository;
 import com.portfolio.study_management_app.repository.user.UserRepository;
-
 
 @Service
 public class CategoryService {
@@ -76,5 +76,14 @@ public class CategoryService {
 
     List<CategoryResponseDto> tree = this.toTree(categories);
     return tree;
+  }
+
+  public CategoryResponseDto updateCategory(Long categroyId, CategoryRequestDto req) {
+    Category target = categoryRepository.findById(categroyId)
+      .orElseThrow(() -> new ValidationException("データの更新に失敗しました。"));
+    target.setCategoryName(req.categoryName());
+    Category updatedCategory = categoryRepository.save(target);
+
+    return toDto(updatedCategory);
   }
 }
