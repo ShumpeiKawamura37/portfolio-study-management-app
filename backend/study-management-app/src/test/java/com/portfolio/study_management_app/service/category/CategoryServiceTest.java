@@ -25,6 +25,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.portfolio.study_management_app.dto.category.CategoryRequestDto;
 import com.portfolio.study_management_app.dto.category.CategoryResponseDto;
 import com.portfolio.study_management_app.dto.category.CreateCategoryRequestDto;
 import com.portfolio.study_management_app.entity.category.Category;
@@ -183,5 +184,70 @@ public class CategoryServiceTest {
 
     assertEquals("grandChild", resultGrandChild.categoryName());
     assertTrue(resultGrandChild.children().isEmpty());
+  }
+
+  @Test
+  @DisplayName("正常系: Category更新成功")
+  void updateCategory_success() {
+    // 認証セット
+    User user = new User("test", "test@exapmle.com", "password123");
+
+    user.setUserId(1L);
+
+    Authentication auth = new UsernamePasswordAuthenticationToken(
+        1L,
+        null,
+        null);
+
+    SecurityContextHolder
+        .getContext()
+        .setAuthentication(auth);
+
+    // 前提条件のセット
+    Category category = new Category("test", user, null);
+
+    category.setCategoryId(1L);
+
+    CategoryRequestDto req = new CategoryRequestDto("updated");
+
+
+    // 実行準備
+    when(categoryRepository.findById(anyLong()))
+      .thenReturn(Optional.of(category));
+    
+    when(categoryRepository.save((category)))
+      .thenReturn(category);
+
+    //実行
+    CategoryResponseDto result = categoryService.updateCategory(user.getUserId(), req);
+
+    //データ検証
+    assertEquals(1L, result.categoryId());
+    assertEquals("updated", result.categoryName());
+  }
+
+  @Test
+  @DisplayName("異常系: カテゴリが見つからなければCategory更新失敗")
+  void faild_categoryId_not_found() {
+    // 認証セット
+    User user = new User("test", "test@exapmle.com", "password123");
+
+    user.setUserId(1L);
+
+    Authentication auth = new UsernamePasswordAuthenticationToken(
+        1L,
+        null,
+        null);
+
+    SecurityContextHolder
+        .getContext()
+        .setAuthentication(auth);
+
+    //実行準備
+    CategoryRequestDto req = new CategoryRequestDto("updated");
+
+    //実行
+    assertThrows(ValidationException.class,
+      () -> categoryService.updateCategory(1L, req));
   }
 }

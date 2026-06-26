@@ -18,6 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.portfolio.study_management_app.dto.category.CategoryRequestDto;
 import com.portfolio.study_management_app.dto.category.CategoryResponseDto;
 import com.portfolio.study_management_app.dto.category.CreateCategoryRequestDto;
 import com.portfolio.study_management_app.entity.category.Category;
@@ -146,5 +147,64 @@ public class IntegrationCategoryTest {
 
     assertEquals("grandChild", resultGrandChild.categoryName());
     assertTrue(resultGrandChild.children().isEmpty());
+  }
+
+  @Test
+  @DisplayName("正常系: Category更新成功")
+  void updateCategory_success() {
+     // 認証セット
+    User user = new User("test", "test@example.com", "Password123");
+
+    userRepository.save(user);
+    
+    Authentication auth =
+    new UsernamePasswordAuthenticationToken(
+        user.getUserId(),
+        null,
+        null
+    );
+
+    SecurityContextHolder
+      .getContext()
+      .setAuthentication(auth); 
+    
+    // 前提条件のセット
+    Category category = new Category("test", user, null);
+
+    categoryRepository.save(category);
+    
+    CategoryRequestDto req = new CategoryRequestDto("updated");
+
+    //実行
+    CategoryResponseDto result = categoryService.updateCategory(category.getCategoryId(), req);
+
+    assertEquals(category.getCategoryId(), result.categoryId());
+    assertEquals("updated", result.categoryName());
+  }
+
+  @Test
+  @DisplayName("異常系: カテゴリが見つからなければCategory更新失敗")
+  void faild_categoryId_not_found() {
+     // 認証セット
+    User user = new User("test", "test@example.com", "Password123");
+
+    userRepository.save(user);
+    
+    Authentication auth =
+    new UsernamePasswordAuthenticationToken(
+        user.getUserId(),
+        null,
+        null
+    );
+
+    SecurityContextHolder
+      .getContext()
+      .setAuthentication(auth); 
+
+    CategoryRequestDto req = new CategoryRequestDto("updated");
+
+    //実行
+    assertThrows(ValidationException.class,
+        () -> categoryService.updateCategory(1L, req));
   }
 }
