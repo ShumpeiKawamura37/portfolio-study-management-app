@@ -1,6 +1,8 @@
 package com.portfolio.study_management_app.controller.category;
 
 import java.util.List;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,5 +43,12 @@ public class CategoryController {
   public ApiResponseDto<CategoryResponseDto> updateCategory(@PathVariable Long categoryId, @RequestBody CategoryRequestDto req) {
     CategoryResponseDto res = categoryService.updateCategory(categoryId, req);
     return new ApiResponseDto<>("SUCCESS", res, null);
+  }
+
+  @DeleteMapping("/{categoryId}")
+  public ApiResponseDto<Void> deleteCategory(@PathVariable Long categoryId) {
+    categoryService.deleteCategory(categoryId);
+
+    return new ApiResponseDto<>("SUCCESS", null, null);
   }
 }

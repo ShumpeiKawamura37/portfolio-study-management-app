@@ -158,7 +158,7 @@ public class CategoryControllerApiTest {
 
   @Test
   @DisplayName("異常系: カテゴリが見つからなければCategory更新失敗")
-  void faild_categoryId_not_found() throws Exception {
+  void update_faild_categoryId_not_found() throws Exception {
      // 条件セット
     User user = new User("test", "test@exapmle.com", "Password123");
 
@@ -178,5 +178,38 @@ public class CategoryControllerApiTest {
         .header("Authorization", "Bearer " + token)
         .with(csrf()))
       .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("正常系: Category削除成功")
+  void deleteCategory_success() throws Exception {
+     // 条件セット
+    User user = new User("test", "test@exapmle.com", "Password123");
+
+    User savedUser = userRepository.save(user);
+    String token = jwtProvider.generateToken(savedUser.getUserId());
+    
+     // 実行
+    mockMvc.perform(
+      put("/api/category/{categoryId}", 1L)
+        .contentType(MediaType.APPLICATION_JSON)
+        .header("Authorization", "Bearer " + token)
+        .with(csrf()))
+      .andExpect(status().isBadRequest());
+  }
+  @Test
+  @DisplayName("異常系: カテゴリが見つからなければCategory削除失敗")
+  void delete_failed_categoryId_not_found() throws Exception {
+      // 条件セット
+    User user = new User("test", "test@exapmle.com", "Password123");
+
+    User savedUser = userRepository.save(user);
+    String token = jwtProvider.generateToken(savedUser.getUserId());
+    mockMvc.perform(
+    put("/api/category/{categoryId}", 1L)
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", "Bearer " + token)
+      .with(csrf()))
+    .andExpect(status().isBadRequest());
   }
 }

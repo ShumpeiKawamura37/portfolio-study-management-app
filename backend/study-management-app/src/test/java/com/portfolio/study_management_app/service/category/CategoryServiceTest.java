@@ -9,8 +9,6 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -210,25 +208,24 @@ public class CategoryServiceTest {
 
     CategoryRequestDto req = new CategoryRequestDto("updated");
 
-
     // 実行準備
     when(categoryRepository.findById(anyLong()))
-      .thenReturn(Optional.of(category));
-    
-    when(categoryRepository.save((category)))
-      .thenReturn(category);
+        .thenReturn(Optional.of(category));
 
-    //実行
+    when(categoryRepository.save((category)))
+        .thenReturn(category);
+
+    // 実行
     CategoryResponseDto result = categoryService.updateCategory(user.getUserId(), req);
 
-    //データ検証
+    // データ検証
     assertEquals(1L, result.categoryId());
     assertEquals("updated", result.categoryName());
   }
 
   @Test
   @DisplayName("異常系: カテゴリが見つからなければCategory更新失敗")
-  void faild_categoryId_not_found() {
+  void update_faild_categoryId_not_found() {
     // 認証セット
     User user = new User("test", "test@exapmle.com", "password123");
 
@@ -243,11 +240,72 @@ public class CategoryServiceTest {
         .getContext()
         .setAuthentication(auth);
 
-    //実行準備
+    // 実行準備
     CategoryRequestDto req = new CategoryRequestDto("updated");
 
-    //実行
+    // 実行
     assertThrows(ValidationException.class,
-      () -> categoryService.updateCategory(1L, req));
+        () -> categoryService.updateCategory(1L, req));
+  }
+
+  @Test
+  @DisplayName("正常系: Category削除成功")
+  void deleteCategory_success() {
+    // 認証セット
+    User user = new User("test", "test@exapmle.com", "password123");
+
+    user.setUserId(1L);
+
+    Authentication auth = new UsernamePasswordAuthenticationToken(
+        1L,
+        null,
+        null);
+
+    SecurityContextHolder
+        .getContext()
+        .setAuthentication(auth);
+
+    // 前提条件セット
+    Category category = new Category("test", user, null);
+    category.setCategoryId(1L);
+
+    // 実行準備
+    when(categoryRepository.findById(anyLong()))
+        .thenReturn(Optional.of(category));
+
+    categoryService.deleteCategory(category.getCategoryId());
+
+    // 保存するデータを取得
+    ArgumentCaptor<Category> captor = ArgumentCaptor.forClass(Category.class);
+
+    verify(categoryRepository).save(captor.capture());
+
+    Category beforeSavingCategory = captor.getValue();
+
+      assertEquals(category.getCategoryId(), beforeSavingCategory.getCategoryId());
+    assertEquals(false, beforeSavingCategory.isStatus());
+  }
+
+  @Test
+  @DisplayName("異常系: カテゴリが見つからなければCategory削除失敗")
+  void delete_faild_vcategoryId_not_found() {
+    // 認証セット
+    User user = new User("test", "test@exapmle.com", "password123");
+
+    user.setUserId(1L);
+
+    Authentication auth = new UsernamePasswordAuthenticationToken(
+        1L,
+        null,
+        null);
+
+    SecurityContextHolder
+        .getContext()
+        .setAuthentication(auth);
+
+    // 実行
+    assertThrows(ValidationException.class, () -> categoryService.deleteCategory(1L));
+
+    verify(categoryRepository, never()).save(any(Category.class));
   }
 }

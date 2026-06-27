@@ -25,6 +25,7 @@ public class CategoryService {
     this.userRepository = userRepository;
   }
 
+  // dtoに変換
   private CategoryResponseDto toDto(Category category) {
     List<CategoryResponseDto> children = category.getChildren()
         .stream()
@@ -37,6 +38,7 @@ public class CategoryService {
         children);
   }
 
+  // 子要素全てをツリー構造のDTOに変換
   private List<CategoryResponseDto> toTree(List<Category> categories) {
 
     return categories.stream()
@@ -45,15 +47,18 @@ public class CategoryService {
         .toList();
   }
 
+  // Category作成
   public CategoryResponseDto createCategory(CreateCategoryRequestDto req) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Long userId = (Long) authentication.getPrincipal();
 
+    // userが見つからなければエラー
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new ValidationException("データの作成に失敗しました。"));
 
     Category category = new Category(req.categoryName(), user, null);
 
+    // 親要素があるなら、親要素に子要素を、子要素に親要素を加える。
     if (req.parentCategoryId() != null) {
       Category parentCategory = categoryRepository.findById(req.parentCategoryId())
           .orElseThrow(() -> new ValidationException("データの作成に失敗しました。"));
@@ -62,10 +67,7 @@ public class CategoryService {
 
     Category savedCategory = categoryRepository.save(category);
 
-    return new CategoryResponseDto(
-        savedCategory.getCategoryId(),
-        savedCategory.getCategoryName(),
-        null);
+    return toDto(savedCategory);
   }
 
   public List<CategoryResponseDto> getCategoriesByUserId() {
@@ -80,10 +82,21 @@ public class CategoryService {
 
   public CategoryResponseDto updateCategory(Long categroyId, CategoryRequestDto req) {
     Category target = categoryRepository.findById(categroyId)
-      .orElseThrow(() -> new ValidationException("データの更新に失敗しました。"));
+        .orElseThrow(() -> new ValidationException("データの更新に失敗しました。"));
     target.setCategoryName(req.categoryName());
     Category updatedCategory = categoryRepository.save(target);
 
     return toDto(updatedCategory);
+  }
+
+  public void deleteCategory(Long categoryId) {
+    Category target = categoryRepository.findById(categoryId)
+        .orElseThrow(() -> new ValidationException("データの更新に失敗しました。"));
+
+    // 論理削除して保存
+    target.setStatus(false);
+
+    categoryRepository.save(target);
+    return;
   }
 }

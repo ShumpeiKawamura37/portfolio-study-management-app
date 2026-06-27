@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -184,7 +186,7 @@ public class IntegrationCategoryTest {
 
   @Test
   @DisplayName("異常系: カテゴリが見つからなければCategory更新失敗")
-  void faild_categoryId_not_found() {
+  void update_aild_categoryId_not_found() {
      // 認証セット
     User user = new User("test", "test@example.com", "Password123");
 
@@ -206,5 +208,58 @@ public class IntegrationCategoryTest {
     //実行
     assertThrows(ValidationException.class,
         () -> categoryService.updateCategory(1L, req));
+  }
+
+  @Test
+  @DisplayName("正常系: Category削除成功")
+  void deleteCategory_success() {
+    // 認証セット
+    User user = new User("test", "test@exapmle.com", "Password123");
+
+    userRepository.save(user);
+
+    Authentication auth = new UsernamePasswordAuthenticationToken(
+        1L,
+        null,
+        null);
+
+    SecurityContextHolder
+        .getContext()
+        .setAuthentication(auth);
+    
+        // 前提条件セット
+    Category category = new Category("test", user, null);
+    
+    categoryRepository.save(category);
+
+    // 実行
+    categoryService.deleteCategory(category.getCategoryId());
+
+    // 検証のため対象を再取得
+    Category deletedCategory = categoryRepository.findById(category.getCategoryId()).orElseThrow();
+
+    // 検証
+    assertEquals(category.getCategoryId(), deletedCategory.getCategoryId());
+    assertEquals(false, deletedCategory.isStatus());
+  }
+
+  @Test
+  @DisplayName("異常系: カテゴリが見つからなければCategory削除失敗")
+  void delete_failed_categoryId_not_found() {
+     // 認証セット
+    User user = new User("test", "test@exapmle.com", "Password123");
+
+    userRepository.save(user);
+
+    Authentication auth = new UsernamePasswordAuthenticationToken(
+        1L,
+        null,
+        null);
+
+    SecurityContextHolder
+        .getContext()
+        .setAuthentication(auth);
+    
+    assertThrows(ValidationException.class, () -> categoryService.deleteCategory(1L));
   }
 }
