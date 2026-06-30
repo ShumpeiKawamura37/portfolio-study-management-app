@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Size;
 
 public record CategoryRequestDto(
   @NotNull
-  @Column(nullable = false)
   @Size(max = 100)
   String categoryName
 ) {}
