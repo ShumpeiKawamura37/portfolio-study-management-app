@@ -34,10 +34,10 @@ public class CategoryControllerApiTest {
   private CategoryRepository categoryRepository;
   @Autowired
   private JwtProvider jwtProvider;
-
   @Test
-  @DisplayName("正常系: Cagtegory作成成功")
+  @DisplayName("正常系: Cagtegory登録成功")
   void createCategory_success() throws Exception {
+    
     User user = new User("test", "test@example.com", "Password123");
     User savedUser = userRepository.save(user);
 
