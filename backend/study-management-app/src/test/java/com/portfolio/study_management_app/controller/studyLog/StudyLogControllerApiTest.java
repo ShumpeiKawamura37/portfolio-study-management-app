@@ -1,9 +1,14 @@
 package com.portfolio.study_management_app.controller.studyLog;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,8 +19,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.portfolio.study_management_app.entity.category.Category;
+import com.portfolio.study_management_app.entity.studyLog.StudyLog;
 import com.portfolio.study_management_app.entity.user.User;
 import com.portfolio.study_management_app.repository.category.CategoryRepository;
+import com.portfolio.study_management_app.repository.studyLog.StudyLogRepository;
 import com.portfolio.study_management_app.repository.user.UserRepository;
 import com.portfolio.study_management_app.security.JwtProvider;
 
@@ -28,6 +35,7 @@ public class StudyLogControllerApiTest {
   @Autowired MockMvc mockMvc;
   @Autowired UserRepository userRepository;
   @Autowired CategoryRepository categoryRepository;
+  @Autowired StudyLogRepository studyLogRepository;
   @Autowired JwtProvider jwtProvider;
 
   @Test
@@ -156,5 +164,35 @@ public class StudyLogControllerApiTest {
           .contentType(MediaType.APPLICATION_JSON)
           .content(json))
           .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("正常系: 指定した日付のstartTimeを持つList<StudyLog>取得成功")
+  void getStudyLogByDate_success() throws Exception {
+     // 認証セット
+    User user = new User("test", "test@example.com", "Password123");
+    User savedUser = userRepository.save(user);
+    String token = jwtProvider.generateToken(savedUser.getUserId());
+
+     // リクエスト準備
+    Category category = new Category("test", user, null);
+    categoryRepository.save(category);
+    StudyLog studyLog = new StudyLog(
+        LocalDateTime.of(2000, 1, 1, 0, 0),
+        LocalDateTime.of(2000, 1, 1, 0, 10),
+        10, 
+        "test",
+        user, 
+        category);
+    studyLogRepository.save(studyLog);
+
+    //実行
+    mockMvc.perform(
+      get("/api/studyLog/date/{date}", "2000-01-01")
+          .header("Authorization", "Bearer " + token)
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.data[0].studyLogId").value(studyLog.getStudyLogId()));
   }
 }

@@ -1,5 +1,9 @@
 package com.portfolio.study_management_app.service.studyLog;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -20,11 +24,25 @@ public class StudyLogService {
   private CategoryRepository categoryRepository;
   private StudyLogRepository studyLogRepository;
 
-  public StudyLogService(UserRepository userRepository, CategoryRepository categoryRepository,
+  public StudyLogService(
+      UserRepository userRepository,
+      CategoryRepository categoryRepository,
       StudyLogRepository studyLogRepository) {
     this.userRepository = userRepository;
     this.categoryRepository = categoryRepository;
     this.studyLogRepository = studyLogRepository;
+  }
+
+  //StudyLogをStudyLogResponseDtoに変換
+  private StudyLogResponseDto toDto(StudyLog studyLog) {
+
+    return new StudyLogResponseDto(
+        studyLog.getStudyLogId(),
+        studyLog.getCategory().getCategoryName(),
+        studyLog.getStartTime(),
+        studyLog.getEndTime(),
+        studyLog.getStudySeconds(),
+        studyLog.getMemo());
   }
 
   public StudyLogResponseDto createStudyLog(CreateStudyLogRequsetDto req) {
@@ -43,8 +61,8 @@ public class StudyLogService {
       throw new ValidationException("データの作成に失敗しました。");
     }
 
-    //開始時間が終了時間より後の場合エラー
-    if(!req.endTime().isAfter(req.startTime())) {
+    // 開始時間が終了時間より後の場合エラー
+    if (!req.endTime().isAfter(req.startTime())) {
       throw new ValidationException("データの作成に失敗しました。");
     }
 
@@ -62,4 +80,24 @@ public class StudyLogService {
         savedStudyLog.getMemo());
   }
 
+  public List<StudyLogResponseDto> getStudyLogByDate(LocalDate date) {
+
+    // トークンからユーザー取得
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    Long userId = (Long) authentication.getPrincipal();
+
+    // 指定日の00:00:00~翌日00:00:00を定義
+    LocalDateTime start = date.atStartOfDay();
+    LocalDateTime end = date.plusDays(1).atStartOfDay();
+
+    // 指定日の00:00:00~23:59:59で計測開始したStudyLogを取得
+    List<StudyLog> res = studyLogRepository.findByUserUserIdAndStartTimeGreaterThanEqualAndStartTimeLessThan(userId,
+        start, end);
+
+    // List<StudyLog>をList<StudyLogResponseDto>に変換して返す
+    return res.stream().map((studyLog) -> {
+      return this.toDto(studyLog);
+    }).toList();
+  }
 }
