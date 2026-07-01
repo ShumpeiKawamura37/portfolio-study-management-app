@@ -9,7 +9,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -105,7 +108,7 @@ public class StudyLogServiceTest {
     SecurityContextHolder
         .getContext()
         .setAuthentication(auth);
-    
+
     // リクエスト準備
     CreateStudyLogRequsetDto req = new CreateStudyLogRequsetDto(
         LocalDateTime.of(2000, 1, 1, 0, 0),
@@ -138,24 +141,24 @@ public class StudyLogServiceTest {
         .getContext()
         .setAuthentication(auth);
 
-    //前提条件セット
+    // 前提条件セット
     User another = new User("another", "another@example.com", "Password123");
     another.setUserId(2L);
     Category category = new Category("test", another, null);
 
-     // リクエスト準備
+    // リクエスト準備
     CreateStudyLogRequsetDto req = new CreateStudyLogRequsetDto(
         LocalDateTime.of(2000, 1, 1, 0, 0),
         LocalDateTime.of(2000, 1, 1, 0, 10), 10,
         "memo",
         1L);
-    
+
     // 実行準備
     when(userRepository.findById(anyLong()))
         .thenReturn(Optional.of(user));
     when(categoryRepository.findById(anyLong()))
         .thenReturn(Optional.of(category));
-    
+
     // 実行・検証
     assertThrows(ValidationException.class, () -> studyLogService.createStudyLog(req));
 
@@ -180,7 +183,7 @@ public class StudyLogServiceTest {
     // 前提条件セット
     Category category = new Category("test", user, null);
     category.setCategoryId(1L);
-      
+
     // リクエスト準備
     CreateStudyLogRequsetDto req = new CreateStudyLogRequsetDto(
         LocalDateTime.of(2000, 1, 1, 0, 10),
@@ -199,4 +202,48 @@ public class StudyLogServiceTest {
 
     verify(studyLogRepository, never()).save(any(StudyLog.class));
   }
+
+  @Test
+  @DisplayName("正常系: 指定した日付のstartTimeを持つList<StudyLog>取得成功")
+  void getStudyLogByDate_success() {
+     // 認証セット
+    User user = new User("test", "test@exapmle.com", "password123");
+
+    Authentication auth = new UsernamePasswordAuthenticationToken(
+        1L,
+        null,
+        null);
+
+    SecurityContextHolder
+        .getContext()
+        .setAuthentication(auth);
+
+     // 前提条件セット
+    Category category = new Category("test", user, null);
+    category.setCategoryId(1L);
+
+    StudyLog studyLog = new StudyLog(
+        LocalDateTime.of(2000, 1, 1, 0, 0),
+        LocalDateTime.of(2000, 1, 1, 0, 10),
+        10, 
+        "test",
+        user, 
+        category);
+    
+      List<StudyLog> studyLogs = new ArrayList<>();
+      studyLogs.add(studyLog);
+    
+    //実行準備
+    when(studyLogRepository.findByUserUserIdAndStartTimeGreaterThanEqualAndStartTimeLessThan(anyLong(), any(LocalDateTime.class), any(LocalDateTime.class)))
+        .thenReturn(studyLogs);
+    
+    //実行
+    List<StudyLogResponseDto> result = studyLogService.getStudyLogByDate(LocalDate.of(2000, 1, 1));
+
+    // データ検証
+    StudyLogResponseDto foundStudyLog = result.get(0);
+
+    assertNotNull(result);
+    assertEquals(studyLog.getStudyLogId(), foundStudyLog.studyLogId());
+  }  
 }

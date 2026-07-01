@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
@@ -19,8 +20,11 @@ public class CategoryRepositoryTest {
   
   @Autowired private UserRepository userRepository;
   @Autowired private CategoryRepository categoryRepository;
+
+  @Test
   @DisplayName("正常系: userIdでList<Category>取得")
   void findByUserUserId_success() {
+    // 前提条件をセット
     User user = new User(
       "山田太郎",
       "test@example.com",
