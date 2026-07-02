@@ -2,12 +2,17 @@ package com.portfolio.study_management_app.service.studyLog;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.portfolio.study_management_app.dto.studyLog.AnalyticsResponseDto;
 import com.portfolio.study_management_app.dto.studyLog.CreateStudyLogRequsetDto;
 import com.portfolio.study_management_app.dto.studyLog.StudyLogResponseDto;
 import com.portfolio.study_management_app.entity.category.Category;
@@ -33,7 +38,7 @@ public class StudyLogService {
     this.studyLogRepository = studyLogRepository;
   }
 
-  //StudyLogをStudyLogResponseDtoに変換
+  // StudyLogをStudyLogResponseDtoに変換
   private StudyLogResponseDto toDto(StudyLog studyLog) {
 
     return new StudyLogResponseDto(
@@ -43,6 +48,94 @@ public class StudyLogService {
         studyLog.getEndTime(),
         studyLog.getStudySeconds(),
         studyLog.getMemo());
+  }
+
+  // getAnalytics用
+
+  // 合計時間を算出
+  private Integer calculationTotalStudySeconds(List<StudyLog> studyLogs) {
+    return studyLogs.stream()
+        .mapToInt(StudyLog::getStudySeconds)
+        .sum();
+  }
+
+  // 合計日数を算出
+  private Integer calculationTotalStudyDays(List<StudyLog> studyLogs) {
+    return (int) studyLogs.stream()
+        .map(studyLog -> studyLog.getStartTime().toLocalDate())
+        .distinct()
+        .count();
+  }
+
+  // 学習時間の平均を算出
+  private Integer calculationAverageStudySeconds(Integer totalStudySeconds, Integer totalStudyDays) {
+    return totalStudySeconds / totalStudyDays;
+  }
+
+  // 最も学習時間の多いカテゴリ名を返す
+  private String findCategoryNameLongestStudySeconds(List<StudyLog> studyLogs) {
+    Map<Category, Integer> studySecondsByCategory = new HashMap<>();
+
+    for (StudyLog studyLog : studyLogs) {
+      Category category = studyLog.getCategory();
+
+      // 一番親の要素を取り出す
+      while (category.getParentCategory() != null) {
+        category = category.getParentCategory();
+      }
+      // 学習時間をmapに格納
+      studySecondsByCategory.merge(category, studyLog.getStudySeconds(), Integer::sum);
+    }
+
+    Category maxCategory = null;
+    int maxStudySeconds = 0;
+
+    // 最大値を探して格納
+    for (Category category : studySecondsByCategory.keySet()) {
+
+      int studySeconds = studySecondsByCategory.get(category);
+
+      if (studySeconds > maxStudySeconds) {
+        maxStudySeconds = studySeconds;
+        maxCategory = category;
+      }
+    }
+    return maxCategory.getCategoryName();
+  }
+
+  // 学習率を算出
+  public Double calculationStudyDayRate(LocalDateTime createdAt, Integer totalStudyDays) {
+    LocalDate createdDate = createdAt.toLocalDate();
+    LocalDate currentDate = LocalDate.now();
+    Integer totalDays = (int) (currentDate.toEpochDay() - createdDate.toEpochDay()) + 1;
+    return (double) totalStudyDays / totalDays * 100;
+  }
+
+  // 連続学習日数を算出
+  public Integer calculationStudyStreak(List<StudyLog> studyLogs) {
+    List<LocalDate> studyDates = new ArrayList<>();
+    int streak = 0;
+
+    for (StudyLog studyLog : studyLogs) {
+      LocalDate studyDate = studyLog.getStartTime().toLocalDate();
+
+      if (!studyDates.contains(studyDate)) {
+        studyDates.add(studyDate);
+      }
+    }
+    studyDates.sort(Comparator.reverseOrder());
+
+    LocalDate expectedDate = LocalDate.now();
+
+    for (LocalDate studyDate : studyDates) {
+      if (studyDate.equals(expectedDate)) {
+        streak++;
+        expectedDate = expectedDate.minusDays(1);
+      }  else {
+        break;
+      }
+    }
+    return streak;
   }
 
   public StudyLogResponseDto createStudyLog(CreateStudyLogRequsetDto req) {
@@ -99,5 +192,42 @@ public class StudyLogService {
     return res.stream().map((studyLog) -> {
       return this.toDto(studyLog);
     }).toList();
+  }
+
+  public AnalyticsResponseDto getAnalytics() {
+    // トークンからユーザー取得
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    Long userId = (Long) authentication.getPrincipal();
+
+    User user = userRepository.findById(userId).orElseThrow();
+
+    List<StudyLog> studyLogs = studyLogRepository.findByUserUserId(userId);
+
+    if (studyLogs.isEmpty()) {
+      return null;
+    }
+
+    //合計時間
+    Integer totalStudySeconds = this.calculationTotalStudySeconds(studyLogs);
+    //合計学習日数
+    Integer totalStudyDays = this.calculationTotalStudyDays(studyLogs);
+    //平均学習時間
+    Integer averageStudySeconds = this.calculationAverageStudySeconds(totalStudySeconds, totalStudyDays);
+    //最も学習時間の多いカテゴリ名
+    String categoryNameLongestStudied = this.findCategoryNameLongestStudySeconds(studyLogs);
+    //学習率
+    Double studyDayRate = this.calculationStudyDayRate(user.getCreatedAt(), totalStudyDays);
+    //連続学習日数
+    Integer studyStreak = this.calculationStudyStreak(studyLogs);
+
+    return new AnalyticsResponseDto(
+        totalStudySeconds,
+        totalStudyDays,
+        averageStudySeconds,
+        categoryNameLongestStudied,
+        studyDayRate,
+        studyStreak
+    );
   }
 }

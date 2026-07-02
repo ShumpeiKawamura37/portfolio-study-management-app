@@ -135,6 +135,7 @@ public class StudyLogControllerApiTest {
             .content(json))
             .andExpect(status().isBadRequest());
   }
+
   @Test
   @DisplayName("異常系: 開始時間が終了時間より後であった場合StudyLog登録失敗")
   void createStudyLog_faild_startTime_later_than_endTime() throws Exception{
@@ -194,5 +195,48 @@ public class StudyLogControllerApiTest {
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$.data[0].studyLogId").value(studyLog.getStudyLogId()));
+  }
+
+  @Test
+  @DisplayName("正常系: 学習分析を取得成功")
+  void getAnalytics_success() throws Exception {
+     // 認証セット
+    User user = new User("test", "test@example.com", "Password123");
+    User savedUser = userRepository.save(user);
+    savedUser.setCreatedAt(LocalDateTime.of(2000, 1, 1, 0, 0));
+    String token = jwtProvider.generateToken(savedUser.getUserId());
+
+    // 前提条件セット
+    Category category = new Category("test", savedUser, null);
+    Category childCategory = new Category("child", savedUser, category);
+    categoryRepository.save(category);
+    categoryRepository.save(childCategory);
+
+    StudyLog studyLog1 = new StudyLog(
+        LocalDateTime.of(2000, 1, 1, 0, 0),
+        LocalDateTime.of(2000, 1, 1, 0, 10),
+        10, 
+        "test",
+        savedUser, 
+        category);
+    StudyLog studyLog2 = new StudyLog(
+        LocalDateTime.of(2000, 1, 2, 0, 0),
+        LocalDateTime.of(2000, 1, 2, 0, 20),
+        20,
+        "test",
+        savedUser,
+        childCategory);
+    studyLogRepository.save(studyLog1);
+    studyLogRepository.save(studyLog2);
+
+    //実行
+    mockMvc.perform(
+      get("/api/studyLog/analytics")
+          .header("Authorization", "Bearer " + token)
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.data").exists());
+          
   }
 }
