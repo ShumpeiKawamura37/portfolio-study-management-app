@@ -197,8 +197,6 @@ else token valid
 
     else studyLog is exists
       StudyLogRepository --> StudyLogService : List<StudyLog>
-      
-
       StudyLogService -> StudyLogService : sum(studySeconds) 
       StudyLogService --> StudyLogService : totalStudySeconds 
 
@@ -226,5 +224,3 @@ else token valid
   end
 end
 @enduml
-
-@テーブル定義を完成させる

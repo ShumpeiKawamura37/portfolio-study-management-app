@@ -25,6 +25,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.portfolio.study_management_app.dto.studyLog.AnalyticsResponseDto;
 import com.portfolio.study_management_app.dto.studyLog.CreateStudyLogRequsetDto;
 import com.portfolio.study_management_app.dto.studyLog.StudyLogResponseDto;
 import com.portfolio.study_management_app.entity.category.Category;
@@ -246,4 +247,63 @@ public class StudyLogServiceTest {
     assertNotNull(result);
     assertEquals(studyLog.getStudyLogId(), foundStudyLog.studyLogId());
   }  
+
+  @Test
+  @DisplayName("正常系: 学習分析を取得成功")
+  void getAnalytics_success() {
+    // 認証セット
+    User user = new User("test", "test@exapmle.com", "password123");
+    user.setCreatedAt(LocalDateTime.of(2000, 1, 1, 0, 0));
+
+    Authentication auth = new UsernamePasswordAuthenticationToken(
+        1L,
+        null,
+        null);
+
+    SecurityContextHolder
+        .getContext()
+        .setAuthentication(auth);
+    
+    // 前提条件セット
+    Category category = new Category("test", user, null);
+    category.setCategoryId(1L);
+    Category childCategory = new Category("child", user, category);
+
+    StudyLog studyLog1 = new StudyLog(
+        LocalDateTime.of(2000, 1, 1, 0, 0),
+        LocalDateTime.of(2000, 1, 1, 0, 10),
+        10, 
+        "test",
+        user, 
+        category);
+    StudyLog studyLog2 = new StudyLog(
+        LocalDateTime.of(2000, 1, 2, 0, 0),
+        LocalDateTime.of(2000, 1, 2, 0, 20),
+        20,
+        "test",
+        user,
+        childCategory);
+      
+    List<StudyLog> studyLogs = new ArrayList<>();
+    studyLogs.add(studyLog1);
+    studyLogs.add(studyLog2);
+
+    //実行準備
+    when(userRepository.findById(anyLong()))
+        .thenReturn(Optional.of(user));
+    when(studyLogRepository.findByUserUserId(anyLong()))
+        .thenReturn(studyLogs);
+      
+    //実行
+    AnalyticsResponseDto result = studyLogService.getAnalytics();
+
+    // データ検証
+    assertNotNull(result);
+    assertEquals(30, result.totalStudySeconds());
+    assertEquals(2, result.studyDayCount());
+    assertEquals(15, result.averageStudySeconds());
+    assertEquals("test", result.CategoryNameLongestStudied());
+    assertEquals( 2.0 / ((LocalDate.now().toEpochDay() - LocalDate.of(2000,1,1).toEpochDay()) + 1) * 100, result.studyDayRate());
+    assertEquals(0, result.studyStreak());
+  }
 }

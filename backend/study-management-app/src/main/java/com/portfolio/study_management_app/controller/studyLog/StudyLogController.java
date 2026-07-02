@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.portfolio.study_management_app.dto.common.ApiResponseDto;
+import com.portfolio.study_management_app.dto.studyLog.AnalyticsResponseDto;
 import com.portfolio.study_management_app.dto.studyLog.CreateStudyLogRequsetDto;
 import com.portfolio.study_management_app.dto.studyLog.StudyLogResponseDto;
 import com.portfolio.study_management_app.service.studyLog.StudyLogService;
@@ -32,6 +33,12 @@ public class StudyLogController {
   @GetMapping("/date/{date}")
   public ApiResponseDto<List<StudyLogResponseDto>> getStudyLogByDate(@PathVariable LocalDate date) {
     List<StudyLogResponseDto> res = studyLogService.getStudyLogByDate(date);
+    return new ApiResponseDto<>("SUCCESS", res, null);
+  }
+
+  @GetMapping("/analytics")
+  public ApiResponseDto<AnalyticsResponseDto> getAnalytics() {
+    AnalyticsResponseDto res = studyLogService.getAnalytics();
     return new ApiResponseDto<>("SUCCESS", res, null);
   }
 }
