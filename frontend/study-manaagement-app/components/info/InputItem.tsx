@@ -1,9 +1,10 @@
 "use client"
 
-import InputBox from "../ui/InputBox"
+import InputBox from "../ui/InputBox";
+
 
 type InputItemProps = {
-  type: "email" | "password"
+  type: "email" | "password" | "text"
   value: string,
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -16,6 +17,7 @@ export default function InputItem({
   const label = {
     email: "メールアドレス",
     password: "パスワード",
+    text: "ユーザーネーム" 
   }
   return (
     <>

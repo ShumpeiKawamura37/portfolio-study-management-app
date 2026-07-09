@@ -1,7 +1,22 @@
 "use client"
+import { useRouter } from "next/navigation";
 import Button from "../ui/Button";
+import { useState } from "react";
 
 export default function MenuModal({isOpen, onClose}: {isOpen: boolean, onClose: () => void}) {
+  const router = useRouter();
+  const handleClick = (action: "info" | "logout") => {
+    switch(action) {
+      case "info":
+        onClose();
+        router.push("/info");
+        break;
+      case "logout":
+        localStorage.removeItem("token");
+        onClose();
+        router.push("/auth");
+    }
+  }
   return (
     <>
       <div className={`
@@ -17,14 +32,14 @@ export default function MenuModal({isOpen, onClose}: {isOpen: boolean, onClose: 
           onClick={(e) => e.stopPropagation()}>
           <div className="my-[50px]">
             <Button 
-            onClick={()=> console.log("clicked")} variant="primary"
+            onClick={() => handleClick("info")} variant="primary"
             >
               ユーザー情報
             </Button>
           </div>
           <div className="my-[50px]">
             <Button 
-              onClick={()=> console.log("clicked")} variant="secondary"
+              onClick={() => handleClick("logout")} variant="secondary"
             >
               ログアウト
             </Button>
