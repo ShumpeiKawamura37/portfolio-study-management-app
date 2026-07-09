@@ -34,6 +34,7 @@ export default function LoginForm() {
         const res = await login({ email, password });
         if(res.status === "SUCCESS") {
           //メニュー画面へ遷移
+          localStorage.setItem("token", res.data.token);
           router.push("menu");
         }
       } catch (error) {
