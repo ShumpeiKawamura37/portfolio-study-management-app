@@ -9,8 +9,6 @@ export default function EditUserForm() {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState("********");
   return (
-
-
     <div className="mt-[70px] flex flex-col items-center space-y-10 justify-center">
       <div className="w-[680px] h-[450px] mx-auto flex items-center justify-center border border-black">
         

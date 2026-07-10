@@ -15,6 +15,57 @@ participant SecurityContextHolder
 participant PasswordEncoder
 database DB
 
+== get user ==
+User -> JwtFilter : GET api/category Authorization: Bearer <token> 
+JwtFilter -> JwtProvider : validateToken(token)
+
+alt token invalid 
+  JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+  GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+else token valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider -> UserRepository : findByUserId(userId)
+  UserRepository -> DB :  SELECT * FROM users WHERE user_id=?
+
+  alt user not found
+    DB --> UserRepository : null
+    UserRepository --> JwtProvider : null
+    JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+    GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+  else OK
+    DB --> UserRepository : user data
+    UserRepository --> JwtProvider : user data
+    JwtProvider --> JwtFilter : userId
+    JwtFilter -> UsernamePasswordAuthenticationToken : new(principal, null, authorities) 
+    UsernamePasswordAuthenticationToken --> JwtFilter : auth
+    JwtFilter -> SecurityContextHolder : getContext().setAuthentication(auth)
+    SecurityContextHolder --> JwtFilter : void
+    JwtFilter -> FilterChain : doFilter(req, res)
+    FilterChain -> UserController : getUser()
+
+    UserController -> UserService : getUser()
+    UserService -> Authentication : getPrincipal()
+    Authentication --> UserService : userId
+    UserService -> UserRepository : findById(userId)
+    UserRepository -> DB : SELECT * FROM users WHERE user_id=?
+    alt user not found
+      DB --> UserRepository : null
+      UserRepository --> UserService : null
+      UserService --> GlobalExceptionHandler : throw NotFoundException
+      GlobalExceptionHandler --> User : 404 "ERROR" ApiResponseDto<Void>
+    else OK
+      DB --> UserRepository : user data
+      UserRepository --> UserService : user data
+      UserService -> UserResponseDto : new(user.name, user.email)
+      UserResponseDto --> UserService : res
+      UserService --> UserController : res
+      UserController --> User : 200 "SUCCESS" ApiResponseDto<UserResponseDto>
+    end
+  end
+end
+
 == create user ==
 User -> UserController : POST api/user createUser(CreateUserRequestDto)
 UserController -> UserService : createUser(CreateUserRequestDto)

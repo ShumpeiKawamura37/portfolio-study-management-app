@@ -38,15 +38,17 @@ class AuthService {
 }
 
 class UserController {
+  + getUser() : ApiResponseDto<UserResponseDto>
   + createUser(CreateUserRequestDto) : ApiResponseDto<UserResponseDto>
   + updateUser(UpdateUserRequestDto) : ApiResponseDto<UserResponseDto>
   + deleteUser() : ApiResponseDto<Void>
 }
 
 class UserService {
+  + getUser(Long) : UserResponseDto
   + createUser(CreateUserRequestDto) : UserResponseDto
   + updateUser(UpdateUserRequestDto) : UserResponseDto
-  + deleteUser() : void
+  + deleteUser(Long) : void
 }
 
 class UserRepository {
