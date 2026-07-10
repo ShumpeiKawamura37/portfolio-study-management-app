@@ -23,6 +23,16 @@ public class UserService {
     this.passwordEncoder = passwordEncoder;
   }
 
+  public UserResponseDto getUser() {
+    //認証情報からuserIdを取得
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    Long userId = (Long) authentication.getPrincipal();
+
+    User user = userRepository.findById(userId).orElseThrow();
+
+    return new UserResponseDto(user.getUsername(), user.getEmail());
+  }
+
   public void createUser(CreateUserRequestDto req) {
     if(userRepository.findByEmail(req.email()) != null) {
       throw new ValidationException("既に登録されているメールアドレスです。");
