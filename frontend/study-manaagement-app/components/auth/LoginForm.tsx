@@ -5,17 +5,13 @@ import Button from "../ui/Button"
 import InputForm from "./InputForm"
 import { useState } from "react"
 import { useRouter } from "next/navigation";
+import { showError } from "@/utils/error";
 
 export default function LoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [action, setAction] = useState<"login" | "register">("login");
-
-  const showError = (error: any) => {
-    const message = error.message;
-    alert(`エラー: ${message}`);
-  }
 
   const onChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -37,7 +33,7 @@ export default function LoginForm() {
           localStorage.setItem("token", res.data.token);
           router.push("menu");
         }
-      } catch (error) {
+      } catch (error: Error | any) {
         showError(error);
       }
     } else if (action === "register") {
@@ -46,7 +42,7 @@ export default function LoginForm() {
         if(res.status === "SUCCESS") {
           alert("ユーザーを登録しました。ログインしてください。");
         }
-      } catch (error) {
+      } catch (error: Error | any) {
         showError(error);
       }
     } else {
