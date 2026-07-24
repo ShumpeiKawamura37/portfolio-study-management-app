@@ -18,7 +18,7 @@ export default function InputItem({
     password: "パスワード",
   }
   return (
-    <>
+    <div className="flex flex-col mx-auto mb-[20px]">
       <label htmlFor={type} className="text-center text-2xl mb-4">
         {label[type]}
       </label>
@@ -27,6 +27,6 @@ export default function InputItem({
         value={value}
         onChange={onChange}
       />
-    </>
+    </div>
   )
 }

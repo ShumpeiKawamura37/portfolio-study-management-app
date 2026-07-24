@@ -17,7 +17,7 @@ export default function InputForm({
 
 }: InputFormProps) {
   return (
-    <div className="flex flex-col  mx-auto">
+    <div className="flex flex-col mx-auto">
       <InputItem 
         type="email" 
         value={email}

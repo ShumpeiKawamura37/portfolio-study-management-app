@@ -26,7 +26,7 @@ export default function MenuButtons() {
   }
 
   return (
-    <form className="w-64 flex flex-col items-center mx-auto" onSubmit={(e) => handleSubmit(e as React.SubmitEvent<HTMLFormElement>)}>
+    <form className="w-64 flex flex-col items-center mx-auto mt-[170px]" onSubmit={(e) => handleSubmit(e as React.SubmitEvent<HTMLFormElement>)}>
       <div className="my-[50px]">
         <Button
           type="submit"
