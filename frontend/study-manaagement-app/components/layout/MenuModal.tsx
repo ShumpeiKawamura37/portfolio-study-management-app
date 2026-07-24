@@ -14,7 +14,8 @@ export default function MenuModal({isOpen, onClose}: {isOpen: boolean, onClose: 
       case "logout":
         localStorage.removeItem("token");
         onClose();
-        router.push("/auth");
+        router.replace("/auth");
+        // setIsLogin(false);
     }
   }
   return (

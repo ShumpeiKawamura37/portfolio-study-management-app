@@ -3,3 +3,12 @@
 @theme {
   --color-primary: #53DEB7;
 }
+
+.scrollbar-hide {
+  -ms-overflow-style: none;     
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;             
+}
+

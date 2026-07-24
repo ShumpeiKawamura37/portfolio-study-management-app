@@ -54,7 +54,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="w-64 flex items-center mx-auto">
+    <div className="w-64 flex items-center mx-auto mt-[50px] pt-[70px]">
       <form onSubmit={handleSubmit} className="flex flex-col space-y-10 justify-center items-center mx-auto">
         <InputForm 
           email={email} 

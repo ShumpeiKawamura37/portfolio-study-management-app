@@ -17,14 +17,14 @@ export default function Button({
   variant = "primary",
   disabled = false,
 } : ButtonProps) {
-  const baseStyle = "w-[250px] py-2 px-4 rounded-2xl bg-[#53DEB7] active:scale-95 transition text-2xl justify-center flex items-center";
+  const baseStyle = "py-2 px-4 rounded-2xl bg-[#53DEB7] active:scale-95 transition text-2xl justify-center flex items-center";
 
   const variantStyle = {
-    primary: "hover:bg-[#64ebc5] text-white", 
-    secondary:"bg-[#E1E1E1] hover:bg-[#f2f0f0] text-black",
+    primary: "w-[250px] hover:bg-[#64ebc5] text-white", 
+    secondary:"w-[250px] bg-[#E1E1E1] hover:bg-[#f2f0f0] text-black",
     back: "w-auto px-2 py-3 round-sm text-sm hover:bg-[#64ebc5] text-white",
     edit: "w-auto px-[8px] h-[30px] bg-[#E1E1E1] hover:bg-[#f2f0f0] rounded-md text-black text-sm",
-    delete: "bg-[#DE5353] hover:bg-[#ff6b6b] text-white ",
+    delete: "w-[250px] bg-[#DE5353] hover:bg-[#ff6b6b] text-white ",
     startOrStop: "w-[85px] h-[85px] hover:bg-[#64ebc5] text-white text-sm rounded-full",
     reset: "w-[85px] h-[85px] bg-[#DE5353] hover:bg-[#ff6b6b] text-white text-sm rounded-full"
   };

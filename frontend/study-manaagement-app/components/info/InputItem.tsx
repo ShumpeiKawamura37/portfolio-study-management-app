@@ -4,6 +4,7 @@ import { useState } from "react";
 import Button from "../ui/Button";
 import InputBox from "../ui/InputBox";
 import TextFlame from "./TextFlame";
+import { onKeyDown } from "@/utils/inputAction/onKeyDown";
 
 
 type InputItemProps = {
@@ -33,13 +34,6 @@ export default function InputItem({
   const handleCancel = () => {
     onChange(initialValue);
     setIsEditable(false);
-  }
-
-  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      if (e.nativeEvent.isComposing) return;
-      e.currentTarget.blur();
-    }
   }
   return (
     <div className="w-[625px] h-[55px] flex align-center justify-center items-center mb-[30px] grid-cols-3 gap-4">

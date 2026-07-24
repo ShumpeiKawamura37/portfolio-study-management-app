@@ -7,7 +7,7 @@ export default function Header({isLogin} : {isLogin : boolean}) {
   const [isOpen, setIsOpen] = useState(false);
   const onClose = () => setIsOpen(false);
   return (
-    <header className="bg-primary h-[120px] w-full mb-[50px] px-2 mb-[120px]">
+    <header className="bg-primary h-[120px] w-full px-2">
       <div className=" max-w-screen-xl mx-auto flex justify-end">
         {/* ハンバーガー */}
         { isLogin && (
