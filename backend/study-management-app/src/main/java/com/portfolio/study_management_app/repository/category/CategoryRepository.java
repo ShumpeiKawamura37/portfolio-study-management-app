@@ -9,5 +9,5 @@ import com.portfolio.study_management_app.entity.category.Category;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-  public List<Category> findByUserUserId(Long userId);
+  public List<Category> findByUserUserIdByCreatedAtAsc(Long userId);
 } 
