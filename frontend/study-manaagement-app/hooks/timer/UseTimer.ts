@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 export const useTimer = () => {
   const [seconds, setSeconds] = useState(0);
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [endTime, setEndTime] = useState<Date | null>(null);
   const [totalStudySeconds, setTotalStudySeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const intervalRef = useRef<number | null>(null);
@@ -12,6 +14,7 @@ export const useTimer = () => {
         return; 
     }
     setIsRunning(true); 
+    setStartTime(new Date());
     // タイマーとストップウォッチで分岐
     if(isTimer) {
       intervalRef.current = window.setInterval(() => { 
@@ -41,6 +44,7 @@ export const useTimer = () => {
       intervalRef.current = null;
     }
     setIsRunning(false);
+    setEndTime(new Date());
   }
 
   const reset = () => {
@@ -48,6 +52,8 @@ export const useTimer = () => {
     if(isConfirmed) {
       setSeconds(0);
       setTotalStudySeconds(0);
+      setStartTime(null);
+      setEndTime(null);
     };
   }
 
@@ -58,6 +64,8 @@ export const useTimer = () => {
   return {
     seconds,
     setSeconds,
+    startTime,
+    endTime,
     totalStudySeconds,
     isRunning,
     start,
