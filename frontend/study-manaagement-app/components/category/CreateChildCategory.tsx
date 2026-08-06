@@ -6,8 +6,10 @@ import EditCategoryName from "./EditCategoryName";
 import { useState } from "react";
 import { onKeyDown } from "@/utils/inputAction/onKeyDown";
 import { createCategory } from "@/service/category/CategoryService";
-import { useCategory } from "@/hooks/category/UseCategory";
-import { useActionForCategory } from "@/hooks/category/UseActionForCategory";
+import { useCategory } from "@/hooks/category/useCategory";
+import { useActionForCategory } from "@/hooks/category/useActionForCategory";
+
+const INDENT_WIDTH = 12;
 
 type CreateCategoryProps = {
   parentCategoryId: number
@@ -37,12 +39,25 @@ export default function CreateChildCategory({
   }
 
   return (
-    <CategoryItemFlame>
-        <EditCategoryName
-          newCategoryName={newCategoryName}
-          setNewCategoryName={setNewCategoryName}
-          handleKeyDown={handleKeyDown}
-        />
-    </CategoryItemFlame>
+    <>
+      {/* 縦線 */}
+      <div 
+        className="absolute -top-2 w-[1px] bg-gray-400 h-5"
+        style={{left: -INDENT_WIDTH * 2}}
+      />
+
+      {/* 横線 */}
+      <div 
+        className="absolute top-3 h-[1px] bg-gray-400 w-6" 
+        style={{left: -INDENT_WIDTH * 2}}
+      />
+
+      <EditCategoryName
+      newCategoryName={newCategoryName}
+      setNewCategoryName={setNewCategoryName}
+      handleKeyDown={handleKeyDown}
+      />
+    </>
+    
   );
 }

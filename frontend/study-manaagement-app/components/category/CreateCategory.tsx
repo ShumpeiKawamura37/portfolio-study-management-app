@@ -3,9 +3,8 @@
 import { createCategory } from "@/service/category/CategoryService";
 import { onKeyDown } from "@/utils/inputAction/onKeyDown";
 import EditCategoryName from "./EditCategoryName";
-import CategoryItemFlame from "./CategoryItemFlame";
-import { useCategory } from "@/hooks/category/UseCategory";
 import { useState } from "react";
+import { useCategory } from "@/hooks/category/useCategory";
 
 type CreateCategoryProps = {
 }
@@ -27,13 +26,14 @@ export default function CreateCategory({
       const res = await createCategory(newCategoryName, null);
       category?.addCategory(null, res.data);
       setNewCategoryName("");
+      setIsEditing(false);
     } catch(error: Error | any) {
       alert(error);
     }
   }
 
   return (
-    <CategoryItemFlame>
+    <>
       { !isEditing? (
         <div 
           className="flex items-center relative w-full h-full px-[3px] py-[3px]"
@@ -48,6 +48,6 @@ export default function CreateCategory({
           handleKeyDown={handleKeyDown}
         />
       )}
-    </CategoryItemFlame>
+    </>
   );
 }
