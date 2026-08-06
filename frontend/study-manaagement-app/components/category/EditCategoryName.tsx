@@ -1,7 +1,8 @@
 "use client"
 
-import { useActionForCategory } from "@/hooks/category/UseActionForCategory";
 import { useEffect, useRef } from "react";
+import CategoryItemFlame from "./CategoryItemFlame";
+import { useActionForCategory } from "@/hooks/category/useActionForCategory";
 
 type EditCategoryNameProps = {
   newCategoryName: string,
@@ -30,10 +31,10 @@ export default function EditCategoryName({
   }, [actionForCategory?.action]);
   
   return (
-    <input 
+      <input 
           type="text"
           ref={inputRef}
-          className="w-full h-full px-[3px] py-[3px]"
+          className="w-full h-full px-1 py-1"
           value={newCategoryName}
           onChange={(e: React.ChangeEvent<HTMLInputElement>)=> setNewCategoryName(e.target.value)} 
           onBlur={onBlur}

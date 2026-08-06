@@ -1,15 +1,15 @@
 "use client"
 
 import { createCategory, deleteCategory, updateCategory } from "@/service/category/CategoryService";
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import EditCategoryName from "./EditCategoryName";
 import { onKeyDown } from "@/utils/inputAction/onKeyDown";
 import CategoryItemFlame from "./CategoryItemFlame";
 import CateogryMenu from "./CtegoryMenu";
 import CategoryTriangleMenu from "./CategoryTriangleMenu";
-import CreateChildCategory from "./CreateChildCategory";
-import { useCategory } from "@/hooks/category/UseCategory";
-import { useActionForCategory } from "@/hooks/category/UseActionForCategory";
+import { useCategory } from "@/hooks/category/useCategory";
+import { useRecord } from "@/hooks/record/useRecord";
+import { useActionForCategory } from "@/hooks/category/useActionForCategory";
 
 type CategoryItemProps = {
   categoryId: number,
@@ -25,6 +25,7 @@ categoryName,
   const [isOpen, setIsOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const triangleRef = useRef<HTMLSpanElement>(null);
+  const { targetCategoryId, setTargetCategoryId } = useRecord();
 
   // actionによって処理を分岐する
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -37,7 +38,7 @@ categoryName,
       switch(actionForCategory?.action) {
         case "create":
           const resForCreate = await createCategory(newCategoryName, categoryId);
-          category?.addCategory(null, resForCreate.data);
+          category?.addCategory(categoryId, resForCreate.data);
           break;
         case "update":
           const resForUpdate = await updateCategory(categoryId, newCategoryName);
@@ -48,6 +49,7 @@ categoryName,
       setNewCategoryName("");
       setIsOpen(false);
       actionForCategory?.setAction(null);
+      setTargetCategoryId(null);
     } catch(error: Error | any) {
       alert(error);
     }
@@ -64,13 +66,24 @@ categoryName,
     }
   }
 
+  const handleClick = (e: React.MouseEvent) => {
+    
+    e.stopPropagation();
+
+    setTargetCategoryId(prev =>
+      prev === categoryId ? null : categoryId
+    );
+  };
+
   return (
     <>
-      <CategoryItemFlame>
+      <CategoryItemFlame categoryId={categoryId} onClick={handleClick}>
         {actionForCategory?.action !== "update" ? (
           <>
-            <div className="px-[3px] py-[3px]">
-              {categoryName}
+            <div 
+              className="px-[3px] py-[3px]"
+            >
+                {categoryName}
             </div>
 
             {/* 逆三角形 */}
@@ -85,6 +98,7 @@ categoryName,
                 setIsOpen={setIsOpen} 
                 handleDelete={handleDelete} 
                 triangleRef={triangleRef} 
+                categoryId={categoryId}
               />
             ) : null}
           </>
@@ -96,19 +110,8 @@ categoryName,
               handleKeyDown={handleKeyDown}
             />
           </>
-        )}
+          )}
       </CategoryItemFlame>
-
-      {actionForCategory?.action === "create"? (
-        <div className="ml-4  border-l border-gray-300 pl-3">
-          <CreateChildCategory 
-            parentCategoryId={categoryId}
-          />
-        </div>
-      ): null}
     </>
   )
 }
-
-// ページをリロードすると順番が変わる
-// 子要素を削除した時の挙動がおかしい->削除処理を再帰
