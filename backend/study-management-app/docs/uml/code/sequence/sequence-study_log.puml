@@ -20,6 +20,61 @@ participant GlobalExceptionHandler
 participant ApiResponseDto
 database DB
 
+== get studyLog==
+User -> JwtFilter : GET api/stugylog Authorization: Bearer <token> 
+JwtFilter -> JwtProvider : validateToken(token)
+
+alt token invalid 
+  JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+  GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+else token valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider -> UserRepository : findByUserId(userId)
+  UserRepository -> DB :  SELECT * FROM users WHERE user_id=?
+
+  alt user not found
+    DB --> UserRepository : empty
+    UserRepository --> JwtProvider : Optional.empty
+    JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+    GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+  else OK
+    DB --> UserRepository :User
+    UserRepository --> JwtProvider : User
+    JwtProvider --> JwtFilter : userId
+    JwtFilter -> UsernamePasswordAuthenticationToken : new(principal, null, authorities) 
+    UsernamePasswordAuthenticationToken --> JwtFilter : auth
+    JwtFilter -> SecurityContextHolder : getContext().setAuthentication(auth)
+    SecurityContextHolder --> JwtFilter : void
+    JwtFilter -> FilterChain : doFilter(req, res)
+    FilterChain -> StudyLogController : getStudyLogs(LocalDate)
+
+    StudyLogController -> StudyLogService : getStudyLog()
+    StudyLogService -> Authentication : getPrincipal()
+    Authentication --> StudyLogService : userId
+    StudyLogService -> StudyLogRepository : findByUserId(userId)
+    StudyLogRepository -> DB : SELECT * FROM study_logs WHERE user_id=?
+    DB --> StudyLogRepository : List<StudyLog>
+    StudyLogRepository --> StudyLogService : List<StudyLog>
+    alt studyLog is empty
+      StudyLogRepository --> StudyLogService : empty
+      StudyLogService -> StudyLogController : empty
+      StudyLogController --> User : 200 "SUCCESS" ApiResponseDto<List<StudyLogResponseDto>> []
+    
+    else studyLog is exists
+      StudyLogRepository --> StudyLogService : List<StudyLog>
+      loop Studylog : studylog
+        StudyLogService -> StudyLogService : toDto(StudyLog)
+        StudyLogService --> StudyLogService : StudyLogResponseDto
+      end
+      StudyLogService -> StudyLogController : List<StudyLogResponseDto>
+      StudyLogController --> User : 200 "SUCCESS" ApiResponseDto<List<StudyLogResponseDto>> 
+    end
+  end
+end
+
 == get studyLog by date ==
 User -> JwtFilter : GET api/stugylog Authorization: Bearer <token> 
 JwtFilter -> JwtProvider : validateToken(token)
