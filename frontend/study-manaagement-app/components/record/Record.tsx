@@ -37,7 +37,7 @@ export default function Record() {
         return;
       }
       await createStudyLog(record.startTime, record.endTime, record.seconds, record.memo, record.targetCategoryId);
-      router.push("/studyData");
+      router.push("/analyzeStudyLog");
     } catch(error: Error | any) {
       alert(error);
     }

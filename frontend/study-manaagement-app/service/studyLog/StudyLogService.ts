@@ -36,3 +36,7 @@ export async function createStudyLog(
 
   return result;
 }
+
+// export async function getStudyLogs(): Promise<ApiResponse<StudyLogResponse[]>> {
+
+// }
