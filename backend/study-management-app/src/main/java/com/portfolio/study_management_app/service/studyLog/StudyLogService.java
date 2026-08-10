@@ -173,6 +173,19 @@ public class StudyLogService {
         savedStudyLog.getMemo());
   }
 
+  // ユーザーの学習記録一覧を取得
+  public List<StudyLogResponseDto> getStudyLog() {
+        // トークンからユーザー取得
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    Long userId = (Long) authentication.getPrincipal();
+
+    List<StudyLog> studyLogs = studyLogRepository.findByUserUserId(userId);
+
+    return studyLogs.stream().map(studyLog -> this.toDto(studyLog)).toList();
+  }
+
+  // 日別の学習記録を取得
   public List<StudyLogResponseDto> getStudyLogByDate(LocalDate date) {
 
     // トークンからユーザー取得

@@ -3,13 +3,9 @@ package com.portfolio.study_management_app.integration.studyLog;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -182,9 +178,9 @@ public class IntegrationStudyLogTest {
   }
 
   @Test
-  @DisplayName("正常系: 指定した日付のstartTimeを持つList<StudyLog>取得成功")
-  void getStudyLogByDate_success() {
-     // 認証セット
+  @DisplayName("正常系: StudyLog取得成功")
+  void getStudyLog_success() {
+    // 認証セット
     User user = new User("test", "test@exapmle.com", "Password123");
 
     userRepository.save(user);
@@ -197,7 +193,7 @@ public class IntegrationStudyLogTest {
     SecurityContextHolder
         .getContext()
         .setAuthentication(auth);
-    
+
      // リクエスト準備
     Category category = new Category("test", user, null);
     categoryRepository.save(category);
@@ -205,13 +201,53 @@ public class IntegrationStudyLogTest {
     StudyLog studyLog = new StudyLog(
         LocalDateTime.of(2000, 1, 1, 0, 0),
         LocalDateTime.of(2000, 1, 1, 0, 10),
-        10, 
+        10,
         "test",
-        user, 
+        user,
         category);
     studyLogRepository.save(studyLog);
-    
-     //実行
+
+    // 実行 
+    List<StudyLogResponseDto> result = studyLogService.getStudyLog();
+
+    // データ検証
+    StudyLogResponseDto foundStudyLog = result.get(0);
+
+    assertNotNull(result);
+    assertEquals(studyLog.getStudyLogId(), foundStudyLog.studyLogId());
+  }
+
+  @Test
+  @DisplayName("正常系: 指定した日付のstartTimeを持つList<StudyLog>取得成功")
+  void getStudyLogByDate_success() {
+    // 認証セット
+    User user = new User("test", "test@exapmle.com", "Password123");
+
+    userRepository.save(user);
+
+    Authentication auth = new UsernamePasswordAuthenticationToken(
+        user.getUserId(),
+        null,
+        null);
+
+    SecurityContextHolder
+        .getContext()
+        .setAuthentication(auth);
+
+    // リクエスト準備
+    Category category = new Category("test", user, null);
+    categoryRepository.save(category);
+
+    StudyLog studyLog = new StudyLog(
+        LocalDateTime.of(2000, 1, 1, 0, 0),
+        LocalDateTime.of(2000, 1, 1, 0, 10),
+        10,
+        "test",
+        user,
+        category);
+    studyLogRepository.save(studyLog);
+
+    // 実行
     List<StudyLogResponseDto> result = studyLogService.getStudyLogByDate(LocalDate.of(2000, 1, 1));
 
     // データ検証
@@ -224,7 +260,7 @@ public class IntegrationStudyLogTest {
   @Test
   @DisplayName("正常系: 学習分析を取得成功")
   void getAnalytics_success() {
-     // 認証セット
+    // 認証セット
     User user = new User("test", "test@exapmle.com", "Password123");
     User savedUser = userRepository.save(user);
     savedUser.setCreatedAt(LocalDateTime.of(2000, 1, 1, 0, 0));
@@ -237,7 +273,7 @@ public class IntegrationStudyLogTest {
     SecurityContextHolder
         .getContext()
         .setAuthentication(auth);
-        
+
     // 前提条件セット
     Category category = new Category("test", savedUser, null);
     Category childCategory = new Category("child", savedUser, category);
@@ -247,9 +283,9 @@ public class IntegrationStudyLogTest {
     StudyLog studyLog1 = new StudyLog(
         LocalDateTime.of(2000, 1, 1, 0, 0),
         LocalDateTime.of(2000, 1, 1, 0, 10),
-        10, 
+        10,
         "test",
-        savedUser, 
+        savedUser,
         category);
     StudyLog studyLog2 = new StudyLog(
         LocalDateTime.of(2000, 1, 2, 0, 0),
@@ -261,7 +297,7 @@ public class IntegrationStudyLogTest {
     studyLogRepository.save(studyLog1);
     studyLogRepository.save(studyLog2);
 
-    //実行
+    // 実行
     AnalyticsResponseDto result = studyLogService.getAnalytics();
 
     // データ検証
@@ -270,7 +306,8 @@ public class IntegrationStudyLogTest {
     assertEquals(2, result.studyDayCount());
     assertEquals(15, result.averageStudySeconds());
     assertEquals("test", result.CategoryNameLongestStudied());
-    assertEquals( 2.0 / ((LocalDate.now().toEpochDay() - LocalDate.of(2000,1,1).toEpochDay()) + 1) * 100, result.studyDayRate());
+    assertEquals(2.0 / ((LocalDate.now().toEpochDay() - LocalDate.of(2000, 1, 1).toEpochDay()) + 1) * 100,
+        result.studyDayRate());
     assertEquals(0, result.studyStreak());
   }
 }

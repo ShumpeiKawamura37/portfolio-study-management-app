@@ -74,7 +74,7 @@ public class CategoryService {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Long userId = (Long) authentication.getPrincipal();
 
-    List<Category> categories = categoryRepository.findByUserUserId(userId)
+    List<Category> categories = categoryRepository.findByUserUserIdOrderByCreatedAtAsc(userId)
         .stream().filter((category) -> {
           return category.isStatus() == true;
         }).toList();

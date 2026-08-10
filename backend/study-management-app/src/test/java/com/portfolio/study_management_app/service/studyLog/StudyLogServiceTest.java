@@ -205,9 +205,9 @@ public class StudyLogServiceTest {
   }
 
   @Test
-  @DisplayName("正常系: 指定した日付のstartTimeを持つList<StudyLog>取得成功")
-  void getStudyLogByDate_success() {
-     // 認証セット
+  @DisplayName("正常系: StudyLog取得成功")
+  void getStudyLog_success() {
+    // 認証セット
     User user = new User("test", "test@exapmle.com", "password123");
 
     Authentication auth = new UsernamePasswordAuthenticationToken(
@@ -219,26 +219,69 @@ public class StudyLogServiceTest {
         .getContext()
         .setAuthentication(auth);
 
-     // 前提条件セット
+    // 前提条件セット
     Category category = new Category("test", user, null);
     category.setCategoryId(1L);
 
     StudyLog studyLog = new StudyLog(
         LocalDateTime.of(2000, 1, 1, 0, 0),
         LocalDateTime.of(2000, 1, 1, 0, 10),
-        10, 
+        10,
         "test",
-        user, 
+        user,
         category);
-    
-      List<StudyLog> studyLogs = new ArrayList<>();
-      studyLogs.add(studyLog);
-    
-    //実行準備
-    when(studyLogRepository.findByUserUserIdAndStartTimeGreaterThanEqualAndStartTimeLessThan(anyLong(), any(LocalDateTime.class), any(LocalDateTime.class)))
+
+    List<StudyLog> studyLogs = new ArrayList<>();
+    studyLogs.add(studyLog);
+
+    // 前提条件セット
+    when(studyLogRepository.findByUserUserId(anyLong())).thenReturn(studyLogs);
+
+    // 実行
+    List<StudyLogResponseDto> result = studyLogService.getStudyLog();
+
+    // データ検証
+    StudyLogResponseDto foundStudyLog = result.get(0);
+    assertNotNull(result);
+    assertEquals(studyLog.getStudyLogId(), foundStudyLog.studyLogId());
+  }
+
+  @Test
+  @DisplayName("正常系: 指定した日付のstartTimeを持つList<StudyLog>取得成功")
+  void getStudyLogByDate_success() {
+    // 認証セット
+    User user = new User("test", "test@exapmle.com", "password123");
+
+    Authentication auth = new UsernamePasswordAuthenticationToken(
+        1L,
+        null,
+        null);
+
+    SecurityContextHolder
+        .getContext()
+        .setAuthentication(auth);
+
+    // 前提条件セット
+    Category category = new Category("test", user, null);
+    category.setCategoryId(1L);
+
+    StudyLog studyLog = new StudyLog(
+        LocalDateTime.of(2000, 1, 1, 0, 0),
+        LocalDateTime.of(2000, 1, 1, 0, 10),
+        10,
+        "test",
+        user,
+        category);
+
+    List<StudyLog> studyLogs = new ArrayList<>();
+    studyLogs.add(studyLog);
+
+    // 実行準備
+    when(studyLogRepository.findByUserUserIdAndStartTimeGreaterThanEqualAndStartTimeLessThan(anyLong(),
+        any(LocalDateTime.class), any(LocalDateTime.class)))
         .thenReturn(studyLogs);
-    
-    //実行
+
+    // 実行
     List<StudyLogResponseDto> result = studyLogService.getStudyLogByDate(LocalDate.of(2000, 1, 1));
 
     // データ検証
@@ -246,7 +289,7 @@ public class StudyLogServiceTest {
 
     assertNotNull(result);
     assertEquals(studyLog.getStudyLogId(), foundStudyLog.studyLogId());
-  }  
+  }
 
   @Test
   @DisplayName("正常系: 学習分析を取得成功")
@@ -263,7 +306,7 @@ public class StudyLogServiceTest {
     SecurityContextHolder
         .getContext()
         .setAuthentication(auth);
-    
+
     // 前提条件セット
     Category category = new Category("test", user, null);
     category.setCategoryId(1L);
@@ -272,9 +315,9 @@ public class StudyLogServiceTest {
     StudyLog studyLog1 = new StudyLog(
         LocalDateTime.of(2000, 1, 1, 0, 0),
         LocalDateTime.of(2000, 1, 1, 0, 10),
-        10, 
+        10,
         "test",
-        user, 
+        user,
         category);
     StudyLog studyLog2 = new StudyLog(
         LocalDateTime.of(2000, 1, 2, 0, 0),
@@ -283,18 +326,18 @@ public class StudyLogServiceTest {
         "test",
         user,
         childCategory);
-      
+
     List<StudyLog> studyLogs = new ArrayList<>();
     studyLogs.add(studyLog1);
     studyLogs.add(studyLog2);
 
-    //実行準備
+    // 実行準備
     when(userRepository.findById(anyLong()))
         .thenReturn(Optional.of(user));
     when(studyLogRepository.findByUserUserId(anyLong()))
         .thenReturn(studyLogs);
-      
-    //実行
+
+    // 実行
     AnalyticsResponseDto result = studyLogService.getAnalytics();
 
     // データ検証
@@ -303,7 +346,8 @@ public class StudyLogServiceTest {
     assertEquals(2, result.studyDayCount());
     assertEquals(15, result.averageStudySeconds());
     assertEquals("test", result.CategoryNameLongestStudied());
-    assertEquals( 2.0 / ((LocalDate.now().toEpochDay() - LocalDate.of(2000,1,1).toEpochDay()) + 1) * 100, result.studyDayRate());
+    assertEquals(2.0 / ((LocalDate.now().toEpochDay() - LocalDate.of(2000, 1, 1).toEpochDay()) + 1) * 100,
+        result.studyDayRate());
     assertEquals(0, result.studyStreak());
   }
 }

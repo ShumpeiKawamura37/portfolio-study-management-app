@@ -7,8 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -165,6 +163,36 @@ public class StudyLogControllerApiTest {
           .contentType(MediaType.APPLICATION_JSON)
           .content(json))
           .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("正常系: StudyLog取得成功")
+  void getStudyLog_success() throws Exception  {
+     // 認証セット
+    User user = new User("test", "test@example.com", "Password123");
+    User savedUser = userRepository.save(user);
+    String token = jwtProvider.generateToken(savedUser.getUserId());
+
+     // リクエスト準備
+    Category category = new Category("test", user, null);
+    categoryRepository.save(category);
+    StudyLog studyLog = new StudyLog(
+        LocalDateTime.of(2000, 1, 1, 0, 0),
+        LocalDateTime.of(2000, 1, 1, 0, 10),
+        10, 
+        "test",
+        user, 
+        category);
+    studyLogRepository.save(studyLog);
+
+    //実行
+    mockMvc.perform(
+      get("/api/studyLog")
+          .header("Authorization", "Bearer " + token)
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.data[0].studyLogId").value(studyLog.getStudyLogId()));
   }
 
   @Test
