@@ -162,7 +162,7 @@ public class CategoryServiceTest {
     List<Category> categories = List.of(parentCategory, childCategory, grandChildCategory);
 
     // 実行準備
-    when(categoryRepository.findByUserUserId(anyLong()))
+    when(categoryRepository.findByUserUserIdOrderByCreatedAtAsc(anyLong()))
         .thenReturn(categories);
 
     // 実行

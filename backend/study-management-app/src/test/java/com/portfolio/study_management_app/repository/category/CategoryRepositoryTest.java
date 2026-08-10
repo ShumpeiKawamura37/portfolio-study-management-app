@@ -44,7 +44,7 @@ public class CategoryRepositoryTest {
 
     categoryRepository.save(category);
 
-    List<Category> result = categoryRepository.findByUserUserId(userId);
+    List<Category> result = categoryRepository.findByUserUserIdOrderByCreatedAtAsc(userId);
                 
     assertEquals("test", result.get(0).getCategoryName());
     assertEquals(savedUser, result.get(0).getUser());

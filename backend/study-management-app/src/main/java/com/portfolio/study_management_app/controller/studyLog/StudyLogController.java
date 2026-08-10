@@ -30,6 +30,12 @@ public class StudyLogController {
     return new ApiResponseDto<>("SUCCESS", res, null);
   }
 
+  @GetMapping
+  public ApiResponseDto<List<StudyLogResponseDto>> getStudyLog() {
+    List<StudyLogResponseDto> res = studyLogService.getStudyLog();
+    return new ApiResponseDto<>("SUCCESS", res, null);
+  }
+
   @GetMapping("/date/{date}")
   public ApiResponseDto<List<StudyLogResponseDto>> getStudyLogByDate(@PathVariable LocalDate date) {
     List<StudyLogResponseDto> res = studyLogService.getStudyLogByDate(date);
