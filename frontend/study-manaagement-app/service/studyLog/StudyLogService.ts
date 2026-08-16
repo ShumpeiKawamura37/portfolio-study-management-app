@@ -37,6 +37,21 @@ export async function createStudyLog(
   return result;
 }
 
-// export async function getStudyLogs(): Promise<ApiResponse<StudyLogResponse[]>> {
+export async function getStudyLogs(): Promise<ApiResponse<StudyLogResponse[]>> {
+  const token = localStorage.getItem("token");
 
-// }
+  const response = await fetch(`${BASE_URL}/api/studyLog`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const result: ApiResponse<StudyLogResponse[]> = await response.json();
+  
+  if(!response.ok) {
+    throw new Error(result.message);
+  }
+  return result;
+}

@@ -10,4 +10,4 @@ export default function DisplayUsername() {
       {analyrtics.username}
     </div>
   )
-}
+} 

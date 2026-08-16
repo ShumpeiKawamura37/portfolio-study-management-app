@@ -196,7 +196,7 @@ else token valid
         StudyLogRepository -> DB : INSERT INTO study_logs ...
         DB --> StudyLogRepository : createdStudyLog
         StudyLogRepository --> StudyLogService : createdStudyLog
-        StudyLogService -> StudyLogResponseDto : new(createdStudyLog.id, createdStudyLog.categoryName, createStudyLog.startTime, createdStudyLog.endTime, createdStudyLog.memo)
+        StudyLogService -> StudyLogResponseDto : new(createdStudyLog.id, createdStudyLog.categoryId, createStudyLog.startTime, createdStudyLog.endTime, createdStudyLog.memo)
         StudyLogResponseDto --> StudyLogService : res
         StudyLogService --> StudyLogController : res
         StudyLogController --> User : 201 "SUCCESS" ApiResponseDto<StudyLogResponseDto>

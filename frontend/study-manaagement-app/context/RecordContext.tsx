@@ -1,6 +1,6 @@
 "use client"
 
-import { useTimer } from "@/hooks/timer/useTimer";
+import { useTimer } from "@/hooks/timer/UseTimer";
 import React, { createContext, ReactNode, SetStateAction, useState } from "react"
 
 

@@ -1,10 +1,10 @@
 "use client"
 
-import { useActionForCategory } from "@/hooks/category/useActionForCategory"
 import { CategoryResponse } from "@/types/category/category"
 import CategoryLine from "./CategoryFlameLine"
 import CategoryItem from "./CategoryItem"
 import CreateChildCategory from "./CreateChildCategory"
+import { useActionForCategory } from "@/hooks/category/UseActionForCategory"
 
 type CategoryNodeProps = {
   category: CategoryResponse,

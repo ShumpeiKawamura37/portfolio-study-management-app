@@ -4,7 +4,7 @@ import { createCategory } from "@/service/category/CategoryService";
 import { onKeyDown } from "@/utils/inputAction/onKeyDown";
 import EditCategoryName from "./EditCategoryName";
 import { useState } from "react";
-import { useCategory } from "@/hooks/category/useCategory";
+import { useCategory } from "@/hooks/category/UseCategory";
 
 type CreateCategoryProps = {
 }

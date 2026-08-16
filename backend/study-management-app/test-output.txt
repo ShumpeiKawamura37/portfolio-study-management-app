@@ -1,0 +1,51 @@
+> Task :cleanTest
+> Task :compileJava UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :compileTestJava UP-TO-DATE
+> Task :processTestResources UP-TO-DATE
+> Task :testClasses UP-TO-DATE
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-08-10T21:38:20.390+09:00  INFO 50551 --- [ionShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+Hibernate: 
+    set client_min_messages = WARNING
+Hibernate: 
+    alter table if exists categories 
+       drop constraint if exists FKsaok720gsu4u2wrgbk10b5n8d
+Hibernate: 
+    alter table if exists categories 
+       drop constraint if exists FKghuylkwuedgl2qahxjt8g41kb
+Hibernate: 
+    alter table if exists study_logs 
+       drop constraint if exists FKom834mi392nbqfm2bhgv685xp
+Hibernate: 
+    alter table if exists study_logs 
+       drop constraint if exists FKgasx5buyueub0tn22uels0tmj
+Hibernate: 
+    drop table if exists categories cascade
+Hibernate: 
+    drop table if exists study_logs cascade
+Hibernate: 
+    drop table if exists users cascade
+2026-08-10T21:38:20.405+09:00  INFO 50551 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-08-10T21:38:20.406+09:00  INFO 50551 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :test FAILED
+
+StudyLogControllerApiTest > 正常系: StudyLog登録成功 FAILED
+    java.lang.AssertionError at StudyLogControllerApiTest.java:71
+        Caused by: com.jayway.jsonpath.PathNotFoundException
+
+1 test completed, 1 failed
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':test'.
+> There were failing tests. See the report at: file:///Users/owner/Documents/GitHub/portfolio-study-management-app/backend/study-management-app/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 3s
+6 actionable tasks: 2 executed, 4 up-to-date

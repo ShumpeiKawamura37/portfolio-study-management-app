@@ -1,6 +1,7 @@
 import BackButton from "@/components/layout/BackButton";
 import "./globals.css";
 import Header from "@/components/layout/Header";
+import Providers from "./Providers";
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -14,7 +15,9 @@ export default function RootLayout({
       <body>
         <Header isLogin={isLogin}/>
         {isLogin? <BackButton /> : null}
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

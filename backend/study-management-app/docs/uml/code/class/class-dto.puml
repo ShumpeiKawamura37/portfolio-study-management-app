@@ -55,7 +55,7 @@ class CategoryResponseDto {
 
 class StudyLogResponseDto {
   - Long studyLogId
-  - String categoryName
+  - CategoryRequestDto category
   - LocalDateTime startTime
   - LocalDateTime endTime
   - String memo

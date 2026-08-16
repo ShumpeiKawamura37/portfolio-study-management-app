@@ -5,7 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.DisplayName;
@@ -36,7 +36,7 @@ public class StudyLogControllerApiTest {
   @Autowired StudyLogRepository studyLogRepository;
   @Autowired JwtProvider jwtProvider;
 
-  @Test
+  @Test 
   @DisplayName("正常系: StudyLog登録成功")
   void createStudyLog_success() throws Exception {
     // 認証セット
@@ -65,9 +65,10 @@ public class StudyLogControllerApiTest {
         .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content(json))
+      .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data.studyLogId").exists())
-      .andExpect(jsonPath("$.data.categoryName").value(savedCategory.getCategoryName()))
+      .andExpect(jsonPath("$.data.category.categoryId").value(savedCategory.getCategoryId()))
       .andExpect(jsonPath("$.data.startTime").value("2000-01-01T00:00:00"))
       .andExpect(jsonPath("$.data.endTime").value("2000-01-01T00:10:00"))
       .andExpect(jsonPath("$.data.memo").value("test"));

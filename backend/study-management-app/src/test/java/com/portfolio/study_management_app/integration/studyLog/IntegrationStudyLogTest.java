@@ -74,7 +74,7 @@ public class IntegrationStudyLogTest {
 
     // データ検証
     assertNotNull(result.studyLogId());
-    assertEquals(category.getCategoryName(), result.categoryName());
+    assertEquals(category.getCategoryId(), result.category().categoryId());
     assertEquals(req.startTime(), result.startTime());
     assertEquals(req.endTime(), result.endTime());
     assertEquals(req.studySeconds(), result.studySeconds());

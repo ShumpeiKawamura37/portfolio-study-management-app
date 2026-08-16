@@ -1,3 +1,4 @@
+import { RecordProvider } from "@/context/RecordContext";
 
 export default function Home() {
   return (

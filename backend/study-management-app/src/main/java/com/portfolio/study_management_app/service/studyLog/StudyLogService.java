@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.portfolio.study_management_app.dto.category.CategoryResponseDto;
 import com.portfolio.study_management_app.dto.studyLog.AnalyticsResponseDto;
 import com.portfolio.study_management_app.dto.studyLog.CreateStudyLogRequsetDto;
 import com.portfolio.study_management_app.dto.studyLog.StudyLogResponseDto;
@@ -38,12 +39,25 @@ public class StudyLogService {
     this.studyLogRepository = studyLogRepository;
   }
 
+  // CategoryをCategoryResponseDtoに変換
+  private CategoryResponseDto categoryToDto(Category category) {
+
+    return new CategoryResponseDto(
+        category.getCategoryId(),
+        category.getCategoryName(),
+        category.getChildren()
+            .stream()
+            .map(this::categoryToDto)
+            .toList()
+    );
+}
+
   // StudyLogをStudyLogResponseDtoに変換
   private StudyLogResponseDto toDto(StudyLog studyLog) {
 
     return new StudyLogResponseDto(
         studyLog.getStudyLogId(),
-        studyLog.getCategory().getCategoryName(),
+        categoryToDto(studyLog.getCategory()),
         studyLog.getStartTime(),
         studyLog.getEndTime(),
         studyLog.getStudySeconds(),
@@ -166,7 +180,7 @@ public class StudyLogService {
 
     return new StudyLogResponseDto(
         savedStudyLog.getStudyLogId(),
-        savedStudyLog.getCategory().getCategoryName(),
+        categoryToDto(studyLog.getCategory()),
         savedStudyLog.getStartTime(),
         savedStudyLog.getEndTime(),
         savedStudyLog.getStudySeconds(),

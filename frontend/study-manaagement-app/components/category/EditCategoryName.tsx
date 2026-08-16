@@ -1,8 +1,8 @@
 "use client"
 
+import { useActionForCategory } from "@/hooks/category/UseActionForCategory";
 import { useEffect, useRef } from "react";
-import CategoryItemFlame from "./CategoryItemFlame";
-import { useActionForCategory } from "@/hooks/category/useActionForCategory";
+
 
 type EditCategoryNameProps = {
   newCategoryName: string,
