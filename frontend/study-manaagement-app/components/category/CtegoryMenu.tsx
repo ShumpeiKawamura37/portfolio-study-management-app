@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionForCategory } from "@/hooks/category/useActionForCategory";
+import { useActionForCategory } from "@/hooks/category/UseActionForCategory";
 import { useRecord } from "@/hooks/record/useRecord";
 import React, { SetStateAction, useEffect, useRef } from "react";
 

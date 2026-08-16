@@ -6,8 +6,8 @@ import EditCategoryName from "./EditCategoryName";
 import { useState } from "react";
 import { onKeyDown } from "@/utils/inputAction/onKeyDown";
 import { createCategory } from "@/service/category/CategoryService";
-import { useCategory } from "@/hooks/category/useCategory";
-import { useActionForCategory } from "@/hooks/category/useActionForCategory";
+import { useCategory } from "@/hooks/category/UseCategory";
+import { useActionForCategory } from "@/hooks/category/UseActionForCategory";
 
 const INDENT_WIDTH = 12;
 

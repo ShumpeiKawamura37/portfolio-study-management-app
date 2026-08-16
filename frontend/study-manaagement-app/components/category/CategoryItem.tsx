@@ -7,9 +7,9 @@ import { onKeyDown } from "@/utils/inputAction/onKeyDown";
 import CategoryItemFlame from "./CategoryItemFlame";
 import CateogryMenu from "./CtegoryMenu";
 import CategoryTriangleMenu from "./CategoryTriangleMenu";
-import { useCategory } from "@/hooks/category/useCategory";
 import { useRecord } from "@/hooks/record/useRecord";
-import { useActionForCategory } from "@/hooks/category/useActionForCategory";
+import { useCategory } from "@/hooks/category/UseCategory";
+import { useActionForCategory } from "@/hooks/category/UseActionForCategory";
 
 type CategoryItemProps = {
   categoryId: number,

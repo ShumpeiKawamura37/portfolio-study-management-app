@@ -3,9 +3,9 @@
 import CreateCategory from "./CreateCategory";
 import CategoryNode from "./CategoryNode";
 import CategoryItemFlame from "./CategoryItemFlame";
-import { useEffect, useRef } from "react";
-import { useCategory } from "@/hooks/category/useCategory";
+import { useRef } from "react";
 import { useRecord } from "@/hooks/record/useRecord";
+import { useCategory } from "@/hooks/category/UseCategory";
 
 
 export default function CategoryTree(){
@@ -28,7 +28,7 @@ export default function CategoryTree(){
         カテゴリ選択
         <div 
           ref={treeRef}
-          className="w-[250px] h-[100px] border overflow-scroll scrollbar-hide px-2 py-2"
+          className="w-[250px] h-[100px] border border-[#B7B7B7] overflow-scroll scrollbar-hide px-2 py-2"
           onClick={handleTreeClick}
 
         >

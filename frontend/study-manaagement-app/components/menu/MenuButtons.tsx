@@ -18,7 +18,7 @@ export default function MenuButtons() {
         router.push("/record")
         break;
       case "data":
-        router.push("/studyData")
+        router.push("/analyzeStudyLog")
         break;
       default:
         return null;
