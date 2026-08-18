@@ -11,5 +11,6 @@ import com.portfolio.study_management_app.entity.studyLog.StudyLog;
 @Repository
 public interface StudyLogRepository extends JpaRepository<StudyLog, Long> {
   public List<StudyLog> findByUserUserId(Long userId);
+  public List<StudyLog> findByCategoryCategoryId(Long categoryId);
   public List<StudyLog> findByUserUserIdAndStartTimeGreaterThanEqualAndStartTimeLessThan(Long userId, LocalDateTime start, LocalDateTime end);
 } 

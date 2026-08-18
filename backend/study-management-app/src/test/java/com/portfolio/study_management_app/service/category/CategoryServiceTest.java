@@ -282,7 +282,7 @@ public class CategoryServiceTest {
 
     Category beforeSavingCategory = captor.getValue();
 
-      assertEquals(category.getCategoryId(), beforeSavingCategory.getCategoryId());
+    assertEquals(category.getCategoryId(), beforeSavingCategory.getCategoryId());
     assertEquals(false, beforeSavingCategory.isStatus());
   }
 
@@ -307,5 +307,5 @@ public class CategoryServiceTest {
     assertThrows(ValidationException.class, () -> categoryService.deleteCategory(1L));
 
     verify(categoryRepository, never()).save(any(Category.class));
-  }
+    }
 }

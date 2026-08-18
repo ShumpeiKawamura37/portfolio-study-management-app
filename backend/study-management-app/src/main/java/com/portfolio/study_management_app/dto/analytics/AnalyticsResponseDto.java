@@ -1,4 +1,4 @@
-package com.portfolio.study_management_app.dto.studyLog;
+package com.portfolio.study_management_app.dto.analytics;
 
 public record AnalyticsResponseDto(
   Integer totalStudySeconds,
