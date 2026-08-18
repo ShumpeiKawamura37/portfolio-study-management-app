@@ -2,6 +2,7 @@ package com.portfolio.study_management_app.service.studyLog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -25,7 +26,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.portfolio.study_management_app.dto.studyLog.AnalyticsResponseDto;
+import com.portfolio.study_management_app.dto.analytics.AnalyticsResponseDto;
+import com.portfolio.study_management_app.dto.analytics.CategoryAnalyticsResponseDto;
 import com.portfolio.study_management_app.dto.studyLog.CreateStudyLogRequsetDto;
 import com.portfolio.study_management_app.dto.studyLog.StudyLogResponseDto;
 import com.portfolio.study_management_app.entity.category.Category;
@@ -350,4 +352,56 @@ public class StudyLogServiceTest {
         result.studyDayRate());
     assertEquals(0, result.studyStreak());
   }
+
+  @Test
+  @DisplayName("正常系: カテゴリ学習分析を取得成功")
+  void getCategoryAnalytics_success() {
+    // 認証セット
+    User user = new User("test", "test@exapmle.com", "password123");
+    user.setCreatedAt(LocalDateTime.of(2000, 1, 1, 0, 0));
+
+    Authentication auth = new UsernamePasswordAuthenticationToken(
+        1L,
+        null,
+        null);
+
+    SecurityContextHolder
+        .getContext()
+        .setAuthentication(auth);
+
+    // 前提条件セット
+    Category category = new Category("test", user, null);
+    category.setCategoryId(1L);
+    Category childCategory = new Category("child", user, category);
+
+    StudyLog studyLog = new StudyLog(
+        LocalDateTime.of(2000, 1, 1, 0, 0),
+        LocalDateTime.of(2000, 1, 1, 0, 10),
+        10,
+        "test",
+        user,
+        category);
+    List<StudyLog> studyLogs = new ArrayList<>();
+    studyLogs.add(studyLog);
+
+     // 実行準備
+    when(categoryRepository.findById(anyLong()))
+        .thenReturn(Optional.of(childCategory));
+    when(categoryRepository.findById(anyLong()))
+        .thenReturn(Optional.of(category));
+    when(studyLogRepository.findByCategoryCategoryId(anyLong()))
+        .thenReturn(studyLogs);
+
+    // 実行
+    CategoryAnalyticsResponseDto result = studyLogService.getCategoryAnalytics(category.getCategoryId());
+
+    // データ検証
+    assertNotNull(result);
+    assertEquals(category.getCategoryId(), result.categoryId());
+    assertEquals(studyLog.getStartTime(), result.firstTimeStudied());
+    assertEquals(studyLog.getEndTime(), result.lastTimeStudied());
+    assertEquals(1.0, result.percentageOfTotal());
+    assertNull(result.percentageOfParentCategory());
+  }
+
 }

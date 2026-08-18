@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import java.time.LocalDateTime;
+import static org.hamcrest.Matchers.nullValue;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -268,4 +269,46 @@ public class StudyLogControllerApiTest {
           .andExpect(jsonPath("$.data").exists());
           
   }
+  @Test
+  @DisplayName("正常系: カテゴリ学習分析を取得成功")
+  void getCategoryAnalytics_success() throws Exception {
+     // 認証セット
+    User user = new User("test", "test@example.com", "Password123");
+    User savedUser = userRepository.save(user);
+    savedUser.setCreatedAt(LocalDateTime.of(2000, 1, 1, 0, 0));
+    String token = jwtProvider.generateToken(savedUser.getUserId());
+
+    // 前提条件セット
+    Category category = new Category("test", savedUser, null);
+    Category childCategory = new Category("child", savedUser, category);
+    categoryRepository.save(category);
+    categoryRepository.save(childCategory);
+
+    StudyLog studyLog = new StudyLog(
+        LocalDateTime.of(2000, 1, 1, 0, 0, 0),
+        LocalDateTime.of(2000, 1, 1, 0, 10, 0),
+        10, 
+        "test",
+        savedUser, 
+        category);
+    studyLogRepository.save(studyLog);
+
+    //実行
+    mockMvc.perform(
+      get("/api/studyLog/analytics/{categoryId}", category.getCategoryId())
+          .header("Authorization", "Bearer " + token)
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.data").exists())
+          .andExpect(jsonPath("$.data.categoryId").value(category.getCategoryId()))
+          .andExpect(jsonPath("$.data.firstTimeStudied").value("2000-01-01T00:00:00"))
+          .andExpect(jsonPath("$.data.lastTimeStudied").value("2000-01-01T00:10:00"))
+          .andExpect(jsonPath("$.data.percentageOfTotal").value(1.0))
+          .andExpect(jsonPath("$.data.percentageOfParentCategory").value(nullValue()));
+          
+          
+  }
 }
+
+//  .andExpect(jsonPath("$.data[0].studyLogId").value(studyLog.getStudyLogId()));

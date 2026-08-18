@@ -12,8 +12,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.portfolio.study_management_app.dto.analytics.AnalyticsResponseDto;
+import com.portfolio.study_management_app.dto.analytics.CategoryAnalyticsResponseDto;
 import com.portfolio.study_management_app.dto.category.CategoryResponseDto;
-import com.portfolio.study_management_app.dto.studyLog.AnalyticsResponseDto;
 import com.portfolio.study_management_app.dto.studyLog.CreateStudyLogRequsetDto;
 import com.portfolio.study_management_app.dto.studyLog.StudyLogResponseDto;
 import com.portfolio.study_management_app.entity.category.Category;
@@ -152,6 +153,45 @@ public class StudyLogService {
     return streak;
   }
 
+  // getCategoryAnalytics用
+
+  // 合計学習時間を算出
+  public int calculationTotalStudySecondsOfCategory(List<StudyLog> studyLogs) {
+    return studyLogs.stream()
+        .mapToInt(StudyLog::getStudySeconds)
+        .sum();
+  }
+
+  //　初回学習日時を返す
+  public LocalDateTime findFirstTimeStudied(List<StudyLog> studyLogs) {
+    return studyLogs.stream()
+        .map(StudyLog::getStartTime)
+        .min(LocalDateTime::compareTo)
+        .orElse(null);
+  }
+
+  // 最終学習日時を返す
+  public LocalDateTime findLastTimeStudied(List<StudyLog> studyLogs) {
+    return studyLogs.stream()
+        .map(StudyLog:: getEndTime)
+        .max(LocalDateTime:: compareTo)
+        .orElse(null);
+  }
+
+  //全体に占める当該カテゴリの学習時間比率を算出
+  public double calculationPercentageOfTotal(List<StudyLog> studyLogs, int totalStudySecondsOfCategory) {
+    int totalStudySeconds = calculationTotalStudySeconds(studyLogs);
+    return totalStudySecondsOfCategory / totalStudySeconds;
+  }
+
+  //親カテゴリに占める当該カテゴリの学習時間比率を算出
+  public Double calculationPercentageOfParentCategory(int totalStudySecondsOfChild, int totalStudySecondsOfParent) {
+    if (totalStudySecondsOfParent == 0) {
+        return null;
+    }
+    return (double) totalStudySecondsOfChild / totalStudySecondsOfParent;
+  }
+
   public StudyLogResponseDto createStudyLog(CreateStudyLogRequsetDto req) {
     // トークンからユーザー取得
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -257,4 +297,31 @@ public class StudyLogService {
         studyStreak
     );
   }
+
+  public CategoryAnalyticsResponseDto getCategoryAnalytics(Long categoryId) {
+
+    Category category = categoryRepository.findById(categoryId).orElseThrow();
+
+    List<StudyLog> studyLogsFilteredByCategoryId = studyLogRepository.findByCategoryCategoryId(categoryId);
+    
+    int totalStudySeconds = calculationTotalStudySecondsOfCategory(studyLogsFilteredByCategoryId);
+    LocalDateTime firstTimeStudied = findFirstTimeStudied(studyLogsFilteredByCategoryId);
+    LocalDateTime lastTimeStudied = findLastTimeStudied(studyLogsFilteredByCategoryId);
+    double percentageOfTotal = calculationPercentageOfTotal(studyLogsFilteredByCategoryId, totalStudySeconds);
+
+    // 親カテゴリに占める学習時間を先に定義(if用)
+    Double percentageOfParentCategory = null;
+
+    // 親カテゴリの合計学習時間を算出
+    if(category.getParentCategory() != null) {
+      List<StudyLog> studyLogsFilteredByParentCategoryId = studyLogRepository.findByCategoryCategoryId(category.getParentCategory().getCategoryId());
+
+      int totalStudySecondsOfParentCategory = calculationTotalStudySecondsOfCategory(studyLogsFilteredByParentCategoryId);
+
+      percentageOfParentCategory = calculationPercentageOfParentCategory(totalStudySeconds, totalStudySecondsOfParentCategory);
+    }
+
+    return new CategoryAnalyticsResponseDto(categoryId, totalStudySeconds, firstTimeStudied, lastTimeStudied, percentageOfTotal, percentageOfParentCategory);
+  }
+
 }

@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.portfolio.study_management_app.dto.analytics.AnalyticsResponseDto;
+import com.portfolio.study_management_app.dto.analytics.CategoryAnalyticsResponseDto;
 import com.portfolio.study_management_app.dto.common.ApiResponseDto;
-import com.portfolio.study_management_app.dto.studyLog.AnalyticsResponseDto;
 import com.portfolio.study_management_app.dto.studyLog.CreateStudyLogRequsetDto;
 import com.portfolio.study_management_app.dto.studyLog.StudyLogResponseDto;
 import com.portfolio.study_management_app.service.studyLog.StudyLogService;
@@ -45,6 +46,12 @@ public class StudyLogController {
   @GetMapping("/analytics")
   public ApiResponseDto<AnalyticsResponseDto> getAnalytics() {
     AnalyticsResponseDto res = studyLogService.getAnalytics();
+    return new ApiResponseDto<>("SUCCESS", res, null);
+  }
+
+  @GetMapping("/analytics/{categoryId}")
+  public ApiResponseDto<CategoryAnalyticsResponseDto> getCategoryAnalytics(@PathVariable Long categoryId) {
+    CategoryAnalyticsResponseDto res = studyLogService.getCategoryAnalytics(categoryId);
     return new ApiResponseDto<>("SUCCESS", res, null);
   }
 }
