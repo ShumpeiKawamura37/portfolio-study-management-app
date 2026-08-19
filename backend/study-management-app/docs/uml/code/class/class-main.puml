@@ -85,7 +85,20 @@ class StudyLogService {
   + getStudyLogbyDate(LocalDate) : List<StudyLogResponseDto>
   + CreateStudyLog(CreateStudyLogRequestDto) : void
   + getAnalytics() : AnalyticsResponseDto
+  + getCategoryAnalytics(Long) : CategoryAnalyticsResponseDto 
   + todto (StudyLog) : StudyLogResponseDto
+  + categoryToDto(Category) : CategoryResponseDto 
+  + calculationTotalStudySeconds(List<studyLogs>) : Integer
+  + calculationTotalStudyDays(List<StudyLog>) : Integer
+  + calculationAverageStudySeconds(Integer totalStudySeconds, Integer totalStudyDays) : Integer
+  + findCategoryNameLongestStudySeconds(List<StudyLog>) : String
+  + calculationStudyDayRate(LocalDateTime createdAt, Integer totalStudyDays) : Double
+  + calculationStudyStreak(List<StudyLog>) : Integer
+  + calculationTotalStudySecondsOfCategory(List<StudyLog) : int
+  + findFirstTimeStudied(List<StudyLog>) : LocalDateTime
+  + findLastTimeStudied(List<StudyLog>) LocalDateTime
+  + calculationPercentageOfTotal(List<StudyLog> studyLogs, int totalStudySecondsOfCategory) : Double
+  + calculationPercentageOfParentCategory(int totalStudySecondsOfChild, int totalStudySecondsOfParent) : Double
 }
 
 class StudyLogRepository {
@@ -98,3 +111,5 @@ Category "1" -- "0..*" StudyLog : contains
 User "1" -- "0..*" StudyLog : records
 Category "0..1" -- "0..*" Category : parent-child
 @enduml
+
+
