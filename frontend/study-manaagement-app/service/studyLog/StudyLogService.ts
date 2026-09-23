@@ -55,3 +55,25 @@ export async function getStudyLogs(): Promise<ApiResponse<StudyLogResponse[]>> {
   }
   return result;
 }
+
+export async function getStudyLogByDate(date: Date) {
+  const token = localStorage.getItem("token");
+  const formattedDate = date.toISOString().split("T")[0];
+
+
+  const response = await fetch(`${BASE_URL}/api/studyLog/date/${formattedDate}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const result: ApiResponse<StudyLogResponse[]> = await response.json();
+
+  if(!response.ok) {
+    throw new Error(result.message);
+  }
+
+  return result;
+}

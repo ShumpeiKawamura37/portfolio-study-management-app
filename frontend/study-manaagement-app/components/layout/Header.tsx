@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import MenuModal from "./MenuModal";
+import { useAuth } from "@/hooks/auth/useAuth";
 
-export default function Header({isLogin} : {isLogin : boolean}) {
+export default function Header() {
+  const { isLogin } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const onClose = () => setIsOpen(false);
   return (

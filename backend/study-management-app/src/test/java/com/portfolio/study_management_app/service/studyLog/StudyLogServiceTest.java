@@ -370,9 +370,13 @@ public class StudyLogServiceTest {
         .setAuthentication(auth);
 
     // 前提条件セット
-    Category category = new Category("test", user, null);
-    category.setCategoryId(1L);
-    Category childCategory = new Category("child", user, category);
+    Category parentCategory = new Category("parent", user, null);
+
+    Category category = new Category("child", user, parentCategory);
+    parentCategory.setCategoryId(1L);
+    category.setCategoryId(2L);
+
+    parentCategory.addChild(category);
 
     StudyLog studyLog = new StudyLog(
         LocalDateTime.of(2000, 1, 1, 0, 0),
@@ -381,19 +385,17 @@ public class StudyLogServiceTest {
         "test",
         user,
         category);
+
     List<StudyLog> studyLogs = new ArrayList<>();
     studyLogs.add(studyLog);
 
      // 実行準備
-    when(categoryRepository.findById(anyLong()))
-        .thenReturn(Optional.of(childCategory));
-    when(categoryRepository.findById(anyLong()))
-        .thenReturn(Optional.of(category));
-    when(studyLogRepository.findByCategoryCategoryId(anyLong()))
+    when(studyLogRepository.findByUserUserId(1L))
         .thenReturn(studyLogs);
-
+    when(categoryRepository.findById(parentCategory.getCategoryId()))
+        .thenReturn(Optional.of(parentCategory));
     // 実行
-    CategoryAnalyticsResponseDto result = studyLogService.getCategoryAnalytics(category.getCategoryId());
+    CategoryAnalyticsResponseDto result = studyLogService.getCategoryAnalytics(category.getCategoryId(), parentCategory.getCategoryId());
 
     // データ検証
     assertNotNull(result);
@@ -401,7 +403,7 @@ public class StudyLogServiceTest {
     assertEquals(studyLog.getStartTime(), result.firstTimeStudied());
     assertEquals(studyLog.getEndTime(), result.lastTimeStudied());
     assertEquals(1.0, result.percentageOfTotal());
-    assertNull(result.percentageOfParentCategory());
-  }
+    assertEquals(1.0, result.percentageOfDescendantCategory());
+}
 
 }

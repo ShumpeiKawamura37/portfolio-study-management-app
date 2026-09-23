@@ -3,15 +3,23 @@
 import { login, register } from "@/service/auth/authService";
 import Button from "../ui/Button"
 import InputForm from "./InputForm"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation";
 import { showError } from "@/utils/error";
+import { useAuth } from "@/hooks/auth/useAuth";
 
 export default function LoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [action, setAction] = useState<"login" | "register">("login");
+  const { isLogin, setIsLogin } = useAuth();
+
+  // ログイン画面に戻ってきたらログアウト状態にする
+  useEffect(() => {
+    setIsLogin(false);
+    localStorage.removeItem("token");
+  }, [setIsLogin]);
 
   const onChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -31,6 +39,8 @@ export default function LoginForm() {
         if(res.status === "SUCCESS") {
           //メニュー画面へ遷移
           localStorage.setItem("token", res.data.token);
+          setIsLogin(true);
+          console.log("ログイン成功" + isLogin);
           router.push("menu");
         }
       } catch (error: Error | any) {

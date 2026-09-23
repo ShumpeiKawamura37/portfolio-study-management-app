@@ -2,6 +2,7 @@
 import { PieChart, Pie, Cell, Sector, Tooltip } from "recharts";
 import { useAnalytics } from "@/hooks/analytics/useAnalytics";
 import { useState } from "react";
+import { Period } from "@/hooks/analytics/useAnalyticsState";
 
 const colors = [
   "#3b82f6",
@@ -19,13 +20,13 @@ export default function CategoryPieChart() {
     useState<number>(-1);
   const analytics = useAnalytics();
 
-  const studyLogs = analytics.studySecondsByCategory;
+  const categories = analytics.studySecondsByCategory;
   const totalStudySeconds = analytics.analytics?.totalStudySeconds;
   if (totalStudySeconds === undefined || totalStudySeconds === 0) {
     return null;
   }
 
-  const chartData = studyLogs.reduce(
+  const chartData = categories.reduce(
   (result, category) => {
     const percentage =
       (category.studySeconds / totalStudySeconds) * 100;
@@ -64,7 +65,19 @@ export default function CategoryPieChart() {
 
   // 割り出したpercentageをPieの角度とする。
   return (
-    <>
+    <div className="flex flex-col justify-center items-center">
+      <select
+      value={analytics.period}
+      onChange={(e) => {
+        analytics.setPeriod(e.target.value as Period)
+      }}
+      className="border border-[#B7B7B7] rounded-sm px-4 py-1"
+      >
+        <option value="total" key={"total"}>総合</option>
+        <option value="week" key={"week"}>週間</option>
+        <option value="month"key={"month"}>月間</option>
+        <option value="year" key={"year"}>年間</option>
+      </select>
       <PieChart width={260} height={260}>
         <Pie
         data={chartData}
@@ -115,7 +128,7 @@ export default function CategoryPieChart() {
         }}
       />
       </PieChart>
-    </>
+    </div>
   );
 }
 

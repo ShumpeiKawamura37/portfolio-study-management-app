@@ -8,5 +8,5 @@ public record CategoryAnalyticsResponseDto (
   LocalDateTime firstTimeStudied,
   LocalDateTime lastTimeStudied,
   double percentageOfTotal,
-  Double percentageOfParentCategory
+  Double percentageOfDescendantCategory
 ) {}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 export const useTimer = () => {
   const [seconds, setSeconds] = useState(0);
   const [startTime, setStartTime] = useState<Date | null>(null);
@@ -8,6 +8,7 @@ export const useTimer = () => {
   const [totalStudySeconds, setTotalStudySeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const intervalRef = useRef<number | null>(null);
+  const [isTimer, setIsTimer] = useState(true);
 
   const start = (isTimer: boolean) => {
     if(intervalRef.current !== null) {
@@ -29,7 +30,7 @@ export const useTimer = () => {
           if (prev <= 1) {
             clearInterval(intervalRef.current!);
             intervalRef.current = null;
-            setIsRunning(false);
+            stop();
             return 0;
           }
           return prev - 1;
@@ -55,11 +56,13 @@ export const useTimer = () => {
       setStartTime(null);
       setEndTime(null);
     };
+    return;
   }
 
-  useEffect(() => {
-    return () => stop();
-  }, []);
+  const toggleTimer = () => {
+    reset();
+    setIsTimer(prev => !prev);
+  }
 
   return {
     seconds,
@@ -70,6 +73,9 @@ export const useTimer = () => {
     isRunning,
     start,
     stop,
-    reset
+    reset,
+    isTimer,
+    setIsTimer,
+    toggleTimer
   }
 }

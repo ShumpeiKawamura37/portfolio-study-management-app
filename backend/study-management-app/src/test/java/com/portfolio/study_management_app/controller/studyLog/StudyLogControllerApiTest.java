@@ -281,6 +281,7 @@ public class StudyLogControllerApiTest {
     // 前提条件セット
     Category category = new Category("test", savedUser, null);
     Category childCategory = new Category("child", savedUser, category);
+    category.addChild(childCategory);
     categoryRepository.save(category);
     categoryRepository.save(childCategory);
 
@@ -290,25 +291,23 @@ public class StudyLogControllerApiTest {
         10, 
         "test",
         savedUser, 
-        category);
+        childCategory);
     studyLogRepository.save(studyLog);
 
     //実行
     mockMvc.perform(
-      get("/api/studyLog/analytics/{categoryId}", category.getCategoryId())
+      get("/api/studyLog/analytics/{categoryId}/{targetParentCategoryId}", childCategory.getCategoryId(), category.getCategoryId())
           .header("Authorization", "Bearer " + token)
           .with(csrf())
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$.data").exists())
-          .andExpect(jsonPath("$.data.categoryId").value(category.getCategoryId()))
+          .andExpect(jsonPath("$.data.categoryId").value(childCategory.getCategoryId()))
           .andExpect(jsonPath("$.data.firstTimeStudied").value("2000-01-01T00:00:00"))
           .andExpect(jsonPath("$.data.lastTimeStudied").value("2000-01-01T00:10:00"))
           .andExpect(jsonPath("$.data.percentageOfTotal").value(1.0))
-          .andExpect(jsonPath("$.data.percentageOfParentCategory").value(nullValue()));
+          .andExpect(jsonPath("$.data.percentageOfDescendantCategory").value(1.0));
           
           
   }
 }
-
-//  .andExpect(jsonPath("$.data[0].studyLogId").value(studyLog.getStudyLogId()));

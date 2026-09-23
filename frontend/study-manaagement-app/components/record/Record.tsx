@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Toggle from "../ui/Toggle";
 import TimerDisplay from "./TimerDisplay";
 import TimerSet from "./TimerSet";
@@ -15,33 +15,40 @@ import { useRouter } from "next/navigation";
 
 export default function Record() {
   const router = useRouter();
-  const [isTimer, setIsTimer] = useState(true);
-  const record = useRecord();
-  const submittable: boolean = record.startTime !== null && record.endTime !== null && record.targetCategoryId !== null;
-  const toggleTimer = () => {
-    setIsTimer(!isTimer)
-    record.setSeconds(0);
-  }
+  const {
+    isTimer, setStudyLogVersion, startTime, endTime, targetCategoryId, setSeconds , isRunning, stop, start, reset , totalStudySeconds, memo, seconds, toggleTimer
+  } = useRecord();
+
+  const submittable: boolean = startTime !== null && endTime !== null && targetCategoryId !== null;
+
   const handleClick = () => {
-    if(record.isRunning) {
-      record.stop();  
+    if(isRunning) {
+      stop();  
     } else {
-      record.start(isTimer);
+      start(isTimer);
     }
   }
 
   const onSubmit = async(e: React.SubmitEvent<HTMLElement>) => {
     e.preventDefault();
     try {
-      if(record.startTime === null || record.endTime === null || record.targetCategoryId === null) {
+      if(startTime === null || endTime === null || targetCategoryId === null) {
         return;
       }
-      await createStudyLog(record.startTime, record.endTime, record.seconds, record.memo, record.targetCategoryId);
+      await createStudyLog(startTime, endTime, totalStudySeconds, memo, targetCategoryId);
+      setStudyLogVersion(prev => prev + 1);
       router.push("/analyzeStudyLog");
+      setSeconds(0);
     } catch(error: Error | any) {
       alert(error);
     }
   }
+
+  useEffect(() => {
+    return () => {
+    stop();
+  };
+  },[])
 
   return (
     <>
@@ -51,26 +58,22 @@ export default function Record() {
             <Toggle isOn={isTimer} onToggle={toggleTimer} leftLabel="タイマー" rightLabel="ストップウォッチ" />
           </div>
 
-          <TimerDisplay time={formatTime(record.seconds)}/>
+          <TimerDisplay time={formatTime(seconds)}/>
 
-          <TimerButtons handleClick={handleClick} isRunning={record.isRunning} reset={record.reset} />
+          <TimerButtons handleClick={handleClick} isRunning={isRunning} reset={reset} />
 
           {!isTimer? (
-            <TimerSet setTotalSeconds={record.setSeconds}/>
+            <TimerSet setTotalSeconds={setSeconds}/>
           ): null
           }
 
           <>
-            <div className="mb-2">
-              <CategoryTree />
-            </div>
-            <div className="mb-2">
-              <InputMemo />
-            </div>
+            <CategoryTree />
             
+            <InputMemo />
 
             <Button 
-              onClick={() => console.log()} 
+              onClick={()=>console.log()}
               type="submit" 
               variant={`${submittable? "primary" : "disabled"}`}
               disabled={!submittable}
@@ -78,14 +81,14 @@ export default function Record() {
               保存する
             </Button>
             <div className="h-[20px]">
-              {record.seconds !== 0 && record.isRunning === false ? (
+              {totalStudySeconds !== 0 && isRunning === false ? (
                 null
               ): (
                 <p className="text-[14px] text-red-500">
                   ・学習時間を計測していません
                 </p>
               )}
-              {!record.targetCategoryId && (
+              {!targetCategoryId && (
                 <p className="text-[14px] text-red-500">
                   ・カテゴリが選択されていません
                 </p>
@@ -97,3 +100,4 @@ export default function Record() {
     </>
   )
 }
+

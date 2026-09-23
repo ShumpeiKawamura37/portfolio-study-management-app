@@ -24,13 +24,12 @@ export default function CategoryTree(){
 } ;
   
   return (
-    <>
-        カテゴリ選択
+    <div className="mb-2">
+        <h2 className="mb-1">カテゴリ選択</h2>
         <div 
           ref={treeRef}
-          className="w-[250px] h-[100px] border border-[#B7B7B7] overflow-scroll scrollbar-hide px-2 py-2"
+          className="w-[250px] h-[100px] border border-[#B7B7B7] overflow-scroll scrollbar-hide px-2 py-2 mb-2"
           onClick={handleTreeClick}
-
         >
         {/* categoriesの数だけ繰り返しCategoryItemを呼ぶ */}
         {category?.categories.map((cat) => (
@@ -43,7 +42,7 @@ export default function CategoryTree(){
           <CreateCategory />
         </CategoryItemFlame>
       </div>
-    </> 
+    </div> 
   );
 }
 
