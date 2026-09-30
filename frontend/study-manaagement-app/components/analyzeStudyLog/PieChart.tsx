@@ -1,5 +1,5 @@
 "use client";
-import { PieChart, Pie, Cell, Sector, Tooltip } from "recharts";
+import { PieChart, Pie, Sector, Tooltip } from "recharts";
 import { useAnalytics } from "@/hooks/analytics/useAnalytics";
 import { useState } from "react";
 import { Period } from "@/hooks/analytics/useAnalyticsState";

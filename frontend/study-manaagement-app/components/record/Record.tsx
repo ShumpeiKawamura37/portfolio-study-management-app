@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useEffect, } from "react";
 import Toggle from "../ui/Toggle";
 import TimerDisplay from "./TimerDisplay";
 import TimerSet from "./TimerSet";
@@ -74,7 +74,6 @@ export default function Record() {
             <InputMemo />
 
             <Button 
-              onClick={()=>console.log()}
               type="submit" 
               variant={`${submittable? "primary" : "disabled"}`}
               disabled={!submittable}
