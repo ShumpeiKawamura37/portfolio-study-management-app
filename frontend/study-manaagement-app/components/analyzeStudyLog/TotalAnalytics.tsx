@@ -14,10 +14,10 @@ export default function TotalAnalytics() {
     return `${hours}時間 ${minutes}分 ${remainingSeconds}秒`;
   }
   return (
-    <div className="w-[400px] border border-[#B7B7B7] p-1 flex flex-col items-center mb-3">
-      <h2 className="text-center text-2xl mb-4">ユーザーデータ</h2>
-      <ul>
-        <li className="flex flex-row justify-between  items-center">
+    <div className="w-[430px] border border-[#B7B7B7] p-1 flex flex-col items-center mb-3">
+      <h2 className="text-center text-2xl mt-4 mb-7">ユーザーデータ</h2>
+      <ul className="w-full px-4">
+        <li className="flex flex-row justify-between  items-center mb-7">
           <div className="text-left">
             <ItemHeading title="平均学習時間"/>
           </div>
@@ -28,7 +28,7 @@ export default function TotalAnalytics() {
             }
           </div>
         </li>
-        <li className="flex flex-row justify-between items-center">
+        <li className="flex flex-row justify-between items-center mb-7">
           <div className="text-left">
             <ItemHeading title="学習日数"/>
           </div>
@@ -40,7 +40,7 @@ export default function TotalAnalytics() {
             )}
           </div>
         </li>
-        <li className="flex flex-row justify-between items-center">
+        <li className="flex flex-row justify-between items-center mb-7">
           <div className="text-left">
             <ItemHeading title="合計学習時間"/>
           </div>
@@ -51,7 +51,7 @@ export default function TotalAnalytics() {
             }
           </div>
         </li>
-        <li className="flex flex-row justify-between items-center">
+        <li className="flex flex-row justify-between items-center mb-7">
           <div className="text-left">
             <ItemHeading title="最も学習しているカテゴリ"/>
           </div>
@@ -63,5 +63,3 @@ export default function TotalAnalytics() {
     </div>
   )
 }
-
-items-centerにしているのにラベルが上寄せになる

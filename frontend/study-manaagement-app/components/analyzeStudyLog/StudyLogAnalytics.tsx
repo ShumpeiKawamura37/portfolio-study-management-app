@@ -19,14 +19,17 @@ export default function StudyLogAnalytics() {
   }, [])
 
   return (
-    <div className="px-5">
+    <div className="px-5 h-[300px]">
       {targetStudyLog?.length == 0 ? (
         <p className="text-center">学習ログがありません。</p>
       ):(
         <ul>
           {targetStudyLog?.map((studyLog) => {
             return (
-              <li key={targetStudyLog.indexOf(studyLog)}>
+              <li 
+                key={targetStudyLog.indexOf(studyLog)}
+                className="mb-4"
+              >
                 <StudyLogAnalyticsItem studyLog={studyLog}/>
               </li>
             )

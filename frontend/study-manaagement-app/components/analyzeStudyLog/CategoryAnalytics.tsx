@@ -38,7 +38,7 @@ export default function CategoryAnalytics() {
 
   return (
     <div>
-      <div className="mb-1">
+      <div className="mt-7 mb-1">
         カテゴリ名：　
         {targetCategory?.categoryName}
       </div>

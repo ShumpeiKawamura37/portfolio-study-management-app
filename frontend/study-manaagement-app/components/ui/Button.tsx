@@ -28,8 +28,8 @@ export default function Button({
     startOrStop: "w-[85px] h-[85px] hover:bg-[#64ebc5] text-white text-sm rounded-full",
     reset: "w-[85px] h-[85px] bg-[#DE5353] hover:bg-[#ff6b6b] text-white text-sm rounded-full",
     disabled: "w-[250px] bg-[#E1E1E1] text-white",
-    calender: "w-[100px] hover:bg-[#64ebc5] text-white text-sm rounded-xl",
-    turnDate: "w-[70px] h-[30px] text-sm bg-[#E1E1E1] hover:bg-[#f2f0f0] rounded-xl"
+    calender: "w-[60px] hover:bg-[#64ebc5] text-white text-sm rounded-xl",
+    turnDate: "w-[50px] h-[30px] !p-0 text-sm bg-[#E1E1E1] hover:bg-[#f2f0f0] rounded-xl"
   };
 
   const disabledStyle = disabled 

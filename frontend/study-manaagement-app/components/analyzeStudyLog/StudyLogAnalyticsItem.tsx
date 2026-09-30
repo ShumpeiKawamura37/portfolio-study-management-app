@@ -22,7 +22,7 @@ export default function StudyLogAnalyticsItem({
       });
     } ;
   return (
-    <ul className="flex flex-col gap-1 border-b mb-5">
+    <ul className="flex flex-col gap-1 border-b mb-5 pb-4">
       <li className="flex">
         <span className="w-18 text-right">
           カテゴリ: 

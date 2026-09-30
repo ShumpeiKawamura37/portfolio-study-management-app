@@ -9,8 +9,8 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const onClose = () => setIsOpen(false);
   return (
-    <header className="bg-primary h-[120px] w-full px-2">
-      <div className=" max-w-screen-xl mx-auto flex justify-end">
+    <header className="bg-primary h-[120px] px-2">
+      <div className=" w-full flex justify-end">
         {/* ハンバーガー */}
         { isLogin && (
           <div className=" w-[120px] h-[120px] flex items-center justify-center">

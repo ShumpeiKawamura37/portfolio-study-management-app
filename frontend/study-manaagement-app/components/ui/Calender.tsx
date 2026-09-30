@@ -9,7 +9,7 @@ import { ja } from "date-fns/locale";
 
 export default function Calender() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const {targetDate, setTargetDate} = useAnalytics();
+  const {targetDate, setTargetDate, studyLogs} = useAnalytics();
   const calenderRef = useRef<HTMLDivElement>(null);
 
   const formatDate = (date: Date) => {
@@ -17,11 +17,19 @@ export default function Calender() {
       return "";
     }
     return new Date(date).toLocaleString("ja-JP", {
-      year: "numeric",
       month: "numeric",
       day: "numeric",
     });
   };
+
+  // 学習ログを記録した日付一覧を取得
+  const studyLogDates: Date[] = [
+    ... new Set(
+      studyLogs.map((studyLog) => {
+        return new Date(studyLog.startTime).toLocaleDateString("ja-JP")
+      })
+    ),
+  ].map((date) => new Date(date));
 
   useEffect(() => {
     const handleClickOutSide = (e: MouseEvent) => {
@@ -69,7 +77,7 @@ export default function Calender() {
               root: "w-full h-full",
 
               month: "w-full h-full",
-              month_grid: "w-[200px]",
+              month_grid: "w-[196px]",
 
               month_caption: "flex items-center justify-center h-7",
               caption_label: "text-sm",
@@ -80,15 +88,19 @@ export default function Calender() {
               button_next:
                 "absolute right-2 top-1/2 -translate-y-1/2",
               day_button:
-                "text-xs",
+                "w-7 h-7 text-xs",
+              day:
+                "w-7 h-7",
             }}
             modifiers={{
               sunday: { dayOfWeek: [0] },
               saturday: { dayOfWeek: [6] },
+              hasStudyLog: studyLogDates
             }}
             modifiersClassNames={{
               sunday: "text-red-500",
               saturday: "text-blue-500",
+              hasStudyLog: "has-study-log"
             }}
           />
         </div>

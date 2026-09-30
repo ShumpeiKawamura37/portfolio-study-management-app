@@ -40,7 +40,6 @@ export default function LoginForm() {
           //メニュー画面へ遷移
           localStorage.setItem("token", res.data.token);
           setIsLogin(true);
-          console.log("ログイン成功" + isLogin);
           router.push("menu");
         }
       } catch (error: Error | any) {

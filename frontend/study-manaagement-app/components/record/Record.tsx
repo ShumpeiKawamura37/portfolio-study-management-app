@@ -35,6 +35,7 @@ export default function Record() {
       if(startTime === null || endTime === null || targetCategoryId === null) {
         return;
       }
+
       await createStudyLog(startTime, endTime, totalStudySeconds, memo, targetCategoryId);
       setStudyLogVersion(prev => prev + 1);
       router.push("/analyzeStudyLog");

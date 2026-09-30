@@ -11,13 +11,19 @@ export async function createStudyLog(
   categoryId: number,
 ): Promise<ApiResponse<StudyLogResponse>> {
   const token = localStorage.getItem("token");
+
+  const formatDateTime = (date: Date) => {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
+  };
+
   const req: CreateStudyLogrequest = {
-    startTime,
-    endTime,
+    startTime: formatDateTime(startTime),
+    endTime: formatDateTime(endTime),
     studySeconds,
     memo,
     categoryId
   };
+
 
   const response = await fetch(`${BASE_URL}/api/studyLog`, {
     method: "POST",

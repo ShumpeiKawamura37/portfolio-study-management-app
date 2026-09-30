@@ -7,21 +7,24 @@ import Button from "../ui/Button";
 import StudyLogAnalytics from "./StudyLogAnalytics";
 
 export default function StudyLogOfDate() {
-  const { setTargetDate } = useAnalytics();
-  const [action, setAction] = useState<"prev" | "next">("prev");
-  const handleClickDayButton = () => {
+  const { targetDate, setTargetDate } = useAnalytics();
+  const handleClickDayButton = (action: "prev" | "next") => {
     switch(action) {
       case "prev":
+        console.log("変更前:", targetDate);
         setTargetDate((prev) => {
           const date = new Date(prev);
           date.setDate(date.getDate() - 1)
+          console.log("変更後:", date);
           return date;
         });
         break;
       case "next":
+        console.log("変更前:", targetDate);
         setTargetDate((prev) => {
           const date = new Date(prev);
           date.setDate(date.getDate() + 1)
+          console.log("変更後:", date);
           return date;
         });
         break
@@ -30,12 +33,11 @@ export default function StudyLogOfDate() {
     }
   }
   return (
-    <div className=" w-[400px] border border-[#B7B7B7]">
-      <div className="flex justify-between px-20 py-4 items-center">
+    <div className=" w-[430px] h-[300px] border border-[#B7B7B7] overflow-scroll scrollbar-hide">
+      <div className="w-[200px] p-4 mx-auto flex gap-3 justify-between items-center">
         <Button 
           onClick={() => {
-            setAction("prev");
-            handleClickDayButton()
+            handleClickDayButton("prev")
           }}
           variant="turnDate"
         >
@@ -45,8 +47,7 @@ export default function StudyLogOfDate() {
 
         <Button 
           onClick={()=>{
-            setAction("next");
-            handleClickDayButton()
+            handleClickDayButton("next")
           }}
           variant="turnDate"
         >
@@ -59,3 +60,4 @@ export default function StudyLogOfDate() {
     </div>
   )
 }
+

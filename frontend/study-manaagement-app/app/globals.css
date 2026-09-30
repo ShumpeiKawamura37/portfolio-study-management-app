@@ -13,4 +13,21 @@
 }
 
 
+.has-study-log > button {
+  position: relative;
+}
 
+.has-study-log > button::after {
+  content: "";
+
+  position: absolute;
+
+  width: 5px;
+  height: 5px;
+
+  border-radius: 50%;
+  background-color: #F87171;
+
+  top: 2px;
+  right: 2px;
+}
