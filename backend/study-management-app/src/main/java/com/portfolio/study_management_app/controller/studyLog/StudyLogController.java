@@ -49,9 +49,17 @@ public class StudyLogController {
     return new ApiResponseDto<>("SUCCESS", res, null);
   }
 
+  // カテゴリ分析取得　(親カテゴリ選択済)
+  @GetMapping("/analytics/{categoryId}/{targetParentCategoryId}")
+  public ApiResponseDto<CategoryAnalyticsResponseDto> getCategoryAnalytics(@PathVariable Long categoryId, @PathVariable Long  targetParentCategoryId) {
+    CategoryAnalyticsResponseDto res = studyLogService.getCategoryAnalytics(categoryId, targetParentCategoryId);
+    return new ApiResponseDto<>("SUCCESS", res, null);
+  }
+
+  // カテゴリ分析取得　(親カテゴリ未選択)
   @GetMapping("/analytics/{categoryId}")
   public ApiResponseDto<CategoryAnalyticsResponseDto> getCategoryAnalytics(@PathVariable Long categoryId) {
-    CategoryAnalyticsResponseDto res = studyLogService.getCategoryAnalytics(categoryId);
+    CategoryAnalyticsResponseDto res = studyLogService.getCategoryAnalytics(categoryId, null);
     return new ApiResponseDto<>("SUCCESS", res, null);
   }
 }

@@ -79,3 +79,20 @@ export async function deleteCategory(categoryId: number): Promise<boolean> {
   }
   return true;
 }
+
+// 指定カテゴリの先祖カテゴリリストを取得
+export async function getAncestorCategoryList(categoryId: number): Promise<ApiResponse<CategoryResponse[]>> {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${BASE_URL}/api/category/ancestor/${categoryId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const result: ApiResponse<CategoryResponse[]> = await response.json();
+  if(!response.ok) {
+    throw new Error(result.message);
+  }
+  return result;
+}

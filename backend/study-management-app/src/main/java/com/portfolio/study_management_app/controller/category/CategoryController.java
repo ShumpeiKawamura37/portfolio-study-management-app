@@ -51,4 +51,11 @@ public class CategoryController {
 
     return new ApiResponseDto<>("SUCCESS", null, null);
   }
+
+  @GetMapping("/ancestor/{categoryId}")
+  public ApiResponseDto<List<CategoryResponseDto>> getAncestorCategoryList(@PathVariable Long categoryId) {
+    List<CategoryResponseDto> res =categoryService.getAncestoCategoryList(categoryId);
+
+    return new ApiResponseDto<>("SUCCESS", res, null);
+  }
 }

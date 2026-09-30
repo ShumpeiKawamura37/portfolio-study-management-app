@@ -14,9 +14,7 @@ export default function Providers({
     <RecordProvider>
       <CategoryProvider>
         <ActionForCategoryProvider>
-          <AnalyticsProvider>
-            {children}
-          </AnalyticsProvider>      
+          {children}   
         </ActionForCategoryProvider>
       </CategoryProvider>
     </RecordProvider>

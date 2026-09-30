@@ -1,8 +1,8 @@
 import { CategoryResponse } from "../category/category"
 
 export type CreateStudyLogrequest = {
-  startTime: Date,
-  endTime: Date,
+  startTime: string,
+  endTime: string,
   studySeconds: number,
   memo: string | null,
   categoryId: number,

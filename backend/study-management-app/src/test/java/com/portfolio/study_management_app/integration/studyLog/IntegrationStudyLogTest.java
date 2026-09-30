@@ -333,6 +333,7 @@ public class IntegrationStudyLogTest {
       // 前提条件セット
     Category category = new Category("test", savedUser, null);
     Category childCategory = new Category("child", savedUser, category);
+    category.addChild(childCategory);
     categoryRepository.save(category);
     categoryRepository.save(childCategory);
 
@@ -342,17 +343,17 @@ public class IntegrationStudyLogTest {
         10,
         "test",
         savedUser,
-        category);
+        childCategory);
     studyLogRepository.save(studyLog);
 
     // 実行
-    CategoryAnalyticsResponseDto result = studyLogService.getCategoryAnalytics(category.getCategoryId());
+    CategoryAnalyticsResponseDto result = studyLogService.getCategoryAnalytics(childCategory.getCategoryId(), category.getCategoryId());
      // データ検証
     assertNotNull(result);
-    assertEquals(category.getCategoryId(), result.categoryId());
+    assertEquals(childCategory.getCategoryId(), result.categoryId());
     assertEquals(studyLog.getStartTime(), result.firstTimeStudied());
     assertEquals(studyLog.getEndTime(), result.lastTimeStudied());
     assertEquals(1.0, result.percentageOfTotal());
-    assertNull(result.percentageOfParentCategory());
-  }
+    assertEquals(1.0, result.percentageOfDescendantCategory());
+    }
 }

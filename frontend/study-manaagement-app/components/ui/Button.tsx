@@ -6,7 +6,7 @@ type ButtonProps = {
   onClick: () => void;
   children: React.ReactNode;
   type?: "button" | "submit";
-  variant?: "primary" | "secondary" | "back" | "edit" | "delete" | "startOrStop" | "reset" | "disabled" ;
+  variant?: "primary" | "secondary" | "back" | "edit" | "delete" | "startOrStop" | "reset" | "disabled" | "calender" | "turnDate" ;
   disabled?: boolean;
 }
 
@@ -22,12 +22,14 @@ export default function Button({
   const variantStyle = {
     primary: "w-[250px] hover:bg-[#64ebc5] text-white", 
     secondary:"w-[250px] bg-[#E1E1E1] hover:bg-[#f2f0f0] text-black",
-    back: "w-auto px-2 py-3 round-sm text-sm hover:bg-[#64ebc5] text-white",
+    back: "w-auto px-2 py-3 text-sm hover:bg-[#64ebc5] text-white",
     edit: "w-auto px-[8px] h-[30px] bg-[#E1E1E1] hover:bg-[#f2f0f0] rounded-md text-black text-sm",
     delete: "w-[250px] bg-[#DE5353] hover:bg-[#ff6b6b] text-white ",
     startOrStop: "w-[85px] h-[85px] hover:bg-[#64ebc5] text-white text-sm rounded-full",
     reset: "w-[85px] h-[85px] bg-[#DE5353] hover:bg-[#ff6b6b] text-white text-sm rounded-full",
-    disabled: "w-[250px] bg-[#E1E1E1] text-white"
+    disabled: "w-[250px] bg-[#E1E1E1] text-white",
+    calender: "w-[60px] hover:bg-[#64ebc5] text-white text-sm rounded-xl",
+    turnDate: "w-[50px] h-[30px] !p-0 text-sm bg-[#E1E1E1] hover:bg-[#f2f0f0] rounded-xl"
   };
 
   const disabledStyle = disabled 
