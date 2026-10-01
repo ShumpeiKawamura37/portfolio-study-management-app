@@ -30,6 +30,7 @@ import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.user.User;
 import com.portfolio.study_management_app.exception.ValidationException;
 import com.portfolio.study_management_app.repository.category.CategoryRepository;
+import com.portfolio.study_management_app.repository.studyLog.StudyLogRepository;
 import com.portfolio.study_management_app.repository.user.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,6 +39,8 @@ public class CategoryServiceTest {
   CategoryRepository categoryRepository;
   @Mock
   UserRepository userRepository;
+  @Mock 
+  StudyLogRepository studyLogRepository;
 
   @InjectMocks
   CategoryService categoryService;

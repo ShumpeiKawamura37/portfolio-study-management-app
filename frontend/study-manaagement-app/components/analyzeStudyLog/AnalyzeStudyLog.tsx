@@ -1,32 +1,25 @@
 "use client"
-
 import CategoryTree from "../category/CategoryTree"
 import CategoryAnalytics from "./CategoryAnalytics"
-import DisplayUsername from "./DisplayUsername"
 import PieChart from "./PieChart"
+import StudyLogOfDate from "./StudyLogOfDate"
+import TotalAnalytics from "./TotalAnalytics"
 
 export default function AnalyzeStudyLog() {
 
   return (
-    <div className="mt-[60px] mx-[30px] w-[970px] flex items-center justify-between">
-      <div className="w-[480px]">
-        <DisplayUsername />
+    <div className="mt-[60px] w-[970px] mx-auto flex items-center justify-center">
+      <div className="w-[480px] flex flex-col justify-center items-start">
         <PieChart/>
         <CategoryTree />
         <CategoryAnalytics />
-
-        {/* 
-        categoryTree
-        analytics(バックエンドの追加実装が必要) */}
       </div>
 
-      <div className="w-[480px]">
-        {/* TotalAnalytics
-        studyLogofDate */}
+      <div className="w-[480px] flex flex-col justify-center items-center">
+        <TotalAnalytics />
+        <StudyLogOfDate />
       </div>
     </div>
   )
 }
 
-// タイマー押すと画面遷移してしまう・
-// 保存したばかりのカテゴリの学習時間が画面自動遷移後のPieに入っていない。useEffectで再取得すればいける？

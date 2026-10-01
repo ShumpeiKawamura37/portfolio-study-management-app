@@ -12,14 +12,18 @@ export default function CategoryTriangleMenu({
   triangleRef
 }: CategoryTrianagleMenuProps) {
   return (
-    <span 
+    <span
+      data-keep-category-selected
       className="
         absolute top-[calc(50%-3px)] right-[10px]
         w-0 h-0 
         border-l-[6px] border-l-transparent
         border-r-[6px] border-r-transparent
         border-t-[8px] border-t-[#B7B7B7]"
-      onClick={()=> setIsOpen((prev) => !prev)}
+      onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen((prev) => !prev);
+      }}
       ref={triangleRef}
     ></span>
   )

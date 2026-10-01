@@ -1,23 +1,20 @@
-import BackButton from "@/components/layout/BackButton";
 import "./globals.css";
 import Header from "@/components/layout/Header";
-import Providers from "./Providers";
+import { AuthProvider } from "@/context/AuthContext";
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const isLogin = true //ログイン状態を常にtrue（開発用）
   return (
     <html
       lang="ja"
     >
-      <body>
-        <Header isLogin={isLogin}/>
-        {isLogin? <BackButton /> : null}
-        <Providers>
+      <body className="min-w-max">
+        <AuthProvider>
+          <Header />
           {children}
-        </Providers>
+        </AuthProvider>
       </body>
     </html>
   );

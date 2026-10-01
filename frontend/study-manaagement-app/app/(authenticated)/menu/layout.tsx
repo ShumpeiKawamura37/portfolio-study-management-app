@@ -1,6 +1,8 @@
+"use client";
+
 import BackButton from "@/components/layout/BackButton";
 
-export default function InfoLayout({
+export default function menuLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -10,5 +12,5 @@ export default function InfoLayout({
       <BackButton />
       {children}
     </>
-  )
+  );
 }

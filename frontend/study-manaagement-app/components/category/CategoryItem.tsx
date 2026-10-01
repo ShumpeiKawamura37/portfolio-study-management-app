@@ -25,7 +25,7 @@ categoryName,
   const [isOpen, setIsOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const triangleRef = useRef<HTMLSpanElement>(null);
-  const { targetCategoryId, setTargetCategoryId } = useRecord();
+  const { setTargetCategoryId } = useRecord();
 
   // actionによって処理を分岐する
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -61,6 +61,7 @@ categoryName,
       await deleteCategory(categoryId);
       category?.removeCategory(categoryId);
       setIsOpen(false);
+      setTargetCategoryId(null);
     } catch(error: Error | any) {
       alert(error);
     }

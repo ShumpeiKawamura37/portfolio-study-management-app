@@ -179,17 +179,35 @@ public class StudyLogService {
   }
 
   //全体に占める当該カテゴリの学習時間比率を算出
-  public double calculationPercentageOfTotal(List<StudyLog> studyLogs, int totalStudySecondsOfCategory) {
-    int totalStudySeconds = calculationTotalStudySeconds(studyLogs);
-    return totalStudySecondsOfCategory / totalStudySeconds;
+  public double calculationPercentageOfTotal(int studySecondsOfCategory, int studySecondsOfAll) {
+    if(studySecondsOfAll == 0) {
+      return 0.0;
+    }
+    return (double) studySecondsOfCategory / studySecondsOfAll;
   }
 
-  //親カテゴリに占める当該カテゴリの学習時間比率を算出
-  public Double calculationPercentageOfParentCategory(int totalStudySecondsOfChild, int totalStudySecondsOfParent) {
+  //ある親要素以下に占める対象カテゴリの学習時間比率を算出
+  public Double calculationPercentageOfDescendantCategory(int totalStudySecondsOfChild, int totalStudySecondsOfParent) {
     if (totalStudySecondsOfParent == 0) {
         return null;
     }
     return (double) totalStudySecondsOfChild / totalStudySecondsOfParent;
+  }
+
+  // 指定した要素の子孫カテゴリのリストを返す
+  public List<Category> getDescendantCategoryList(List<Category> descendantCategoryList, Category targetParentCategory) {
+
+    descendantCategoryList.add(targetParentCategory);
+
+    if(targetParentCategory.getChildren() != null) {
+      targetParentCategory.getChildren().forEach(category -> {
+        descendantCategoryList.add(category);
+        if(category.getChildren() != null) {
+          getDescendantCategoryList(descendantCategoryList, category);
+        }
+      });
+    }
+    return descendantCategoryList;
   }
 
   public StudyLogResponseDto createStudyLog(CreateStudyLogRequsetDto req) {
@@ -298,30 +316,68 @@ public class StudyLogService {
     );
   }
 
-  public CategoryAnalyticsResponseDto getCategoryAnalytics(Long categoryId) {
+  public CategoryAnalyticsResponseDto getCategoryAnalytics(Long categoryId, Long targetParentCategoryId) {
+     // トークンからユーザー取得
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    Category category = categoryRepository.findById(categoryId).orElseThrow();
+    Long userId = (Long) authentication.getPrincipal();
 
-    List<StudyLog> studyLogsFilteredByCategoryId = studyLogRepository.findByCategoryCategoryId(categoryId);
+    // ユーザーの学習記録を全て取得
+    List<StudyLog> studyLogsFilteredByUserId = studyLogRepository.findByUserUserId(userId);
+
+    // 指定したカテゴリの学習記録リストを作成
+    List<StudyLog> studyLogsFilteredByCategoryId = studyLogsFilteredByUserId.stream().filter(studyLog -> studyLog.getCategory().getCategoryId() == categoryId).toList();
+
+    // ユーザーの合計学習時間を取得
+    int totalStudySecondsOfAllCategory = calculationTotalStudySeconds(studyLogsFilteredByUserId);
     
-    int totalStudySeconds = calculationTotalStudySecondsOfCategory(studyLogsFilteredByCategoryId);
+    // カテゴリの合計学習時間
+    int totalStudySecondsOfCategory = calculationTotalStudySecondsOfCategory(studyLogsFilteredByCategoryId);
+    // カテゴリの初回学習日時
     LocalDateTime firstTimeStudied = findFirstTimeStudied(studyLogsFilteredByCategoryId);
+    // カテゴリの最終学習日時
     LocalDateTime lastTimeStudied = findLastTimeStudied(studyLogsFilteredByCategoryId);
-    double percentageOfTotal = calculationPercentageOfTotal(studyLogsFilteredByCategoryId, totalStudySeconds);
+    // 全体に占めるカテゴリの学習時間
+    Double percentageOfTotal = calculationPercentageOfTotal(totalStudySecondsOfCategory, totalStudySecondsOfAllCategory);
 
-    // 親カテゴリに占める学習時間を先に定義(if用)
-    Double percentageOfParentCategory = null;
+    // 指定した親要素から連なる子孫カテゴリに占める学習時間を先に定義(if用)
+    Double percentageOfDescendantCategory = null;
+    System.out.println("targetParentCategoryId: " + targetParentCategoryId);
+    if(targetParentCategoryId != null) {
 
-    // 親カテゴリの合計学習時間を算出
-    if(category.getParentCategory() != null) {
-      List<StudyLog> studyLogsFilteredByParentCategoryId = studyLogRepository.findByCategoryCategoryId(category.getParentCategory().getCategoryId());
+      Category targetParentCategory = categoryRepository.findById(targetParentCategoryId).orElseThrow();
 
-      int totalStudySecondsOfParentCategory = calculationTotalStudySecondsOfCategory(studyLogsFilteredByParentCategoryId);
+      // 指定した親要素の子孫カテゴリリストを作成
+      List<Category> descendantCategoryList = new ArrayList<>();
+      getDescendantCategoryList(descendantCategoryList, targetParentCategory);
 
-      percentageOfParentCategory = calculationPercentageOfParentCategory(totalStudySeconds, totalStudySecondsOfParentCategory);
+      // descendantCategoryList内のカテゴリを持つ学習記録を抽出
+      List<StudyLog> studyLogsFilteredByDescendantCategories = studyLogsFilteredByUserId.stream()
+        .filter(studyLog -> {
+          return descendantCategoryList.stream()
+            .anyMatch(descendantCategory -> {
+              return studyLog.getCategory().equals(descendantCategory);
+            });
+        })
+        .toList();
+
+      // 抽出した学習ログの合計学習時間を算出
+      int totalStudySecondsOfDescendantCategories = studyLogsFilteredByDescendantCategories.stream()
+        .mapToInt(StudyLog::getStudySeconds)
+        .sum();
+
+      // 指定した親要素以下の合計学習時間に占める対象カテゴリの学習時間の割合
+      percentageOfDescendantCategory = calculationPercentageOfDescendantCategory(totalStudySecondsOfCategory, totalStudySecondsOfDescendantCategories);
+
+      System.out.println(
+        "totalStudySecondsOfCategory: " + totalStudySecondsOfCategory +
+        " totalStudySecondsOfDescendantCategories: " + totalStudySecondsOfDescendantCategories +
+        " percentageOfDescendantCategory: " + percentageOfDescendantCategory
+      );
     }
 
-    return new CategoryAnalyticsResponseDto(categoryId, totalStudySeconds, firstTimeStudied, lastTimeStudied, percentageOfTotal, percentageOfParentCategory);
+
+    return new CategoryAnalyticsResponseDto(categoryId, totalStudySecondsOfCategory, firstTimeStudied, lastTimeStudied, percentageOfTotal, percentageOfDescendantCategory);
   }
 
 }

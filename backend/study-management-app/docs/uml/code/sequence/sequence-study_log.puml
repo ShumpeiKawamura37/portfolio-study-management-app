@@ -18,6 +18,9 @@ participant StudyLogService
 participant StudyLogRepository
 participant GlobalExceptionHandler
 participant ApiResponseDto
+participant AnalyticsResponseDto
+participant CategoryAnalyticsResponseDto
+
 database DB
 
 == get studyLog==
@@ -273,9 +276,83 @@ else token valid
       StudyLogService -> AnalyticsResponseDto : new(        totalStudySeconds, studyDayCount, averageStudySeconds,longestStudyCategoryName, studyDayRate, studyStreak) 
 
       AnalyticsResponseDto --> StudyLogService : analytics 
-      StudyLogService --> StudyLogController : analytics    
+      StudyLogService --> StudyLogController : res    
       StudyLogController --> User : 200 "SUCCESS" ApiResponseDto<AnalyticsResponseDto>
     end
+  end
+end
+
+== get categoryAnalytics ==
+User -> JwtFilter : GET api/stugylog/analytics Authorization: Bearer <token> 
+JwtFilter -> JwtProvider : validateToken(token)
+
+alt token invalid 
+  JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+  GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+else token valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider -> UserRepository : findByUserId(userId)
+  UserRepository -> DB :  SELECT * FROM users WHERE user_id=?
+
+  alt user not found
+    DB --> UserRepository : empty
+    UserRepository --> JwtProvider : Optional.empty
+    JwtProvider -> GlobalExceptionHandler : throw InvalidTokenException
+    GlobalExceptionHandler --> User : 401 "ERROR" ApiResponseDto<Void> "認証エラーが発生しました。再度ログインしてください。"
+
+  else OK
+    DB --> UserRepository :User
+    UserRepository --> JwtProvider : User
+    JwtProvider --> JwtFilter : userId
+    JwtFilter -> UsernamePasswordAuthenticationToken : new(principal, null, authorities) 
+    UsernamePasswordAuthenticationToken --> JwtFilter : auth
+    JwtFilter -> SecurityContextHolder : getContext().setAuthentication(auth)
+    SecurityContextHolder --> JwtFilter : void
+    JwtFilter -> FilterChain : doFilter(req, res)
+    FilterChain -> StudyLogController : getCategoryAnalytics()
+
+    StudyLogController -> StudyLogService : getCategoryAnalytics(categoryId)
+    StudyLogService -> CategoryRepository : findById(categoryId)
+    CategoryRepository -> DB : SELECT * FROM categories WHERE category_id=?
+    DB --> CategoryRepository : Category
+    CategoryRepository --> StudyLogService : Category
+    StudyLogService -> StudyLogRepository : findByCategoryCategoryId(categoryId)
+    StudyLogRepository -> DB :  SELECT * FROM study_logs WHERE category_id=?
+    DB --> StudyLogRepository : List<StudyLog>
+    StudyLogRepository --> StudyLogService : List<StudyLog>
+
+    StudyLogService -> StudyLogService : calculationTotalStudySecondsOfCategory(studyLogs)
+    StudyLogService --> StudyLogService : totalStudySeconds
+    
+    StudyLogService -> StudyLogService : findFirstTimeStudied(studyLogs)
+    StudyLogService --> StudyLogService : firstTimeStudied
+
+    StudyLogService -> StudyLogService : findLastTimeStudied(studyLogs)
+    StudyLogService --> StudyLogService : lastTimeStudied
+
+    StudyLogService -> StudyLogService : calculationPercentageOfTotal(studyLogs, totalStudySeconds)
+    StudyLogService --> StudyLogService : percentageOgTotal
+
+    opt category has parentCategory
+      StudyLogService -> StudyLogRepository : findByCategoryCategoryId(parentCategoryId)
+      StudyLogRepository -> DB : SELECT * FROM study_logs WHERE category_id=?
+      DB --> StudyLogRepository : List<StudyLog>
+      StudyLogRepository --> StudyLogService : List<StudyLog>
+
+      StudyLogService -> StudyLogService : calculationTotalStudySecondsOfCategory(studyLogsOfParentCategory)
+      StudyLogService --> StudyLogService : totalStudySecondsOfParentCategory
+
+      StudyLogService -> StudyLogService : calculationPercentageOfParentCategory(totalStudySeconds, totalStudySecondsOfParentCategory)
+      StudyLogService --> StudyLogService : percentageOfParentCategory
+
+    end
+
+    StudyLogService -> CategoryAnalyticsResponseDto : new(categoryId, totalStudySeconds, firstTimeStudied, lastTimeStudied, percentageOgTotal, percentageOfParentCategory)
+    CategoryAnalyticsResponseDto --> StudyLogService : categoryAnalytics
+    StudyLogService --> StudyLogController : res
+    StudyLogController --> User : 200 "SUCCESS" ApiResponseDto<CategoryAnalyticsResponseDto>
   end
 end
 @enduml

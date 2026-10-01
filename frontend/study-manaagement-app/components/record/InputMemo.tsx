@@ -12,7 +12,7 @@ export default function InputMemo() {
 
   return (
     <textarea name="memo"
-      className="border border-[#B7B7B7] px-1 py-1 w-[250px] h-[100px] overflow-scroll scrollbar-hide"
+      className="border border-[#B7B7B7] px-1 py-1 w-[250px] h-[100px] overflow-scroll scrollbar-hide mb-2"
       value={memo}
       placeholder="学習メモ(任意)"
       onChange={onChange}
