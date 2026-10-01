@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 学習管理アプリ
 
-## Getting Started
+## 概要
 
-First, run the development server:
+学習時間を記録・分析するWebアプリです。
+資格取得や副業など、自主的に学習する人を対象とし、日々の学習時間を記録することで、学習状況を把握・分析できます。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 開発目的
+
+研修や自学習を通じてHTTP/CSS,JS,Javaといった言語やReact,Next.jsといったフレームワークの基礎知識を身につけました。実践経験に乏しいことを課題とし、設計から実装、公開までの一連の開発プロセスを一人で完遂することを目的として、フルスタックのWebアプリケーションを開発いたしました。
+学習済みの言語を可能な限り網羅する為、フロントエンドをNext.js、バックエンドをjavaで構成しております。
+内容は、ログイン機能やカレンダーなどの実用性の高い実装を要件に含めつつ、平素における自身の学習態度及び学習内容を可視化できるツールとして学習記録アプリといたしました。
+
+## 主な機能
+
+- ユーザー登録・ログイン
+- 学習カテゴリ管理（登録・編集・削除）
+- 学習時間の計測
+  - タイマー
+  - ストップウォッチ
+- 学習ログの登録
+- 学習メモの登録
+- 学習時間の集計
+- 日別学習ログの取得
+- カテゴリ別学習時間の分析
+- 期間別の学習分析
+- 学習割合のグラフ表示
+- ユーザー情報の編集・削除
+- ログアウト
+
+## 使用技術
+フロントエンド
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+
+バックエンド 
+- Java
+- Spring Boot 
+- Spring Security 
+- Spring Data JPA
+
+データベース
+- PostgreSQL
+
+認証
+- JWT
+
+インターフェース 
+- Docker
+
+バージョン管理 
+- Git
+- GitHub
+
+
+## システム構成
+
+```text
+┌─────────────────┐
+│   Frontend      │
+│ Next.js / React │
+│ TypeScript      │
+└────────┬────────┘
+         │ HTTP / REST API
+         ↓
+┌─────────────────┐
+│    Backend      │
+│ Java / Spring   │
+│      Boot       │
+└────────┬────────┘
+         │
+         ↓
+┌─────────────────┐
+│   PostgreSQL    │
+└─────────────────┘
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 起動方法
+1. リポジトリをクローン
+git clone [[https://github.com/ShumpeiKawamura37/portfolio-study-management-app]
+cd portfolio-study-management-app
+2. データベースを起動
+docker compose up -d
+3. バックエンドを起動
+cd backend/study-management-app
+./gradlew bootRun
+4. フロントエンドを起動
+cd frontend/study-management-app
+npm install
+npm run dev
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+ブラウザから以下にアクセスします。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+http://localhost:3000
+ドキュメント
 
-## Learn More
+詳細な設計・仕様については以下を参照してください。
+- 要求仕様書
+- バックエンド設計UML(クラス図、シーケンス図)
+  - (backend/study-management-app/docs/uml)
+- Figma
+  - (https://www.figma.com/design/0nbDXizZfNG3D2DZoMoyQ2/studymanagement?node-id=0-1&m=dev&t=flScTOx4Y4off6iG-1)
 
-To learn more about Next.js, take a look at the following resources:
+## 開発環境
+- Java 21
+- Node.js
+- PostgreSQL
+- Docker
+- Git
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Gitブランチ
+main
+└── develop
+    └── feature/*
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+main：本番用
+develop：開発統合用
+feature/*：機能開発用
