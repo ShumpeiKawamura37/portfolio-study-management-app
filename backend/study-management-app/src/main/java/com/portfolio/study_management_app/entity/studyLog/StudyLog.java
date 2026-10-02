@@ -1,6 +1,5 @@
 package com.portfolio.study_management_app.entity.studyLog;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.portfolio.study_management_app.entity.category.Category;
