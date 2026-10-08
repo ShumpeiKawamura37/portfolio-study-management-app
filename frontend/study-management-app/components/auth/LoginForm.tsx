@@ -13,7 +13,8 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [action, setAction] = useState<"login" | "register">("login");
-  const { isLogin, setIsLogin } = useAuth();
+  const { setIsLogin } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   // ログイン画面に戻ってきたらログアウト状態にする
   useEffect(() => {
@@ -29,38 +30,47 @@ export default function LoginForm() {
     setPassword(e.target.value);
   };
 
-  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    
-    e.preventDefault();;
+    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+      
+      e.preventDefault();;
 
-    if (action === "login") {
-      try {
-        const res = await login({ email, password });
-        if(res.status === "SUCCESS") {
-          //メニュー画面へ遷移
-          localStorage.setItem("token", res.data.token);
-          setIsLogin(true);
-          router.push("menu");
+      if (action === "login") {
+        setIsLoading(true);
+        try {
+          const startTime = Date.now();
+          const res = await login({ email, password });
+          const elapsedTime = Date.now() - startTime;
+          const remainingTime = Math.max(0, 3000 - elapsedTime);
+
+          await new Promise((resolve) => setTimeout(resolve, remainingTime));
+
+          if(res.status === "SUCCESS") {
+            //メニュー画面へ遷移
+            localStorage.setItem("token", res.data.token);
+            setIsLogin(true);
+            router.push("menu");
+          }
+        } catch (error: Error | any) {
+          showError(error);
+        } finally {
+          setIsLoading(false);
         }
-      } catch (error: Error | any) {
-        showError(error);
-      }
-    } else if (action === "register") {
-      try {
-        const res = await register({ email, password });
-        if(res.status === "SUCCESS") {
-          alert("ユーザーを登録しました。ログインしてください。");
+      } else if (action === "register") {
+        try {
+          const res = await register({ email, password });
+          if(res.status === "SUCCESS") {
+            alert("ユーザーを登録しました。ログインしてください。");
+          }
+        } catch (error: Error | any) {
+          showError(error);
         }
-      } catch (error: Error | any) {
-        showError(error);
+      } else {
+        console.error("Invalid action:", action);
       }
-    } else {
-      console.error("Invalid action:", action);
-    }
-    
-    setEmail("");
-    setPassword("");
-  };
+      
+      setEmail("");
+      setPassword("");
+    };
 
   return (
     <div className="w-64 flex items-center mx-auto mt-[50px] pt-[70px]">
@@ -85,6 +95,15 @@ export default function LoginForm() {
           新規登録
         </Button>
       </form>
+
+      {isLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-[#53DEB7]" />
+            <p>ログイン中...</p>
+          </div>
+        </div>
+      )}
     </div> 
   )
 }
