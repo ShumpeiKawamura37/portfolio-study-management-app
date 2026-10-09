@@ -85,18 +85,15 @@ git clone [[https://github.com/ShumpeiKawamura37/portfolio-study-management-app]
 cd portfolio-study-management-app
 2. データベースを起動
 docker compose up -d
-3. バックエンドを起動
-cd backend/study-management-app
-./gradlew bootRun
-4. フロントエンドを起動
-cd frontend/study-management-app
-npm install
-npm run dev
 
-ブラウザから以下にアクセスします。
-
+3. ブラウザから以下にアクセスします。
 http://localhost:3000
-ドキュメント
+
+##　java 単体テスト実施方法
+1. gradle testを実行
+ docker compose run --rm backend-test
+2. ブラウザから以下のファイルを開きます。
+backend/study-management-app/build/reports/tests/test/index.html
 
 詳細な設計・仕様については以下を参照してください。
 - 要求仕様書
