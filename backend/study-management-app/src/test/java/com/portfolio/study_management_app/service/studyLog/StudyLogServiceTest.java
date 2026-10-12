@@ -53,7 +53,7 @@ public class StudyLogServiceTest {
   @DisplayName("正常系: StudyLog登録成功")
   void createStudyLog_success() {
     // 認証セット
-    User user = new User("test", "test@exapmle.com", "password123");
+    User user = new User("test", "test@exapmle.com", "Password123");
 
     Authentication auth = new UsernamePasswordAuthenticationToken(
         1L,
@@ -101,7 +101,7 @@ public class StudyLogServiceTest {
   @DisplayName("異常系: カテゴリが見つからなければStudyLog登録失敗")
   void createStudylog_faild_category_not_found() {
     // 認証セット
-    User user = new User("test", "test@exapmle.com", "password123");
+    User user = new User("test", "test@exapmle.com", "Password123");
 
     Authentication auth = new UsernamePasswordAuthenticationToken(
         1L,
@@ -133,7 +133,7 @@ public class StudyLogServiceTest {
   void createStudyLog_faild_category_is_not_own() {
 
     // 認証セット
-    User user = new User("test", "test@exapmle.com", "password123");
+    User user = new User("test", "test@exapmle.com", "Password123");
 
     Authentication auth = new UsernamePasswordAuthenticationToken(
         1L,
@@ -172,7 +172,7 @@ public class StudyLogServiceTest {
   @DisplayName("異常系: 開始時間が終了時間より後であった場合StudyLog登録失敗")
   void createStudyLog_faild_startTime_later_than_endTime() {
     // 認証セット
-    User user = new User("test", "test@exapmle.com", "password123");
+    User user = new User("test", "test@exapmle.com", "Password123");
 
     Authentication auth = new UsernamePasswordAuthenticationToken(
         1L,
@@ -210,7 +210,7 @@ public class StudyLogServiceTest {
   @DisplayName("正常系: StudyLog取得成功")
   void getStudyLog_success() {
     // 認証セット
-    User user = new User("test", "test@exapmle.com", "password123");
+    User user = new User("test", "test@exapmle.com", "Password123");
 
     Authentication auth = new UsernamePasswordAuthenticationToken(
         1L,
@@ -252,7 +252,7 @@ public class StudyLogServiceTest {
   @DisplayName("正常系: 指定した日付のstartTimeを持つList<StudyLog>取得成功")
   void getStudyLogByDate_success() {
     // 認証セット
-    User user = new User("test", "test@exapmle.com", "password123");
+    User user = new User("test", "test@exapmle.com", "Password123");
 
     Authentication auth = new UsernamePasswordAuthenticationToken(
         1L,
@@ -297,7 +297,7 @@ public class StudyLogServiceTest {
   @DisplayName("正常系: 学習分析を取得成功")
   void getAnalytics_success() {
     // 認証セット
-    User user = new User("test", "test@exapmle.com", "password123");
+    User user = new User("test", "test@exapmle.com", "Password123");
     user.setCreatedAt(LocalDateTime.of(2000, 1, 1, 0, 0));
 
     Authentication auth = new UsernamePasswordAuthenticationToken(
@@ -357,7 +357,7 @@ public class StudyLogServiceTest {
   @DisplayName("正常系: カテゴリ学習分析を取得成功")
   void getCategoryAnalytics_success() {
     // 認証セット
-    User user = new User("test", "test@exapmle.com", "password123");
+    User user = new User("test", "test@exapmle.com", "Password123");
     user.setCreatedAt(LocalDateTime.of(2000, 1, 1, 0, 0));
 
     Authentication auth = new UsernamePasswordAuthenticationToken(

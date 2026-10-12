@@ -17,6 +17,8 @@ import com.portfolio.study_management_app.dto.category.CreateCategoryRequestDto;
 import com.portfolio.study_management_app.dto.common.ApiResponseDto;
 import com.portfolio.study_management_app.service.category.CategoryService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/category")
 public class CategoryController {
@@ -34,13 +36,13 @@ public class CategoryController {
   }
 
   @PostMapping
-  public ApiResponseDto<CategoryResponseDto> createCategory(@RequestBody CreateCategoryRequestDto req) {
+  public ApiResponseDto<CategoryResponseDto> createCategory(@Valid @RequestBody CreateCategoryRequestDto req) {
     CategoryResponseDto res = categoryService.createCategory(req);
     return new ApiResponseDto<>("SUCCESS", res, null);
   }
 
   @PutMapping("/{categoryId}")
-  public ApiResponseDto<CategoryResponseDto> updateCategory(@PathVariable Long categoryId, @RequestBody CategoryRequestDto req) {
+  public ApiResponseDto<CategoryResponseDto> updateCategory(@PathVariable Long categoryId, @Valid @RequestBody CategoryRequestDto req) {
     CategoryResponseDto res = categoryService.updateCategory(categoryId, req);
     return new ApiResponseDto<>("SUCCESS", res, null);
   }

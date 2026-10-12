@@ -1,5 +1,6 @@
 import { ApiResponse } from "@/types/api/api";
 import { CategoryResponse, CreateCategoryRequest, UpdateCategoryRequest } from "@/types/category/category";
+import { validateCategoryName } from "@/utils/validation/validation";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -25,6 +26,10 @@ export async function getCategories(): Promise<ApiResponse<CategoryResponse[]>> 
 // カテゴリ作成
 export async function createCategory(categoryName: string, parentCategoryId: number | null): Promise<ApiResponse<CategoryResponse>> {
   const token = localStorage.getItem("token");
+  const errorMessage = validateCategoryName(categoryName);
+  if(errorMessage) {
+    throw new Error(errorMessage);
+  }
   const req: CreateCategoryRequest = {categoryName, parentCategoryId};
   const response = await fetch(`${BASE_URL}/api/category`, {
     method: "POST",
@@ -45,6 +50,10 @@ export async function createCategory(categoryName: string, parentCategoryId: num
 // カテゴリ更新
 export async function updateCategory(categoryId: number, categoryName: string): Promise<ApiResponse<CategoryResponse>> {
   const token = localStorage.getItem("token");
+  const errorMessage = validateCategoryName(categoryName);
+  if(errorMessage) {
+    throw new Error(errorMessage);
+  }
   const req: UpdateCategoryRequest = {categoryName}; 
   const response = await fetch(`${BASE_URL}/api/category/${categoryId}`, {
     method: "PUT",

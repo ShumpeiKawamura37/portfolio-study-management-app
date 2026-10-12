@@ -10,6 +10,8 @@ import com.portfolio.study_management_app.dto.auth.LoginResponseDto;
 import com.portfolio.study_management_app.dto.common.ApiResponseDto;
 import com.portfolio.study_management_app.service.auth.AuthService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/auth/login")
 public class AuthController {
@@ -19,7 +21,7 @@ public class AuthController {
   }
 
   @PostMapping
-  public ApiResponseDto<LoginResponseDto> login(@RequestBody LoginRequestDto req) {
+  public ApiResponseDto<LoginResponseDto> login(@Valid  @RequestBody LoginRequestDto req) {
     LoginResponseDto res = authService.authenticate(req);
     return new ApiResponseDto<>("SUCCESS", res, null);
   }

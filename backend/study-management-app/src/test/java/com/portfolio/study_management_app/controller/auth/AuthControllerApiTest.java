@@ -124,6 +124,6 @@ public class AuthControllerApiTest {
     mockMvc.perform(
         post("/api/auth/login")
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON).content(json))
-        .andExpect(status().isUnauthorized());
+        .andExpect(status().isBadRequest());
   }
 }

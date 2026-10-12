@@ -2,6 +2,7 @@ package com.portfolio.study_management_app.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -26,6 +27,13 @@ public class GlobalExceptionHandler {
     ApiResponseDto<Void> res = new ApiResponseDto<>("ERROR", null, e.getMessage());
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(res);
   }
+
+  @ExceptionHandler (MethodArgumentNotValidException.class)
+    public  ResponseEntity<ApiResponseDto<Void>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+      ApiResponseDto<Void> res = new ApiResponseDto<>("ERROR", null, e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
+
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    }
 }
 
 
