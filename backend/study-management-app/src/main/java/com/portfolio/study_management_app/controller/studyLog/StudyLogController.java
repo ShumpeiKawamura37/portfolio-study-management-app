@@ -17,6 +17,8 @@ import com.portfolio.study_management_app.dto.studyLog.CreateStudyLogRequsetDto;
 import com.portfolio.study_management_app.dto.studyLog.StudyLogResponseDto;
 import com.portfolio.study_management_app.service.studyLog.StudyLogService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/studyLog")
 public class StudyLogController {
@@ -26,7 +28,7 @@ public class StudyLogController {
     this.studyLogService = studyLogService;
   }
   @PostMapping
-  public ApiResponseDto<StudyLogResponseDto> ctreateStudyLog(@RequestBody CreateStudyLogRequsetDto req) {
+  public ApiResponseDto<StudyLogResponseDto> ctreateStudyLog(@Valid @RequestBody CreateStudyLogRequsetDto req) {
     StudyLogResponseDto res = studyLogService.createStudyLog(req);
     return new ApiResponseDto<>("SUCCESS", res, null);
   }

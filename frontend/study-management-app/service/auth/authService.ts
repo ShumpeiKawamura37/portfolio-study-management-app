@@ -21,20 +21,3 @@ export async function login(request: AuthRequest): Promise<ApiResponse<AuthRespo
   }
   return result;
 }
-
-export async function register(request: CreateUserRequest): Promise<ApiResponse<null>> {
-  const response = await fetch(`${BASE_URL}/api/user`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(request),
-  });
-
-  const result: ApiResponse<null> = await response.json();
-
-  if (!response.ok) {
-    throw new Error(result.message);
-  }
-  return result;
-}

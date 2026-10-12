@@ -1,5 +1,6 @@
 import { ApiResponse } from "@/types/api/api";
 import { CreateStudyLogrequest, StudyLogResponse } from "@/types/studyLog/studyLog";
+import { validateStudyMemo } from "@/utils/validation/validation";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -10,6 +11,12 @@ export async function createStudyLog(
   memo: string | null,
   categoryId: number,
 ): Promise<ApiResponse<StudyLogResponse>> {
+  if(memo != null) {
+    const errorMessage = validateStudyMemo(memo);
+    if(errorMessage) {
+      throw new Error(errorMessage);
+    }
+  }
   const token = localStorage.getItem("token");
 
   const formatDateTime = (date: Date) => {

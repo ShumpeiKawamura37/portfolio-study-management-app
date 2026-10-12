@@ -47,7 +47,7 @@ public class IntegrationAuthTest {
   void user_not_found() throws Exception {
     LoginRequestDto req = new LoginRequestDto(
       "test@example.com",  
-      "password123"
+      "Password123"
     );
 
     AuthenticationException exception = assertThrows(

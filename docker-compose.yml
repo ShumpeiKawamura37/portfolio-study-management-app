@@ -50,7 +50,9 @@ services:
     working_dir: /app
 
     volumes:
+      - gradle-cache:/home/gradle/.gradle
       - ./backend/study-management-app:/app
+      
 
     depends_on:
       - postgres-test
@@ -75,3 +77,4 @@ services:
 
 volumes:
   postgres-data:
+  gradle-cache:

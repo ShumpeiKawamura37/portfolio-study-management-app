@@ -41,12 +41,12 @@ public class UserControllerApiTest {
   @DisplayName("正常系: 新規ユーザーならUser登録成功")
   void createUSer_success() throws Exception {
     // CreateUserRequestDto req = new CreateUserRequestDto("test@example.com",
-    // "password123");
+    // "Password123");
 
     String json = """
         {
             "email":"test@example.com",
-            "password": "password123"
+            "password": "Password123"
         }
         """;
     mockMvc.perform(

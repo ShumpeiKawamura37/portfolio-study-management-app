@@ -35,7 +35,7 @@ public class IntegrationUserTest {
   void createUser_success() {
     CreateUserRequestDto req = new CreateUserRequestDto(
       "test@example.com",
-      "password123"
+      "Password123"
     );
     userService.createUser(req);
 

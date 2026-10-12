@@ -49,7 +49,7 @@ public class CategoryServiceTest {
   @DisplayName("正常系:Category登録成功")
   void createCategory_success() {
     // 認証セット
-    User user = new User("test", "test@exapmle.com", "password123");
+    User user = new User("test", "test@exapmle.com", "Password123");
 
     Category parentCategory = new Category("parent", user, null);
 
@@ -105,7 +105,7 @@ public class CategoryServiceTest {
   @DisplayName("異常系: parentCategoryIdが存在しない場合Category登録失敗")
   void faild_createCategory_By_parentCategory_notFound() {
     // 認証セット
-    User user = new User("test", "test@exapmle.com", "password123");
+    User user = new User("test", "test@exapmle.com", "Password123");
 
     Category parentCategory = new Category("parent", user, null);
 
@@ -140,7 +140,7 @@ public class CategoryServiceTest {
   @DisplayName("正常系: List<Category>取得成功")
   void getCategoriesByUserId() {
     // 認証セット
-    User user = new User("test", "test@exapmle.com", "password123");
+    User user = new User("test", "test@exapmle.com", "Password123");
 
     Authentication auth = new UsernamePasswordAuthenticationToken(
         1L,
@@ -191,7 +191,7 @@ public class CategoryServiceTest {
   @DisplayName("正常系: Category更新成功")
   void updateCategory_success() {
     // 認証セット
-    User user = new User("test", "test@exapmle.com", "password123");
+    User user = new User("test", "test@exapmle.com", "Password123");
 
     user.setUserId(1L);
 
@@ -230,7 +230,7 @@ public class CategoryServiceTest {
   @DisplayName("異常系: カテゴリが見つからなければCategory更新失敗")
   void update_faild_categoryId_not_found() {
     // 認証セット
-    User user = new User("test", "test@exapmle.com", "password123");
+    User user = new User("test", "test@exapmle.com", "Password123");
 
     user.setUserId(1L);
 
@@ -255,7 +255,7 @@ public class CategoryServiceTest {
   @DisplayName("正常系: Category削除成功")
   void deleteCategory_success() {
     // 認証セット
-    User user = new User("test", "test@exapmle.com", "password123");
+    User user = new User("test", "test@exapmle.com", "Password123");
 
     user.setUserId(1L);
 
@@ -293,7 +293,7 @@ public class CategoryServiceTest {
   @DisplayName("異常系: カテゴリが見つからなければCategory削除失敗")
   void delete_faild_vcategoryId_not_found() {
     // 認証セット
-    User user = new User("test", "test@exapmle.com", "password123");
+    User user = new User("test", "test@exapmle.com", "Password123");
 
     user.setUserId(1L);
 

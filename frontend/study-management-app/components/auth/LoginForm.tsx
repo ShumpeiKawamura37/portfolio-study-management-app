@@ -1,12 +1,13 @@
 "use client"
 
-import { login, register } from "@/service/auth/authService";
+import { login } from "@/service/auth/authService";
 import Button from "../ui/Button"
 import InputForm from "./InputForm"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation";
 import { showError } from "@/utils/error";
 import { useAuth } from "@/hooks/auth/useAuth";
+import { register } from "@/service/user/userService";
 
 export default function LoginForm() {
   const router = useRouter();

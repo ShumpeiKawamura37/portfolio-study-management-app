@@ -14,6 +14,8 @@ import com.portfolio.study_management_app.dto.user.UpdateUserRequestDto;
 import com.portfolio.study_management_app.dto.user.UserResponseDto;
 import com.portfolio.study_management_app.service.user.UserService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -30,13 +32,13 @@ public class UserController {
   }
 
   @PostMapping
-  public ApiResponseDto<Void> createUser(@RequestBody CreateUserRequestDto req) {
+  public ApiResponseDto<Void> createUser(@Valid @RequestBody CreateUserRequestDto req) {
     userService.createUser(req);
     return new ApiResponseDto<>("SUCCESS", null, null);
   }
 
   @PutMapping
-  public ApiResponseDto<UserResponseDto> updateUser(@RequestBody UpdateUserRequestDto req) {
+  public ApiResponseDto<UserResponseDto> updateUser(@Valid @RequestBody UpdateUserRequestDto req) {
     UserResponseDto res = userService.updateUser(req);
     return new ApiResponseDto<>("SUCCESS", res, null);
   }

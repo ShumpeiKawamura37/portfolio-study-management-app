@@ -42,7 +42,7 @@ public class UserServiceTest {
   void createUser_success() {
     CreateUserRequestDto req = new CreateUserRequestDto(
         "test@example.com",
-        "password123");
+        "Password123");
 
     when(userRepository.findByEmail(req.email()))
         .thenReturn(null);
@@ -68,9 +68,9 @@ public class UserServiceTest {
   void createUser_duplicateEmail() {
     CreateUserRequestDto req = new CreateUserRequestDto(
         "test@example.com",
-        "password123");
+        "Password123");
 
-    User user = new User("test", "test@exapmle.com", "password123");
+    User user = new User("test", "test@exapmle.com", "Password123");
 
     when(userRepository.findByEmail(req.email()))
         .thenReturn(user);

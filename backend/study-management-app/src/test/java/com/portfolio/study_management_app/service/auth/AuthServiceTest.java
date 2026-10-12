@@ -34,11 +34,11 @@ public class AuthServiceTest {
   @Test
   @DisplayName("正常系: 認証に成功したらLoginResponseDtoを返す")
   void authenticate_success() {
-    User user = new User("テスト", "test@example.com", "password123");
+    User user = new User("テスト", "test@example.com", "Password123");
 
     user.setUserId(1L);
 
-    LoginRequestDto req = new LoginRequestDto("test@example.com",  "password123");
+    LoginRequestDto req = new LoginRequestDto("test@example.com",  "Password123");
 
     when(userRepository.findByEmail(req.email()))
       .thenReturn(user);
@@ -63,7 +63,7 @@ public class AuthServiceTest {
   @Test
   @DisplayName("異常系: ユーザーが見つからなければログイン失敗")
   void user_not_found() {
-    LoginRequestDto req = new LoginRequestDto("test@example.com", "password123");
+    LoginRequestDto req = new LoginRequestDto("test@example.com", "Password123");
 
     when(userRepository.findByEmail(req.email()))
         .thenReturn(null);  
@@ -90,11 +90,11 @@ public class AuthServiceTest {
   @Test
   @DisplayName("異常系: 削除済みのユーザーはログイン失敗")
   void user_is_deleted() {
-    User user = new User("テスト", "test@example.com", "password123");
+    User user = new User("テスト", "test@example.com", "Password123");
     user.setUserId(1L);
     user.setStatus(false);
 
-    LoginRequestDto req = new LoginRequestDto("test@example.com",  "password123");
+    LoginRequestDto req = new LoginRequestDto("test@example.com",  "Password123");
 
     when(userRepository.findByEmail(req.email()))
       .thenReturn(user);
@@ -121,7 +121,7 @@ public class AuthServiceTest {
   @Test
   @DisplayName("異常系: パスワード不一致はログイン失敗")
   void wrong_password() {
-    User user = new User("テスト", "test@example.com", "password123");
+    User user = new User("テスト", "test@example.com", "Password123");
     user.setUserId(1L);
 
     LoginRequestDto req = new LoginRequestDto("test@example.com",  "wrongPassword");
