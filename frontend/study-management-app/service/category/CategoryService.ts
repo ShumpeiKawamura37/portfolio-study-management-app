@@ -1,18 +1,15 @@
+import { apiFetch } from "@/lib/apiClient";
 import { ApiResponse } from "@/types/api/api";
 import { CategoryResponse, CreateCategoryRequest, UpdateCategoryRequest } from "@/types/category/category";
 import { validateCategoryName } from "@/utils/validation/validation";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const CATEGORY_URL = "/api/category";
+
 
 // カテゴリ取得
 export async function getCategories(): Promise<ApiResponse<CategoryResponse[]>> {
-  const token = localStorage.getItem("token");
-  const response = await fetch(`${BASE_URL}/api/category`, {
+  const response = await apiFetch(CATEGORY_URL, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    }
   });
 
   const result: ApiResponse<CategoryResponse[]> = await response.json();
@@ -25,18 +22,13 @@ export async function getCategories(): Promise<ApiResponse<CategoryResponse[]>> 
 
 // カテゴリ作成
 export async function createCategory(categoryName: string, parentCategoryId: number | null): Promise<ApiResponse<CategoryResponse>> {
-  const token = localStorage.getItem("token");
   const errorMessage = validateCategoryName(categoryName);
   if(errorMessage) {
     throw new Error(errorMessage);
   }
   const req: CreateCategoryRequest = {categoryName, parentCategoryId};
-  const response = await fetch(`${BASE_URL}/api/category`, {
+  const response = await apiFetch(CATEGORY_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify(req)
   });
 
@@ -49,20 +41,16 @@ export async function createCategory(categoryName: string, parentCategoryId: num
 
 // カテゴリ更新
 export async function updateCategory(categoryId: number, categoryName: string): Promise<ApiResponse<CategoryResponse>> {
-  const token = localStorage.getItem("token");
   const errorMessage = validateCategoryName(categoryName);
   if(errorMessage) {
     throw new Error(errorMessage);
   }
-  const req: UpdateCategoryRequest = {categoryName}; 
-  const response = await fetch(`${BASE_URL}/api/category/${categoryId}`, {
+  const req: UpdateCategoryRequest = { categoryName }; 
+
+  const response = await apiFetch(`${CATEGORY_URL}/${categoryId}`,{
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify(req)
-  });
+  })
 
   const result: ApiResponse<CategoryResponse> = await response.json();
 
@@ -74,15 +62,12 @@ export async function updateCategory(categoryId: number, categoryName: string): 
 
 //カテゴリ削除
 export async function deleteCategory(categoryId: number): Promise<boolean> {
-  const token = localStorage.getItem("token");
-  const response = await fetch(`${BASE_URL}/api/category/${categoryId}`, {
+  const response = await apiFetch(`${CATEGORY_URL}/${categoryId}`, {
     method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const result: ApiResponse<null> = await response.json();  
+  })
+
+  const result: ApiResponse<null> = await response.json(); 
+
   if(!response.ok) {
     throw new Error(result.message);
   }
@@ -91,14 +76,11 @@ export async function deleteCategory(categoryId: number): Promise<boolean> {
 
 // 指定カテゴリの先祖カテゴリリストを取得
 export async function getAncestorCategoryList(categoryId: number): Promise<ApiResponse<CategoryResponse[]>> {
-  const token = localStorage.getItem("token");
-  const response = await fetch(`${BASE_URL}/api/category/ancestor/${categoryId}`, {
+
+  const response = await apiFetch(`${CATEGORY_URL}/ancestor/${categoryId}`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
   });
+
   const result: ApiResponse<CategoryResponse[]> = await response.json();
   if(!response.ok) {
     throw new Error(result.message);

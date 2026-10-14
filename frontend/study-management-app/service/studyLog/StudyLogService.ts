@@ -1,8 +1,9 @@
+import { apiFetch } from "@/lib/apiClient";
 import { ApiResponse } from "@/types/api/api";
 import { CreateStudyLogrequest, StudyLogResponse } from "@/types/studyLog/studyLog";
 import { validateStudyMemo } from "@/utils/validation/validation";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const STUDY_LOG_URL = "/api/studyLog";
 
 export async function createStudyLog(
   startTime: Date,
@@ -17,7 +18,6 @@ export async function createStudyLog(
       throw new Error(errorMessage);
     }
   }
-  const token = localStorage.getItem("token");
 
   const formatDateTime = (date: Date) => {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
@@ -32,12 +32,8 @@ export async function createStudyLog(
   };
 
 
-  const response = await fetch(`${BASE_URL}/api/studyLog`, {
+  const response = await apiFetch(STUDY_LOG_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify(req)
   });
 
@@ -51,14 +47,9 @@ export async function createStudyLog(
 }
 
 export async function getStudyLogs(): Promise<ApiResponse<StudyLogResponse[]>> {
-  const token = localStorage.getItem("token");
 
-  const response = await fetch(`${BASE_URL}/api/studyLog`, {
+  const response = await apiFetch(STUDY_LOG_URL, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
   });
 
   const result: ApiResponse<StudyLogResponse[]> = await response.json();
@@ -70,16 +61,11 @@ export async function getStudyLogs(): Promise<ApiResponse<StudyLogResponse[]>> {
 }
 
 export async function getStudyLogByDate(date: Date) {
-  const token = localStorage.getItem("token");
   const formattedDate = date.toISOString().split("T")[0];
 
 
-  const response = await fetch(`${BASE_URL}/api/studyLog/date/${formattedDate}`, {
+  const response = await apiFetch(`${STUDY_LOG_URL}/date/${formattedDate}`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
   });
 
   const result: ApiResponse<StudyLogResponse[]> = await response.json();
