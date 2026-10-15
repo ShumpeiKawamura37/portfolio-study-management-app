@@ -1,10 +1,10 @@
-FROM eclipse-temurin:21-jdk AS builder
+FROM gradle:9.5.1-jdk21 AS builder
 
 WORKDIR /app
 
 COPY . .
 
-RUN ./gradlew bootJar
+RUN gradle bootJar --no-daemon
 
 FROM eclipse-temurin:21-jre
 
