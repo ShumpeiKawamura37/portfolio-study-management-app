@@ -1,18 +1,14 @@
+import { apiFetch } from "@/lib/apiClient";
 import { ApiResponse } from "@/types/api/api";
 import { CreateUserRequest, UpdateUserRequest, UserResponse } from "@/types/user/user";
 import { validateEmail, validatePassword, validateUsername } from "@/utils/validation/validation";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const USER_URL = "/api/user";
 
 export async function getUser(): Promise<ApiResponse<UserResponse>> {
-  const token = localStorage.getItem("token");
-  const response = await fetch(`${BASE_URL}/api/user`, {
+  const response = await apiFetch(USER_URL, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    }
-  });
+  })
 
   const result: ApiResponse<UserResponse> = await response.json();
 
@@ -23,11 +19,8 @@ export async function getUser(): Promise<ApiResponse<UserResponse>> {
 }
 
 export async function register(request: CreateUserRequest): Promise<ApiResponse<null>> {
-  const response = await fetch(`${BASE_URL}/api/user`, {
+  const response = await apiFetch(USER_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(request),
   });
 
@@ -49,7 +42,6 @@ export async function register(request: CreateUserRequest): Promise<ApiResponse<
 }
 
 export async function updateUser(user: UpdateUserRequest) {
-  const token = localStorage.getItem("token");
 
   const errorMessageOfName = validateUsername(user.username);
   if(errorMessageOfName) {
@@ -66,12 +58,8 @@ export async function updateUser(user: UpdateUserRequest) {
     throw new Error(errorMessageOfPassword);
   }
 
-  const response = await fetch(`${BASE_URL}/api/user`, {
+  const response = await apiFetch(USER_URL, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify(user),
   });
 
@@ -85,15 +73,10 @@ export async function updateUser(user: UpdateUserRequest) {
 }
 
 export async function deleteUser() {
-  const token = localStorage.getItem("token");
-  const response = await fetch(`${BASE_URL}/api/user`, {
+  const response = await apiFetch(USER_URL, {
     method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
+  })
+  
   const result: ApiResponse<UserResponse> = await response.json();
 
   if(!response.ok) {

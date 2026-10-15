@@ -50,7 +50,8 @@ public class JwtFilter extends OncePerRequestFilter  {
 
     try {
       if(!jwtProvider.validateToken(token)) {
-          filterChain.doFilter(req, res);
+          SecurityContextHolder.clearContext();
+          res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
           return;
       }
       Long userId = jwtProvider.getUserId(token);

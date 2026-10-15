@@ -19,9 +19,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
   private final JwtFilter jwtFilter;
+  private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
-  public SecurityConfig(JwtFilter jwtFilter) {
+  public SecurityConfig(JwtFilter jwtFilter, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
     this.jwtFilter = jwtFilter;
+    this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
   }
   @Bean
   public PasswordEncoder passwordEncoder() {
@@ -42,7 +44,10 @@ public class SecurityConfig {
             .permitAll()
             .anyRequest().authenticated()
           )
-          .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+          .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+          .exceptionHandling(exceptoin -> 
+            exceptoin.authenticationEntryPoint(customAuthenticationEntryPoint)
+          );
 
       return http.build();
   }
