@@ -1,15 +1,12 @@
+import { apiFetch } from "@/lib/apiClient";
 import { ApiResponse, } from "@/types/api/api";
 import { AuthRequest, AuthResponse } from "@/types/auth/auth";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-
+const AUTH_URL = "/api/auth/login";
 
 export async function login(request: AuthRequest): Promise<ApiResponse<AuthResponse>> {
-  const response = await fetch(`${BASE_URL}/api/auth/login`, {
+  const response = await apiFetch(AUTH_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(request),
   });
 

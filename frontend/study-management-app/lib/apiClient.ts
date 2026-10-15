@@ -1,3 +1,4 @@
+"use client";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -11,12 +12,13 @@ export async function apiFetch(
     ...option,
     headers: {
       "Content-Type": "application/json",
-      Authentication: token ? `Bearer ${token}` : "",
+      Authorization: token ? `Bearer ${token}` : "",
     },
   });
 
   if (res.status === 401) {
     localStorage.removeItem("token"); 
+    window.location.replace("/auth");
   }
 
   return res;

@@ -19,11 +19,8 @@ export async function getUser(): Promise<ApiResponse<UserResponse>> {
 }
 
 export async function register(request: CreateUserRequest): Promise<ApiResponse<null>> {
-  const response = await fetch(USER_URL, {
+  const response = await apiFetch(USER_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(request),
   });
 
