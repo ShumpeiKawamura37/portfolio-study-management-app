@@ -66,7 +66,13 @@ export default function Calender() {
             selected={targetDate}
             onSelect={(date)=> {
               if(date) {
-                setTargetDate(date);
+                setTargetDate(new Date(
+                  date.getFullYear(),
+                  date.getMonth(),
+                  date.getDate()
+                ));
+                console.log("DayPickerの日付:", date.toString());
+                console.log("ISO形式:", date.toISOString());
               }
             }}
             mode="single"
