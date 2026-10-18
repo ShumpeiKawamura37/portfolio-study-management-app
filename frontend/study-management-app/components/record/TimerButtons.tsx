@@ -14,7 +14,7 @@ export default function TimerButtons({
   reset
 }: TimerButtonsProps) {
   return (
-    <div className="w-full mx-auto flex flex-row justify-center items-center gap-[200px] mb-[50px]">
+    <div className="w-full mx-auto flex flex-row justify-center items-center gap-[200px] mb-[20px]">
       <div>          
         <Button 
           onClick={handleClick} 
