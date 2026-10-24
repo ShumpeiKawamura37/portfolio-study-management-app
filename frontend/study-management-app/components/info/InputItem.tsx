@@ -36,7 +36,12 @@ export default function InputItem({
     setIsEditable(false);
   }
   return (
-    <div className="w-[625px] h-[55px] flex align-center justify-center items-center mb-[30px] grid-cols-3 gap-4">
+    <div 
+      className="w-full md:w-[625px] min-h-[55px] 
+        flex flex-col md:flex-row 
+        justify-center items-center 
+        gap-4"
+    >
       <label htmlFor={type} className="text-center px-1 py-1 text-2xl">
         {label[type]}
       </label>

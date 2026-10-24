@@ -4,6 +4,6 @@ type TimerDisplayProps = {
 
 export default function TimerDisplay({time} : TimerDisplayProps) {
   return (
-    <span className="block text-[96px] mb-[50px]">{time}</span>
+    <span className="mx-auto block mb-[50px] text-[60px] md:text-[96px]">{time}</span>
   )
 }

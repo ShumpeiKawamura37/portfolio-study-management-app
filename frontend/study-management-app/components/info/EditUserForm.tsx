@@ -88,17 +88,17 @@ export default function EditUserForm() {
 
     return (
     <div className="mt-[70px] flex flex-col items-center space-y-10 justify-center">
-      <div className="w-[680px] h-[450px] py-[60px] mx-auto flex justify-center border border-black">
+      <div className=" w-[calc(100%-32px)] md:w-[680px] h-auto md:h-[450px] py-[60px] mx-auto flex justify-center border border-black">
         
-        <div className="w-[625px] flex flex-col items-center">
+        <div className=" flex flex-col items-center">
           <ul className="mb-[50px]">
-            <li>
+            <li className="mb-[30px]">
               <InputItem type="text" value={username} initialValue={initialUsername} onChange={onChangeUsername}/>
             </li>
-            <li>
+            <li className="mb-[30px]">
               <InputItem type="email" value={email} initialValue={initialEmail} onChange={onChangeEmail}/>
             </li>
-            <li>
+            <li className="mb-[30px]">
               <InputItem type="password" value={password} initialValue={initialPassword} onChange={onChangePassword}/>
             </li>
           </ul>

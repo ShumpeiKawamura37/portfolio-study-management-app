@@ -10,7 +10,7 @@ export default function RootLayout({
     <html
       lang="ja"
     >
-      <body className="min-w-max">
+      <body className="mb-[30px]">
         <AuthProvider>
           <Header />
           {children}

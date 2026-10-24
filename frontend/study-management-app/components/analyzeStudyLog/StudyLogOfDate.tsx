@@ -28,7 +28,7 @@ export default function StudyLogOfDate() {
     }
   }
   return (
-    <div className=" w-[430px] h-[300px] border border-[#B7B7B7] overflow-scroll scrollbar-hide">
+    <div className="w-[300px] md:w-[430px] h-[300px] border border-[#B7B7B7] overflow-scroll scrollbar-hide">
       <div className="w-[200px] p-4 mx-auto flex gap-3 justify-between items-center">
         <Button 
           onClick={() => {

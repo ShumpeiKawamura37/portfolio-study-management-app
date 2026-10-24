@@ -9,12 +9,11 @@ export default function TotalAnalytics() {
   const formatStudySeconds = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
 
-    return `${hours}時間 ${minutes}分 ${remainingSeconds}秒`;
+    return `${hours}時間 ${minutes}分`;
   }
   return (
-    <div className="w-[430px] border border-[#B7B7B7] p-1 flex flex-col items-center mb-3">
+    <div className="w-[300px] md:w-[430px] border border-[#B7B7B7] p-1 flex flex-col items-center mb-3 overflow-scroll scrollbar-hide">
       <h2 className="text-center text-2xl mt-4 mb-7">ユーザーデータ</h2>
       <ul className="w-full px-4">
         <li className="flex flex-row justify-between  items-center mb-7">
@@ -52,8 +51,15 @@ export default function TotalAnalytics() {
           </div>
         </li>
         <li className="flex flex-row justify-between items-center mb-7">
-          <div className="text-left">
-            <ItemHeading title="最も学習しているカテゴリ"/>
+          <div className="text-left text-sm md:text-lg">
+            <ItemHeading 
+              title={
+                <>
+                  <span className="md:hidden">最も学習した<br />カテゴリ</span>
+                  <span className="hidden md:inline">最も学習したカテゴリ</span>
+                </>
+              }
+            />
           </div>
           <div className="text-right  text-lg">
             {analytics?.CategoryNameLongestStudied}

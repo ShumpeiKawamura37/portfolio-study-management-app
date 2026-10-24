@@ -53,9 +53,12 @@ export default function Record() {
 
   return (
     <>
-      <form onSubmit={onSubmit}>
-        <div className="max-w-[635px] mx-auto flex flex-col items-center justify-center py-[50px] mt-[50px]">
-          <div className="mb-[50px]">
+      <form 
+        onSubmit={onSubmit}
+        className="mx-auto max-w-[370px] md:max-w-[635px] flex flex-col items-center justify-center py-[50px] mt-[50px]"
+      >
+        <div className="flex flex-col justify-center">
+          <div className="mb-[50px] mx-auto">
             <Toggle isOn={isTimer} onToggle={toggleTimer} leftLabel="タイマー" rightLabel="ストップウォッチ" />
           </div>
 
@@ -68,33 +71,33 @@ export default function Record() {
           ): null
           }
 
-          <>
             <CategoryTree />
             
             <InputMemo />
 
-            <Button 
+            <div className="mx-auto">
+              <Button 
               type="submit" 
               variant={`${submittable? "primary" : "disabled"}`}
               disabled={!submittable}
-            >
-              保存する
-            </Button>
-            <div className="h-[20px]">
-              {totalStudySeconds !== 0 && isRunning === false ? (
-                null
-              ): (
-                <p className="text-[14px] text-red-500">
-                  ・学習時間を計測していません
-                </p>
-              )}
-              {!targetCategoryId && (
-                <p className="text-[14px] text-red-500">
-                  ・カテゴリが選択されていません
-                </p>
-              )}
+              >
+                保存する
+              </Button>
+              <div className="h-[20px]">
+                {totalStudySeconds !== 0 && isRunning === false ? (
+                  null
+                ): (
+                  <p className="text-[14px] text-red-500">
+                    ・学習時間を計測していません
+                  </p>
+                )}
+                {!targetCategoryId && (
+                  <p className="text-[14px] text-red-500">
+                    ・カテゴリが選択されていません
+                  </p>
+                )}
+              </div>
             </div>
-          </>
         </div>
       </form>
     </>

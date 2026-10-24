@@ -24,8 +24,8 @@ export default function CategoryTree(){
 } ;
   
   return (
-    <div className="mb-2">
-        <h2 className="mb-1">カテゴリ選択</h2>
+    <div className="mb-2 mx-auto">
+        <h2 className="mb-1 test-lg">カテゴリ選択</h2>
         <div 
           ref={treeRef}
           className="w-[250px] h-[100px] border border-[#B7B7B7] overflow-scroll scrollbar-hide px-2 py-2 mb-2"

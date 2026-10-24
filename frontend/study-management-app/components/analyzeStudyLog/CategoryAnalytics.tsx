@@ -38,11 +38,11 @@ export default function CategoryAnalytics() {
 
   return (
     <div>
-      <div className="mt-7 mb-1">
-        カテゴリ名：　
+      <div className="mt-7 mb-1 text-lg">
+        カテゴリ名：
         {targetCategory?.categoryName}
       </div>
-      <div className=" border border-[#B7B7B7] w-[400px] h-[150px] px-2 py-2">
+      <div className=" border border-[#B7B7B7] w-[250px] h-[150px] px-2 py-2">
         <ul className="h-full flex flex-col justify-between">
           <li>合計学習時間: {formatTotalStudySeconds(categoryAnalytics?.totalStudySeconds)}</li>
           <li>最初に学習した日: {formatDate(categoryAnalytics?.firstTimeStudied)}</li>
