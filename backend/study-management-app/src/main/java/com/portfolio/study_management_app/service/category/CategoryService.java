@@ -57,23 +57,24 @@ public class CategoryService {
   //category削除時に、子カテゴリに所属するstudyLogも再帰的に削除する
   private void deleteStudyLogsRecursively(Category category) {
 
-    studyLogRepository.deleteByCategoryCategoryId(
-        category.getCategoryId()
-    );
+      studyLogRepository.deleteByCategoryCategoryId(
+          category.getCategoryId()
+      );
 
-    for (Category child : category.getChildren()) {
-        deleteStudyLogsRecursively(child);
-    }
-}
+      for (Category child : category.getChildren()) {
+          deleteStudyLogsRecursively(child);
+      }
+  }
 
-private List<Category> addParentCategory(List<Category> ancestorCategoryList, Category targetCategory) {
-  if(targetCategory.getParentCategory() != null) {
-      ancestorCategoryList.add(targetCategory.getParentCategory());
-      addParentCategory(ancestorCategoryList, targetCategory.getParentCategory());
-    }
+  // 対象の祖先要素リストを取得　再帰処理で遡る
+  private List<Category> addParentCategory(List<Category> ancestorCategoryList, Category targetCategory) {
+    if(targetCategory.getParentCategory() != null) {
+        ancestorCategoryList.add(targetCategory.getParentCategory());
+        addParentCategory(ancestorCategoryList, targetCategory.getParentCategory());
+      }
 
-  return ancestorCategoryList;
-}
+    return ancestorCategoryList;
+  }
 
   // Category作成
   public CategoryResponseDto createCategory(CreateCategoryRequestDto req) {
@@ -98,6 +99,7 @@ private List<Category> addParentCategory(List<Category> ancestorCategoryList, Ca
     return toDto(savedCategory);
   }
 
+  // ユーザーが所有するカテゴリ一覧を取得
   public List<CategoryResponseDto> getCategoriesByUserId() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Long userId = (Long) authentication.getPrincipal();
@@ -111,6 +113,7 @@ private List<Category> addParentCategory(List<Category> ancestorCategoryList, Ca
     return tree;
   }
 
+  // カテゴリ名を更新
   public CategoryResponseDto updateCategory(Long categroyId, CategoryRequestDto req) {
     Category target = categoryRepository.findById(categroyId)
         .orElseThrow(() -> new ValidationException("データの更新に失敗しました。"));
@@ -120,6 +123,8 @@ private List<Category> addParentCategory(List<Category> ancestorCategoryList, Ca
     return toDto(updatedCategory);
   }
 
+
+  // カテゴリ削除　カテゴリの論理削除・対象カテゴリを保有するstudyLogの物理削除を一括で行うため@Transactional 
   @Transactional
   public void deleteCategory(Long categoryId) {
     Category target = categoryRepository.findById(categoryId)
@@ -135,6 +140,7 @@ private List<Category> addParentCategory(List<Category> ancestorCategoryList, Ca
     return;
   }
 
+  // 対象の祖先要素リストを取得
   public List<CategoryResponseDto> getAncestoCategoryList(Long categoryId) {
     List<Category> ancestorCategoryList = new ArrayList<Category>();
 

@@ -45,6 +45,7 @@ public class StudyLogController {
     return new ApiResponseDto<>("SUCCESS", res, null);
   }
 
+  // 学習分析取得
   @GetMapping("/analytics")
   public ApiResponseDto<AnalyticsResponseDto> getAnalytics() {
     AnalyticsResponseDto res = studyLogService.getAnalytics();

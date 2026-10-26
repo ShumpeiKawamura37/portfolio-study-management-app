@@ -54,6 +54,7 @@ public class CategoryController {
     return new ApiResponseDto<>("SUCCESS", null, null);
   }
 
+  // 学習カテゴリ分析用　対象の祖先要素をリストにして返す
   @GetMapping("/ancestor/{categoryId}")
   public ApiResponseDto<List<CategoryResponseDto>> getAncestorCategoryList(@PathVariable Long categoryId) {
     List<CategoryResponseDto> res =categoryService.getAncestoCategoryList(categoryId);

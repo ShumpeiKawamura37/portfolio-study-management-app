@@ -25,15 +25,17 @@ public class AuthService {
   public LoginResponseDto authenticate(LoginRequestDto req) {
     User user = userRepository.findByEmail(req.email());
 
-    // userなしor削除済みユーザーを取得した場合
+    //エラー userなしor削除済みユーザーを取得した場合
     if(user == null || user.isStatus() == false) {
       throw new AuthenticationException("メールアドレスまたはパスワードが正しくありません。");
     }
     
+    //エラー　パスワード不一致
     if(!passwordEncoder.matches(req.password(), user.getPassword())) {
       throw new AuthenticationException("メールアドレスまたはパスワードが正しくありません。");
     }
 
+    // トークン付与
     String token = jwtProvider.generateToken(user.getUserId());
 
     return new LoginResponseDto(token);

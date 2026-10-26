@@ -8,26 +8,32 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.portfolio.study_management_app.dto.common.ApiResponseDto;
 
+// 各エラーを拾い、apiResponseDto形式で返す。
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+  // バリデーションエラー
   @ExceptionHandler(ValidationException.class)
   public ResponseEntity<ApiResponseDto<Void>> handleValidationException(ValidationException e) {
     ApiResponseDto<Void> res = new ApiResponseDto<>("ERROR", null, e.getMessage());
     return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
   }
+
+  // ログインエラー
   @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiResponseDto<Void>> handleAuthException(AuthenticationException e) {
     ApiResponseDto<Void> res = new ApiResponseDto<>("ERROR", null, e.getMessage());
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(res);
   }
 
+  // トークン認証エラー
   @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<ApiResponseDto<Void>> handleInvalidTokenException(InvalidTokenException e) {
     ApiResponseDto<Void> res = new ApiResponseDto<>("ERROR", null, e.getMessage());
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(res);
   }
 
+  // @Valid用のバリデーションエラー
   @ExceptionHandler (MethodArgumentNotValidException.class)
     public  ResponseEntity<ApiResponseDto<Void>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
       ApiResponseDto<Void> res = new ApiResponseDto<>("ERROR", null, e.getBindingResult().getAllErrors().get(0).getDefaultMessage());

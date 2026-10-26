@@ -2,10 +2,15 @@
 
 import { useAnalytics } from "@/hooks/analytics/useAnalytics";
 
+
+// 分析項目：　選択したカテゴリの合計学習時間・初回学習日・最終学習日・対象カテゴリの学習時間が総合学習時間に占める割合・対象カテゴリの祖先要素を１つ選択し、それとその子孫カテゴリの総学習時間に占める対象カテゴリの学習時間
+
 export default function CategoryAnalytics() {
   const analytics = useAnalytics();
   const categoryAnalytics = analytics.categoryAnalytics;
   const targetCategory = analytics.targetCategory;
+
+  // number型の時刻を文字列で返す
   const formatTotalStudySeconds = (totalStudySeconds: number | undefined | null) => {
     if (totalStudySeconds == null) {
       return "";
@@ -15,8 +20,9 @@ export default function CategoryAnalytics() {
     const minutes = Math.floor((totalStudySeconds % 3600) / 60);
 
     return `${hours}時間 ${minutes}分`;
-};
+  };
 
+  // string型の日付をDate型で返す
   const formatDate = (date: string | undefined) => {
     if(!date) {
       return "";
@@ -28,6 +34,7 @@ export default function CategoryAnalytics() {
     });
   };
 
+  // 数値を百分率にして返す
   const formatPercentage = (percentage: number | null | undefined) => {
     if(!percentage) {
       return "";

@@ -4,6 +4,7 @@ import { useAnalytics } from "@/hooks/analytics/useAnalytics";
 import { useState } from "react";
 import { Period } from "@/hooks/analytics/useAnalyticsState";
 
+
 const colors = [
   "#3b82f6",
   "#10b981",
@@ -21,17 +22,29 @@ export default function CategoryPieChart() {
   const analytics = useAnalytics();
 
   const categories = analytics.studySecondsByCategory;
-  const totalStudySeconds = analytics.analytics?.totalStudySeconds;
-  if (totalStudySeconds === undefined || totalStudySeconds === 0) {
+
+  const allStudySeconds = analytics.analytics?.totalStudySeconds;
+
+  // 学習ログがなければグラフを表示しない
+  if (allStudySeconds === undefined || allStudySeconds === 0) {
     return null;
   }
 
+  // 割合の分母
+  const totalStudySeconds = categories.reduce(
+    (sum, category) => sum + category.studySeconds,
+    0
+  );
+  // 各カテゴリが全体に占める学習時間の割合を算出　[カテゴリ名・学習時間・割合]を持つオブジェクトを生成してchartData配列に格納する
   const chartData = categories.reduce(
   (result, category) => {
     const percentage =
       (category.studySeconds / totalStudySeconds) * 100;
 
+    // 割合が5%未満のカテゴリは"その他"に合算する　
     if (percentage < 5) {
+
+      // すでに"その他"があれば合算　なければ"その他"カテゴリを作成する
       const other = result.find(
         (item) => item.categoryName === "その他"
       );
@@ -63,9 +76,9 @@ export default function CategoryPieChart() {
   }[]
 );
 
-  // 割り出したpercentageをPieの角度とする。
   return (
     <div className="flex flex-col justify-center items-center mt-5 mb-7">
+      {/* 集計期間 */}
       <select
       value={analytics.period}
       onChange={(e) => {
@@ -99,11 +112,12 @@ export default function CategoryPieChart() {
               outerRadius={
                 isActive? props.outerRadius + 10 : props.outerRadius
               }
-              fill={colors[index % colors.length]}
+              fill={colors[index % colors.length]} /*色を順にを付与 */
             />
           )
         }}
       />
+      {/* 選択したカテゴリの情報を表示 */}
       <Tooltip 
         isAnimationActive={false}
         content={({ active, payload }) => {

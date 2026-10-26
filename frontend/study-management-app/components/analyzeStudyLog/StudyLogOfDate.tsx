@@ -5,6 +5,8 @@ import { useAnalytics } from "@/hooks/analytics/useAnalytics";
 import Button from "../ui/Button";
 import StudyLogAnalytics from "./StudyLogAnalytics";
 
+// カレンダーは前日・翌日に遷移するボタンか、日付が表示されているボタンをクリックでカレンダーUIから選択可能
+
 export default function StudyLogOfDate() {
   const { setTargetDate } = useAnalytics();
   const handleClickDayButton = (action: "prev" | "next") => {

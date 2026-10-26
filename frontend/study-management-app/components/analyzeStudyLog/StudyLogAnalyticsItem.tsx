@@ -2,6 +2,8 @@
 
 import { StudyLog } from "@/hooks/analytics/useAnalyticsState";
 
+// 分析項目はカテゴリ名・開始時間・終了時間・メモ　メモがない場合は薄字で「メモがありません」表示
+
 type StudyLogAnalyticsProps = {
   studyLog: StudyLog
 }

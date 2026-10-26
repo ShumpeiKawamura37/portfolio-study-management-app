@@ -3,6 +3,8 @@
 import { useAnalytics } from "@/hooks/analytics/useAnalytics";
 import ItemHeading from "../layout/ItemHeading";
 
+// 分析項目は合計学習時間（hh時間mm分）・学習日数（当日記録していれば連続学習日数を強調表示）・合計学習時間・最も学習したカテゴリ名
+
 export default function TotalAnalytics() {
   const analytics = useAnalytics().analytics;
 

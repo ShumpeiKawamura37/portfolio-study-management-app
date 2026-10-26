@@ -5,6 +5,8 @@ import { getStudyLogByDate } from "@/service/studyLog/StudyLogService";
 import { useEffect } from "react";
 import StudyLogAnalyticsItem from "./StudyLogAnalyticsItem";
 
+// 対象日に開始された学習ログの一覧を表示する
+
 export default function StudyLogAnalytics() {
   const {targetStudyLog, setTargetStudyLog} = useAnalytics();
 

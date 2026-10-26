@@ -40,7 +40,7 @@ public class StudyLogService {
     this.studyLogRepository = studyLogRepository;
   }
 
-  // CategoryをCategoryResponseDtoに変換
+  // dtoに変換
   private CategoryResponseDto categoryToDto(Category category) {
 
     return new CategoryResponseDto(
@@ -91,6 +91,7 @@ public class StudyLogService {
   private String findCategoryNameLongestStudySeconds(List<StudyLog> studyLogs) {
     Map<Category, Integer> studySecondsByCategory = new HashMap<>();
 
+    // 一番上位層の親要素にまとめて集計する
     for (StudyLog studyLog : studyLogs) {
       Category category = studyLog.getCategory();
 
@@ -118,7 +119,7 @@ public class StudyLogService {
     return maxCategory.getCategoryName();
   }
 
-  // 学習率を算出
+  // 登録日から当日までの学習率を算出
   public Double calculationStudyDayRate(LocalDateTime createdAt, Integer totalStudyDays) {
     LocalDate createdDate = createdAt.toLocalDate();
     LocalDate currentDate = LocalDate.now();
@@ -375,7 +376,6 @@ public class StudyLogService {
         " percentageOfDescendantCategory: " + percentageOfDescendantCategory
       );
     }
-
 
     return new CategoryAnalyticsResponseDto(categoryId, totalStudySecondsOfCategory, firstTimeStudied, lastTimeStudied, percentageOfTotal, percentageOfDescendantCategory);
   }
