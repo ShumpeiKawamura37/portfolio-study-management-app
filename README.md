@@ -83,10 +83,12 @@
 1. リポジトリをクローン
 git clone [[https://github.com/ShumpeiKawamura37/portfolio-study-management-app]
 cd portfolio-study-management-app
-2. データベースを起動
+2. 環境変数ファイルを作成
+cp .env.example .env
+.envを開いて各値を設定 (JWT_SECRETは32文字以上)
+3. データベースを起動
 docker compose up -d
-
-3. ブラウザから以下にアクセスします。
+4. ブラウザから以下にアクセスします。
 http://localhost:3000
 
 ##　java 単体テスト実施方法
