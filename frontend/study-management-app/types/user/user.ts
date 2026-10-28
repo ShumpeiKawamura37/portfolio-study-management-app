@@ -6,7 +6,7 @@ export type CreateUserRequest = {
 export type UpdateUserRequest = {
   username: string,
   email: string,
-  password: string
+  password?: string
 }
 
 export type UserResponse = {

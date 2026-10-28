@@ -16,7 +16,6 @@ public record UpdateUserRequestDto(
     @Email (message = "メールアドレスの形式が正しくありません。")
     String email,
 
-    @NotBlank(message = "パスワードを入力してください。")
     @Size(min = 8, message = "パスワードは8文字以上で入力してください。")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)\\S+$", message = "パスワードは半角英大文字・半角英小文字・半角数字をそれぞれ1文字以上含む必要があります。")
     String password

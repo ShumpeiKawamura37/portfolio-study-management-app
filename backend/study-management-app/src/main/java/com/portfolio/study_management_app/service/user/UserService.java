@@ -58,10 +58,8 @@ public class UserService {
     if(!req.email().equals(user.getEmail())) {
       user.setEmail(req.email());
     }
-    if(!passwordEncoder.matches(req.password(), user.getPassword()) ) {
-      if (req.password() != null && !req.password().isBlank()) {
-        user.setPassword(passwordEncoder.encode(req.password()));
-      }
+    if(req.password() != null && !req.password().isBlank()) {
+      user.setPassword(passwordEncoder.encode(req.password()));
     }
 
     User savedUser = userRepository.save(user);

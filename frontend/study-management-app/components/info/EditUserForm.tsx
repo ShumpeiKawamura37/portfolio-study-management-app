@@ -5,6 +5,7 @@ import { deleteUser, getUser, updateUser } from "@/service/user/userService";
 import { showError } from "@/utils/error";
 import InputItem from "./InputItem";
 import { useRouter } from "next/navigation";
+import { UpdateUserRequest } from "@/types/user/user";
 
 
 export default function EditUserForm() {
@@ -32,8 +33,12 @@ export default function EditUserForm() {
   //変更内容を保存
   const handleSave = async () => {
     try {
-      const requestPassword = password === initialPassword ? "" : password;
-      const res = await updateUser({ username, email, password: requestPassword });
+      // パスワードが変更されていない場合は、リクエストに含めない。
+      const request: UpdateUserRequest = 
+        password === initialPassword
+        ? { username, email }
+        : {username, email, password};
+        const res = await updateUser(request);
 
       setUsername(res.data.username);
       setInitialUsername(res.data.username);

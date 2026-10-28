@@ -110,9 +110,6 @@ public class UserServiceTest {
     when(userRepository.findById(1L))
         .thenReturn(Optional.of(user));
 
-    when(passwordEncoder.matches(req.password(), user.getPassword()))
-        .thenReturn(false);
-
     when(passwordEncoder.encode(req.password()))
         .thenReturn("encodedNewPassword");
 
