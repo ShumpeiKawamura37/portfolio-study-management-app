@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import com.portfolio.study_management_app.dto.category.CategoryRequestDto;
 import com.portfolio.study_management_app.dto.category.CategoryResponseDto;
 import com.portfolio.study_management_app.dto.category.CreateCategoryRequestDto;
-import com.portfolio.study_management_app.dto.common.ApiResponseDto;
 import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.user.User;
 import com.portfolio.study_management_app.exception.ValidationException;
@@ -30,6 +29,12 @@ public class CategoryService {
     this.categoryRepository = categoryRepository;
     this.userRepository = userRepository;
     this.studyLogRepository = studyLogRepository;
+  }
+
+  // JWTから設定された認証情報のuserIdを取得
+  private Long getCurrentUserId() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    return (Long) authentication.getPrincipal();
   }
 
   // dtoに変換
@@ -78,8 +83,7 @@ public class CategoryService {
 
   // Category作成
   public CategoryResponseDto createCategory(CreateCategoryRequestDto req) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    Long userId = (Long) authentication.getPrincipal();
+    Long userId = getCurrentUserId();
 
     // userが見つからなければエラー
     User user = userRepository.findById(userId)
@@ -89,7 +93,7 @@ public class CategoryService {
 
     // 親要素があるなら、親要素に子要素を、子要素に親要素を加える。
     if (req.parentCategoryId() != null) {
-      Category parentCategory = categoryRepository.findById(req.parentCategoryId())
+      Category parentCategory = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(req.parentCategoryId(), userId)
           .orElseThrow(() -> new ValidationException("データの作成に失敗しました。"));
       parentCategory.addChild(category);
     }
@@ -101,8 +105,8 @@ public class CategoryService {
 
   // ユーザーが所有するカテゴリ一覧を取得
   public List<CategoryResponseDto> getCategoriesByUserId() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    Long userId = (Long) authentication.getPrincipal();
+
+    Long userId = getCurrentUserId();
 
     List<Category> categories = categoryRepository.findByUserUserIdOrderByCreatedAtAsc(userId)
         .stream().filter((category) -> {
@@ -114,9 +118,12 @@ public class CategoryService {
   }
 
   // カテゴリ名を更新
-  public CategoryResponseDto updateCategory(Long categroyId, CategoryRequestDto req) {
-    Category target = categoryRepository.findById(categroyId)
+  public CategoryResponseDto updateCategory(Long categoryId, CategoryRequestDto req) {
+    Long userId = getCurrentUserId();
+
+    Category target = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId)
         .orElseThrow(() -> new ValidationException("データの更新に失敗しました。"));
+
     target.setCategoryName(req.categoryName());
     Category updatedCategory = categoryRepository.save(target);
 
@@ -127,7 +134,9 @@ public class CategoryService {
   // カテゴリ削除　カテゴリの論理削除・対象カテゴリを保有するstudyLogの物理削除を一括で行うため@Transactional 
   @Transactional
   public void deleteCategory(Long categoryId) {
-    Category target = categoryRepository.findById(categoryId)
+    Long userId = getCurrentUserId();
+    
+    Category target = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId)
         .orElseThrow(() -> new ValidationException("データの更新に失敗しました。"));
 
     studyLogRepository.deleteByCategoryCategoryId(categoryId);
@@ -142,9 +151,12 @@ public class CategoryService {
 
   // 対象の祖先要素リストを取得
   public List<CategoryResponseDto> getAncestoCategoryList(Long categoryId) {
+    Long userId = getCurrentUserId();
+
     List<Category> ancestorCategoryList = new ArrayList<Category>();
 
-    Category target = categoryRepository.findById(categoryId).orElseThrow();
+    Category target = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId)
+      .orElseThrow();
 
     if(target.getParentCategory() != null) {
       addParentCategory(ancestorCategoryList, target);

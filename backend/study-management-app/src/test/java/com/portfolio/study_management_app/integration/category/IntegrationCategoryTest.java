@@ -214,7 +214,8 @@ public class IntegrationCategoryTest {
     userRepository.save(user);
 
     Authentication auth = new UsernamePasswordAuthenticationToken(
-        1L,
+        //Optionalではないためuser.getUserId();
+        user.getUserId(),
         null,
         null);
 
@@ -247,7 +248,7 @@ public class IntegrationCategoryTest {
     userRepository.save(user);
 
     Authentication auth = new UsernamePasswordAuthenticationToken(
-        1L,
+        user.getUserId(),
         null,
         null);
 

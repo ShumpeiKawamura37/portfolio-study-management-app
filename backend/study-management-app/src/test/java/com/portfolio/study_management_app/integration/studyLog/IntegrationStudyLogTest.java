@@ -132,7 +132,6 @@ public class IntegrationStudyLogTest {
     // 前提条件セット
     User another = new User("another", "another@example.com", "Password123");
     userRepository.save(another);
-    another.setUserId(2L);
     Category category = new Category("test", another, null);
     Category savedCategory = categoryRepository.save(category);
 

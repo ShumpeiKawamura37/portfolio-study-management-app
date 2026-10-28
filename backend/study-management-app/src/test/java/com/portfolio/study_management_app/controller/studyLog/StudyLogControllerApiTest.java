@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import java.time.LocalDateTime;
-import static org.hamcrest.Matchers.nullValue;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -113,7 +112,6 @@ public class StudyLogControllerApiTest {
      //前提条件セット
     User another = new User("another", "another@example.com", "Password123");
     userRepository.save(another);
-    another.setUserId(2L);
     Category category = new Category("test", another, null);
     Category savedCategory = categoryRepository.save(category);
 

@@ -176,7 +176,7 @@ else token valid
     DB --> UserRepository : User
     UserRepository --> StudyLogService : User
 
-    StudyLogService -> CategoryRepository : findById(req.categoryId)
+    StudyLogService -> CategoryRepository : findByCategoryIdAndUserUserIdAndStatusTrue(req.categoryId, userId)
     CategoryRepository -> DB : SELECT * FROM categories WHERE category_id =?
 
     alt category not found
@@ -314,7 +314,7 @@ else token valid
     FilterChain -> StudyLogController : getCategoryAnalytics()
 
     StudyLogController -> StudyLogService : getCategoryAnalytics(categoryId)
-    StudyLogService -> CategoryRepository : findById(categoryId)
+    StudyLogService -> CategoryRepository : findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId)
     CategoryRepository -> DB : SELECT * FROM categories WHERE category_id=?
     DB --> CategoryRepository : Category
     CategoryRepository --> StudyLogService : Category

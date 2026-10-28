@@ -69,7 +69,7 @@ public class CategoryServiceTest {
 
     when(userRepository.findById(anyLong()))
         .thenReturn(Optional.of(user));
-    when(categoryRepository.findById(anyLong()))
+    when(categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(anyLong(), anyLong()))
         .thenReturn(Optional.of(parentCategory));
     when(categoryRepository.save(any(Category.class)))
         .thenAnswer(invocation -> {
@@ -125,7 +125,7 @@ public class CategoryServiceTest {
 
     when(userRepository.findById(anyLong()))
         .thenReturn(Optional.of(user));
-    when(categoryRepository.findById(anyLong()))
+    when(categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(anyLong(), anyLong()))
         .thenReturn(Optional.empty());
 
     // 実行・エラーの確認
@@ -212,7 +212,7 @@ public class CategoryServiceTest {
     CategoryRequestDto req = new CategoryRequestDto("updated");
 
     // 実行準備
-    when(categoryRepository.findById(anyLong()))
+    when(categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(anyLong(), anyLong()))
         .thenReturn(Optional.of(category));
 
     when(categoryRepository.save((category)))
@@ -260,7 +260,7 @@ public class CategoryServiceTest {
     user.setUserId(1L);
 
     Authentication auth = new UsernamePasswordAuthenticationToken(
-        1L,
+        user.getUserId(),
         null,
         null);
 
@@ -273,7 +273,7 @@ public class CategoryServiceTest {
     category.setCategoryId(1L);
 
     // 実行準備
-    when(categoryRepository.findById(anyLong()))
+    when(categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(anyLong(), anyLong()))
         .thenReturn(Optional.of(category));
 
     categoryService.deleteCategory(category.getCategoryId());

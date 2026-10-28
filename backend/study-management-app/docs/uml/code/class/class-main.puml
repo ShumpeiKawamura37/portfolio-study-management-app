@@ -72,7 +72,8 @@ class CategoryService {
 }
 
 class CategoryRepository {
-  findByUserId(Long) : List<Category>
+  + findByUserId(Long) : List<Category>
+  + findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId)
 }
 
 class StudyLogController {

@@ -40,6 +40,13 @@ public class StudyLogService {
     this.studyLogRepository = studyLogRepository;
   }
 
+   // JWTから設定された認証情報のuserIdを取得
+  private Long getCurrentUserId() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    return (Long) authentication.getPrincipal();
+  }
+
+
   // dtoに変換
   private CategoryResponseDto categoryToDto(Category category) {
 
@@ -212,14 +219,11 @@ public class StudyLogService {
   }
 
   public StudyLogResponseDto createStudyLog(CreateStudyLogRequsetDto req) {
-    // トークンからユーザー取得
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-    Long userId = (Long) authentication.getPrincipal();
+    Long userId = getCurrentUserId();
 
     User user = userRepository.findById(userId).orElseThrow();
 
-    Category category = categoryRepository.findById(req.categoryId())
+    Category category = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(req.categoryId(), userId)
         .orElseThrow(() -> new ValidationException("データの作成に失敗しました。"));
 
     // 他ユーザーのカテゴリであった場合エラー
@@ -248,10 +252,8 @@ public class StudyLogService {
 
   // ユーザーの学習記録一覧を取得
   public List<StudyLogResponseDto> getStudyLog() {
-        // トークンからユーザー取得
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    Long userId = (Long) authentication.getPrincipal();
+    Long userId = getCurrentUserId();
 
     List<StudyLog> studyLogs = studyLogRepository.findByUserUserId(userId);
 
@@ -260,11 +262,7 @@ public class StudyLogService {
 
   // 日別の学習記録を取得
   public List<StudyLogResponseDto> getStudyLogByDate(LocalDate date) {
-
-    // トークンからユーザー取得
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-    Long userId = (Long) authentication.getPrincipal();
+    Long userId = getCurrentUserId();
 
     // 指定日の00:00:00~翌日00:00:00を定義
     LocalDateTime start = date.atStartOfDay();
@@ -281,13 +279,8 @@ public class StudyLogService {
   }
 
   public AnalyticsResponseDto getAnalytics() {
-    // トークンからユーザー取得
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-    Long userId = (Long) authentication.getPrincipal();
-
+    Long userId = getCurrentUserId();
     User user = userRepository.findById(userId).orElseThrow();
-
     List<StudyLog> studyLogs = studyLogRepository.findByUserUserId(userId);
 
     if (studyLogs.isEmpty()) {
@@ -318,10 +311,10 @@ public class StudyLogService {
   }
 
   public CategoryAnalyticsResponseDto getCategoryAnalytics(Long categoryId, Long targetParentCategoryId) {
-     // トークンからユーザー取得
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    Long userId = getCurrentUserId();
 
-    Long userId = (Long) authentication.getPrincipal();
+    //リクエストのカテゴリがユーザー所有か検証
+    categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId).orElseThrow(() -> new ValidationException("データの取得に失敗しました。"));
 
     // ユーザーの学習記録を全て取得
     List<StudyLog> studyLogsFilteredByUserId = studyLogRepository.findByUserUserId(userId);
@@ -343,10 +336,10 @@ public class StudyLogService {
 
     // 指定した親要素から連なる子孫カテゴリに占める学習時間を先に定義(if用)
     Double percentageOfDescendantCategory = null;
-    System.out.println("targetParentCategoryId: " + targetParentCategoryId);
+  
     if(targetParentCategoryId != null) {
 
-      Category targetParentCategory = categoryRepository.findById(targetParentCategoryId).orElseThrow();
+      Category targetParentCategory = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(targetParentCategoryId, userId).orElseThrow(() -> new ValidationException("データの取得に失敗しました。"));
 
       // 指定した親要素の子孫カテゴリリストを作成
       List<Category> descendantCategoryList = new ArrayList<>();
@@ -369,12 +362,6 @@ public class StudyLogService {
 
       // 指定した親要素以下の合計学習時間に占める対象カテゴリの学習時間の割合
       percentageOfDescendantCategory = calculationPercentageOfDescendantCategory(totalStudySecondsOfCategory, totalStudySecondsOfDescendantCategories);
-
-      System.out.println(
-        "totalStudySecondsOfCategory: " + totalStudySecondsOfCategory +
-        " totalStudySecondsOfDescendantCategories: " + totalStudySecondsOfDescendantCategories +
-        " percentageOfDescendantCategory: " + percentageOfDescendantCategory
-      );
     }
 
     return new CategoryAnalyticsResponseDto(categoryId, totalStudySecondsOfCategory, firstTimeStudied, lastTimeStudied, percentageOfTotal, percentageOfDescendantCategory);

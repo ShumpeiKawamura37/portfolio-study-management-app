@@ -1,6 +1,7 @@
 package com.portfolio.study_management_app.controller.category;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -185,17 +186,20 @@ public class CategoryControllerApiTest {
   void deleteCategory_success() throws Exception {
      // 条件セット
     User user = new User("test", "test@exapmle.com", "Password123");
-
     User savedUser = userRepository.save(user);
+
+    Category category = new Category("test", user, null);
+    categoryRepository.save(category);
+
     String token = jwtProvider.generateToken(savedUser.getUserId());
     
      // 実行
     mockMvc.perform(
-      put("/api/category/{categoryId}", 1L)
+      delete("/api/category/{categoryId}", category.getCategoryId())
         .contentType(MediaType.APPLICATION_JSON)
         .header("Authorization", "Bearer " + token)
         .with(csrf()))
-      .andExpect(status().isBadRequest());
+      .andExpect(status().isOk());
   }
   @Test
   @DisplayName("異常系: カテゴリが見つからなければCategory削除失敗")
@@ -206,7 +210,7 @@ public class CategoryControllerApiTest {
     User savedUser = userRepository.save(user);
     String token = jwtProvider.generateToken(savedUser.getUserId());
     mockMvc.perform(
-    put("/api/category/{categoryId}", 1L)
+    delete("/api/category/{categoryId}", 1L)
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", "Bearer " + token)
       .with(csrf()))

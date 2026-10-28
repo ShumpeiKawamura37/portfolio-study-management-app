@@ -114,7 +114,7 @@ else token valid
     UserRepository --> CategoryService : User
 
     opt parentCategoryId exists
-      CategoryService -> CategoryRepository : findById(parentCategoryId)
+      CategoryService -> CategoryRepository : findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId)
 
       CategoryRepository -> DB : SELECT * FROM categories WHERE category_id=?
 
@@ -177,7 +177,7 @@ else token valid
     CategoryController -> CategoryService : updateCategory(Long, CategoryRequestDto)
     CategoryService -> Authentication : getPrincipal()
     Authentication --> CategoryService : userId
-    CategoryService -> CategoryRepository : findById(categoryId)
+    CategoryService -> CategoryRepository : findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId)
     CategoryRepository -> DB : SELECT * FROM categories WHERE category_id=?
 
     alt category not found
@@ -239,7 +239,7 @@ else token valid
     FilterChain -> CategoryController : deleteCategory(Long)
 
     CategoryController -> CategoryService : deleteCategory(Long) 
-    CategoryService -> CategoryRepository : findById
+    CategoryService -> CategoryRepository : findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId)
     CategoryRepository -> DB : SELECT * FROM categories WHERE category_id=?
 
     alt category not found

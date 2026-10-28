@@ -77,7 +77,7 @@ public class StudyLogServiceTest {
     // 実行準備
     when(userRepository.findById(anyLong()))
         .thenReturn(Optional.of(user));
-    when(categoryRepository.findById(anyLong()))
+    when(categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(anyLong(), anyLong()))
         .thenReturn(Optional.of(category));
     when(studyLogRepository.save(any(StudyLog.class)))
         .thenAnswer(invocation -> {
@@ -159,8 +159,8 @@ public class StudyLogServiceTest {
     // 実行準備
     when(userRepository.findById(anyLong()))
         .thenReturn(Optional.of(user));
-    when(categoryRepository.findById(anyLong()))
-        .thenReturn(Optional.of(category));
+    when(categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(anyLong(),anyLong()))
+        .thenReturn(Optional.empty());
 
     // 実行・検証
     assertThrows(ValidationException.class, () -> studyLogService.createStudyLog(req));
@@ -197,7 +197,7 @@ public class StudyLogServiceTest {
     // 実行準備
     when(userRepository.findById(anyLong()))
         .thenReturn(Optional.of(user));
-    when(categoryRepository.findById(anyLong()))
+    when(categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(anyLong(), anyLong()))
         .thenReturn(Optional.of(category));
 
     // 実行・検証
@@ -390,9 +390,11 @@ public class StudyLogServiceTest {
     studyLogs.add(studyLog);
 
      // 実行準備
+    when(categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(category.getCategoryId(), 1L))
+        .thenReturn(Optional.of(category));
     when(studyLogRepository.findByUserUserId(1L))
         .thenReturn(studyLogs);
-    when(categoryRepository.findById(parentCategory.getCategoryId()))
+    when(categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(parentCategory.getCategoryId(), 1L))
         .thenReturn(Optional.of(parentCategory));
     // 実行
     CategoryAnalyticsResponseDto result = studyLogService.getCategoryAnalytics(category.getCategoryId(), parentCategory.getCategoryId());
