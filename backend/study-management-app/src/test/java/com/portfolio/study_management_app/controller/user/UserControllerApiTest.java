@@ -105,6 +105,50 @@ public class UserControllerApiTest {
   }
 
   @Test
+  @DisplayName("正常系: User更新成功(パスワード以外)")
+  void updateUser_withoutPassword_keepsPassword() throws Exception {
+    User user = new User(
+        "test",
+        "test@example.com",
+        passwordEncoder.encode("Password123"));
+
+    userRepository.save(user);
+
+    String token = jwtProvider.generateToken(user.getUserId());
+
+    String updateJson = """
+        {
+          "username": "updated",
+          "email": "test@example.com"
+        }
+        """;
+
+    mockMvc.perform(
+        put("/api/user")
+            .header("Authorization", "Bearer " + token)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(updateJson))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.username").value("updated"));
+
+    String loginJson = """
+        {
+          "email": "test@example.com",
+          "password": "Password123"
+        }
+        """;
+
+    mockMvc.perform(
+        post("/api/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(loginJson))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.token").exists());
+  }
+
+
+  @Test
   @DisplayName("正常系: User削除成功")
   void deleteUser_success() throws Exception {
     User user = new User(

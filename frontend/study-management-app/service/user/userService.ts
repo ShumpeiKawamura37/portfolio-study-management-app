@@ -53,9 +53,11 @@ export async function updateUser(user: UpdateUserRequest) {
     throw new Error(errorMessageOfEmail);
   }
 
-  const errorMessageOfPassword = validatePassword(user.password);
-  if(errorMessageOfPassword) {
-    throw new Error(errorMessageOfPassword);
+  if(user.password !== undefined) {
+    const errorMessageOfPassword = validatePassword(user.password);
+    if(errorMessageOfPassword) {
+      throw new Error(errorMessageOfPassword);
+    }
   }
 
   const response = await apiFetch(USER_URL, {
