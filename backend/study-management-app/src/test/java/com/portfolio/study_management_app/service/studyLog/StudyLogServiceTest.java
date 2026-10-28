@@ -406,6 +406,6 @@ public class StudyLogServiceTest {
     assertEquals(studyLog.getEndTime(), result.lastTimeStudied());
     assertEquals(1.0, result.percentageOfTotal());
     assertEquals(1.0, result.percentageOfDescendantCategory());
-}
+  }
 
 }

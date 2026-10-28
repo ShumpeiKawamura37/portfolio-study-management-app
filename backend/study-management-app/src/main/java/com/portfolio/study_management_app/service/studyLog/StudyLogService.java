@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -320,7 +321,7 @@ public class StudyLogService {
     List<StudyLog> studyLogsFilteredByUserId = studyLogRepository.findByUserUserId(userId);
 
     // 指定したカテゴリの学習記録リストを作成
-    List<StudyLog> studyLogsFilteredByCategoryId = studyLogsFilteredByUserId.stream().filter(studyLog -> studyLog.getCategory().getCategoryId() == categoryId).toList();
+    List<StudyLog> studyLogsFilteredByCategoryId = studyLogsFilteredByUserId.stream().filter(studyLog -> Objects.equals(studyLog.getCategory().getCategoryId(), categoryId)).toList();
 
     // ユーザーの合計学習時間を取得
     int totalStudySecondsOfAllCategory = calculationTotalStudySeconds(studyLogsFilteredByUserId);
@@ -350,7 +351,7 @@ public class StudyLogService {
         .filter(studyLog -> {
           return descendantCategoryList.stream()
             .anyMatch(descendantCategory -> {
-              return studyLog.getCategory().equals(descendantCategory);
+              return Objects.equals(studyLog.getCategory().getCategoryId(), descendantCategory.getCategoryId());
             });
         })
         .toList();
