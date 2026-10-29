@@ -1,6 +1,9 @@
 import { apiFetch } from "@/lib/apiClient";
 import { ApiResponse } from "@/types/api/api";
-import { CreateStudyLogrequest, StudyLogResponse } from "@/types/studyLog/studyLog";
+import {
+  CreateStudyLogrequest,
+  StudyLogResponse,
+} from "@/types/studyLog/studyLog";
 import { validateStudyMemo } from "@/utils/validation/validation";
 
 const STUDY_LOG_URL = "/api/studyLog";
@@ -12,9 +15,9 @@ export async function createStudyLog(
   memo: string | null,
   categoryId: number,
 ): Promise<ApiResponse<StudyLogResponse>> {
-  if(memo != null) {
+  if (memo != null) {
     const errorMessage = validateStudyMemo(memo);
-    if(errorMessage) {
+    if (errorMessage) {
       throw new Error(errorMessage);
     }
   }
@@ -28,40 +31,30 @@ export async function createStudyLog(
     endTime: formatDateTime(endTime),
     studySeconds,
     memo,
-    categoryId
+    categoryId,
   };
-
 
   const response = await apiFetch(STUDY_LOG_URL, {
     method: "POST",
-    body: JSON.stringify(req)
+    body: JSON.stringify(req),
   });
 
   const result: ApiResponse<StudyLogResponse> = await response.json();
-  
-  if(!response.ok) {
-    throw new Error(result.message);
-  }
 
   return result;
 }
 
 export async function getStudyLogs(): Promise<ApiResponse<StudyLogResponse[]>> {
-
   const response = await apiFetch(STUDY_LOG_URL, {
     method: "GET",
   });
 
   const result: ApiResponse<StudyLogResponse[]> = await response.json();
-  
-  if(!response.ok) {
-    throw new Error(result.message);
-  }
+
   return result;
 }
 
 export async function getStudyLogByDate(date: Date) {
-
   const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
   const response = await apiFetch(`${STUDY_LOG_URL}/date/${formattedDate}`, {
@@ -69,10 +62,6 @@ export async function getStudyLogByDate(date: Date) {
   });
 
   const result: ApiResponse<StudyLogResponse[]> = await response.json();
-
-  if(!response.ok) {
-    throw new Error(result.message);
-  }
 
   return result;
 }

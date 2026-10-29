@@ -14,9 +14,6 @@ export async function getCategories(): Promise<ApiResponse<CategoryResponse[]>> 
 
   const result: ApiResponse<CategoryResponse[]> = await response.json();
 
-  if(!response.ok) {
-    throw new Error(result.message);
-  }
   return result;
 }
 
@@ -33,9 +30,7 @@ export async function createCategory(categoryName: string, parentCategoryId: num
   });
 
   const result: ApiResponse<CategoryResponse> = await response.json();
-  if(!response.ok) {
-    throw new Error(result.message);
-  }
+
   return result;
 }
 
@@ -54,9 +49,6 @@ export async function updateCategory(categoryId: number, categoryName: string): 
 
   const result: ApiResponse<CategoryResponse> = await response.json();
 
-  if(!response.ok) {
-    throw new Error(result.message);
-  }
   return result;
 }
 
@@ -66,11 +58,6 @@ export async function deleteCategory(categoryId: number): Promise<boolean> {
     method: "DELETE",
   })
 
-  const result: ApiResponse<null> = await response.json(); 
-
-  if(!response.ok) {
-    throw new Error(result.message);
-  }
   return true;
 }
 
@@ -82,8 +69,6 @@ export async function getAncestorCategoryList(categoryId: number): Promise<ApiRe
   });
 
   const result: ApiResponse<CategoryResponse[]> = await response.json();
-  if(!response.ok) {
-    throw new Error(result.message);
-  }
+
   return result;
 }

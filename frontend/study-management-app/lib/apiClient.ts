@@ -1,5 +1,7 @@
 "use client";
 
+import { ProblemDetail } from "@/types/api/api";
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function apiFetch(
@@ -19,6 +21,11 @@ export async function apiFetch(
   if (res.status === 401) {
     localStorage.removeItem("token"); 
     window.location.replace("/auth");
+  }
+
+  if (!res.ok) {
+    const problem: ProblemDetail | null = await res.json().catch(() => null);
+    throw new Error(problem?.detail ?? "エラーが発生しました。");
   }
 
   return res;

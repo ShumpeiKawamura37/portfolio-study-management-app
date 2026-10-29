@@ -12,8 +12,5 @@ export async function login(request: AuthRequest): Promise<ApiResponse<AuthRespo
 
   const result: ApiResponse<AuthResponse> = await response.json();
 
-  if (!response.ok) {
-    throw new Error(result.message);
-  }
   return result;
 }

@@ -12,9 +12,6 @@ export async function getUser(): Promise<ApiResponse<UserResponse>> {
 
   const result: ApiResponse<UserResponse> = await response.json();
 
-  if(!response.ok) {
-    throw new Error(result.message);
-  }
   return result;
 }
 
@@ -35,9 +32,6 @@ export async function register(request: CreateUserRequest): Promise<ApiResponse<
 
   const result: ApiResponse<null> = await response.json();
 
-  if (!response.ok) {
-    throw new Error(result.message);
-  }
   return result;
 }
 
@@ -67,10 +61,6 @@ export async function updateUser(user: UpdateUserRequest) {
 
   const result: ApiResponse<UserResponse> = await response.json();
 
-  if(!response.ok) {
-    throw new Error(result.message);
-  }
-
   return result;
 }
 
@@ -81,8 +71,5 @@ export async function deleteUser() {
   
   const result: ApiResponse<UserResponse> = await response.json();
 
-  if(!response.ok) {
-    throw new Error(result.message);
-  }
   return result;
 }

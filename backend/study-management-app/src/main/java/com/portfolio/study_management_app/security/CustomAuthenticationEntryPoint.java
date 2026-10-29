@@ -4,13 +4,12 @@ import java.io.IOException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ProblemDetail;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.portfolio.study_management_app.dto.common.ApiResponseDto;
-
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,11 +29,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     HttpServletResponse res,
     AuthenticationException authenticationException
   ) throws IOException, ServletException  {
-    ApiResponseDto<Void> body = new ApiResponseDto<>(
-      "ERROR",
-      null,
-      "認証エラーが発生しました。再度ログインしてください。"
-    );
+    ProblemDetail body = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED,"認証エラーが発生しました。再度ログインしてください。");
 
     res.setStatus(HttpStatus.UNAUTHORIZED.value());
     res.setContentType(MediaType.APPLICATION_JSON_VALUE);
