@@ -60,15 +60,13 @@ public class CategoryService {
         .toList();
   }
 
-  //category削除時に、子カテゴリに所属するstudyLogも再帰的に削除する
-  private void deleteStudyLogsRecursively(Category category) {
-
-      studyLogRepository.deleteByCategoryCategoryId(
-          category.getCategoryId()
-      );
+  //categoryを論理削除し、所属するログは物理削除する
+  private void deleteCategoryAndStudyLogRecursively(Category category) {
+      studyLogRepository.deleteByCategoryCategoryId(category.getCategoryId());
+      category.setStatus(false);
 
       for (Category child : category.getChildren()) {
-          deleteStudyLogsRecursively(child);
+          deleteCategoryAndStudyLogRecursively(child);
       }
   }
 
@@ -140,11 +138,11 @@ public class CategoryService {
     Category target = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId)
         .orElseThrow(() -> new ValidationException("データの更新に失敗しました。"));
 
-    studyLogRepository.deleteByCategoryCategoryId(categoryId);
-    deleteStudyLogsRecursively(target);
+    studyLogRepository.deleteByCategoryCategoryId(target.getCategoryId());
+    
+    //entityにCascadeType:ALLが付いているので子・孫要素も同時に削除される。
+    categoryRepository.save(target);
 
-    // 論理削除して保存
-    target.setStatus(false);
 
     categoryRepository.save(target);
     return;
