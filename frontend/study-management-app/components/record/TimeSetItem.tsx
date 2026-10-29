@@ -31,7 +31,7 @@ export default function TimeSetItem({ time, setTime, maxNum } : TimeSetItemProps
   }, []);
 
   const handleChange = (value: string) => {
-    if(!/^\d(0,2)$/.test(value)) return;
+    if(!/^\d{0,2}$/.test(value)) return;
 
     if(value == "") {
       setTime("");
