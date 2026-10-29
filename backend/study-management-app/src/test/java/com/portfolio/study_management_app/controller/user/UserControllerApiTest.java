@@ -147,6 +147,35 @@ public class UserControllerApiTest {
         .andExpect(jsonPath("$.data.token").exists());
   }
 
+  @Test
+  @DisplayName("異常系: 他のユーザーが使っているメールアドレスには更新できない")
+  void updateUser_duplicateEmail_conflict() throws Exception {
+    User userA = new User("userA", "a@example.com", passwordEncoder.encode("Password123"));
+    User userB = new User("userB", "b@example.com", passwordEncoder.encode("Password123"));
+    userRepository.save(userA);
+    userRepository.save(userB);
+
+    String token = jwtProvider.generateToken(userB.getUserId());
+
+    String json = """
+        {
+          "username": "userB",
+          "email": "a@example.com"
+        }
+        """;
+
+    mockMvc.perform(
+        put("/api/user")
+            .header("Authorization", "Bearer " + token)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.message").value("既に登録されているメールアドレスです。"));
+
+    // userB のメールアドレスは変わっていない
+    assertEquals("b@example.com", userRepository.findById(userB.getUserId()).orElseThrow().getEmail());
+  }
 
   @Test
   @DisplayName("正常系: User削除成功")

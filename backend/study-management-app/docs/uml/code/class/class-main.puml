@@ -53,6 +53,7 @@ class UserService {
 
 class UserRepository {
   + findByEmail(String) : Optional<User>
+  + existsByEmailAndUserIdNot(String email, Long userId) : boolean
 }
 
 class CategoryController {

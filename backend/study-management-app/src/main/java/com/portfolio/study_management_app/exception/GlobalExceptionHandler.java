@@ -40,6 +40,14 @@ public class GlobalExceptionHandler {
 
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
+
+    //重複エラー
+  @ExceptionHandler (DuplicateException.class)
+    public  ResponseEntity<ApiResponseDto<Void>> handleDuplicateException
+    (DuplicateException e) {
+      ApiResponseDto<Void> res = new  ApiResponseDto<>("ERROR", null, e.getMessage());
+      return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+    }
 }
 
 

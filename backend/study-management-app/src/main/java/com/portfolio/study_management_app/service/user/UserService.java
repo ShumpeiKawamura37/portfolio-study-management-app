@@ -9,6 +9,7 @@ import com.portfolio.study_management_app.dto.user.CreateUserRequestDto;
 import com.portfolio.study_management_app.dto.user.UpdateUserRequestDto;
 import com.portfolio.study_management_app.dto.user.UserResponseDto;
 import com.portfolio.study_management_app.entity.user.User;
+import com.portfolio.study_management_app.exception.DuplicateException;
 import com.portfolio.study_management_app.exception.InvalidTokenException;
 import com.portfolio.study_management_app.exception.ValidationException;
 import com.portfolio.study_management_app.repository.user.UserRepository;
@@ -56,6 +57,9 @@ public class UserService {
       user.setUsername(req.username());
     }
     if(!req.email().equals(user.getEmail())) {
+      if(userRepository.existsByEmailAndUserIdNot(req.email(), userId)) {
+        throw new DuplicateException("既に登録されているメールアドレスです。");
+      }
       user.setEmail(req.email());
     }
     if(req.password() != null && !req.password().isBlank()) {
