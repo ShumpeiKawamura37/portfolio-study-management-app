@@ -41,6 +41,7 @@ public class CategoryService {
   private CategoryResponseDto toDto(Category category) {
     List<CategoryResponseDto> children = category.getChildren()
         .stream()
+        .filter(Category::isStatus)
         .map(this::toDto)
         .toList();
 

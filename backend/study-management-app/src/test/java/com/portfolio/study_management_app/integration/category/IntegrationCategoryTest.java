@@ -258,4 +258,35 @@ public class IntegrationCategoryTest {
     
     assertThrows(ValidationException.class, () -> categoryService.deleteCategory(1L));
   }
+
+  @Test
+  @DisplayName("正常系: 削除した子カテゴリはツリーに含まれない")
+  void getCategories_excludesDeletedChild() {
+    User user = new User("test", "test@example.com", "Password123");
+    userRepository.save(user);
+
+    Authentication auth = new UsernamePasswordAuthenticationToken(user.getUserId(), null, null);
+    SecurityContextHolder.getContext().setAuthentication(auth);
+
+    Category parentCategory = new Category("parent", user, null);
+    Category keepCategory = new Category("keep", user, parentCategory);
+    Category deleteCategory = new Category("delete", user, parentCategory);
+
+    parentCategory.addChild(keepCategory);
+    parentCategory.addChild(deleteCategory);
+
+    categoryRepository.save(parentCategory);
+    categoryRepository.save(keepCategory);
+    categoryRepository.save(deleteCategory);
+
+    // 子を削除
+    categoryService.deleteCategory(deleteCategory.getCategoryId());
+
+    List<CategoryResponseDto> result = categoryService.getCategoriesByUserId();
+    CategoryResponseDto resultParent = result.get(0);
+
+    // 削除した子は含まれない
+    assertEquals(1, resultParent.children().size());
+    assertEquals("keep", resultParent.children().get(0).categoryName());
+  }
 }
