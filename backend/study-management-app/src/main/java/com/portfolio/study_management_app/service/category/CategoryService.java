@@ -141,8 +141,7 @@ public class CategoryService {
     studyLogRepository.deleteByCategoryCategoryId(target.getCategoryId());
     
     //entityにCascadeType:ALLが付いているので子・孫要素も同時に削除される。
-    categoryRepository.save(target);
-
+    deleteCategoryAndStudyLogRecursively(target);
 
     categoryRepository.save(target);
     return;

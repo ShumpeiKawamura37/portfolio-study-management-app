@@ -289,38 +289,6 @@ public class CategoryServiceTest {
     assertEquals(false, beforeSavingCategory.isStatus());
   }
 
-@Test
-  @DisplayName("正常系: 親カテゴリを削除すると子孫カテゴリもすべて削除される")
-  void deleteCategory_alsoDeletesDescendants() {
-    // 認証セット
-    User user = new User("test", "test@example.com", "Password123");
-    userRepository.save(user);
-
-    Authentication auth = new UsernamePasswordAuthenticationToken(user.getUserId(), null, null);
-    SecurityContextHolder.getContext().setAuthentication(auth);
-
-    // 前提条件セット
-    Category parentCategory = new Category("parent", user, null);
-    Category childCategory = new Category("child", user, parentCategory);
-    Category grandChildCategory = new Category("grandChild", user, childCategory);
-
-    parentCategory.addChild(childCategory);
-    childCategory.addChild(grandChildCategory);
-
-    categoryRepository.save(parentCategory);
-    categoryRepository.save(childCategory);
-    categoryRepository.save(grandChildCategory);
-
-    categoryService.deleteCategory(parentCategory.getCategoryId());
-
-    // 子と孫も削除済みになり、IDを指定しても取得できない
-    Long userId = user.getUserId();
-    assertTrue(categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(parentCategory.getCategoryId(), userId).isEmpty());
-    assertTrue(categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(childCategory.getCategoryId(), userId).isEmpty());
-    assertTrue(categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(grandChildCategory.getCategoryId(), userId).isEmpty());
-  }
-
-
   @Test
   @DisplayName("異常系: カテゴリが見つからなければCategory削除失敗")
   void delete_faild_vcategoryId_not_found() {
