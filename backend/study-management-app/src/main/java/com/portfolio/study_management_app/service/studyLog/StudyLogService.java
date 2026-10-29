@@ -124,6 +124,11 @@ public class StudyLogService {
         maxCategory = category;
       }
     }
+
+    // nullに対してgetCategoryName()を呼ぶエラーを回避のため追記修正
+    if(maxCategory == null) {
+      return null;
+    }
     return maxCategory.getCategoryName();
   }
 

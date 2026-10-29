@@ -267,6 +267,53 @@ public class StudyLogControllerApiTest {
           .andExpect(jsonPath("$.data").exists());
           
   }
+
+  @Test
+  @DisplayName("正常系: 学習記録がすべて0秒でも学習分析を取得できる")
+  void getAnalytics_allZeroSeconds() throws Exception {
+    User user = new User("test", "test@example.com", "Password123");
+    User savedUser = userRepository.save(user);
+    savedUser.setCreatedAt(LocalDateTime.of(2000, 1, 1, 0, 0));
+    String token = jwtProvider.generateToken(savedUser.getUserId());
+
+    Category category = new Category("test", savedUser, null);
+    categoryRepository.save(category);
+
+    StudyLog studyLog = new StudyLog(
+        LocalDateTime.of(2000, 1, 1, 0, 0),
+        LocalDateTime.of(2000, 1, 1, 0, 0),
+        0,
+        "test",
+        savedUser,
+        category);
+    studyLogRepository.save(studyLog);
+
+    mockMvc.perform(
+      get("/api/studyLog/analytics")
+          .header("Authorization", "Bearer " + token)
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.data.totalStudySeconds").value(0))
+          .andExpect(jsonPath("$.data.CategoryNameLongestStudied").doesNotExist());
+  }
+
+  @Test
+  @DisplayName("正常系: 学習記録が0件でも学習分析を取得できる")
+  void getAnalytics_noStudyLogs() throws Exception {
+    User user = new User("test", "test@example.com", "Password123");
+    User savedUser = userRepository.save(user);
+    String token = jwtProvider.generateToken(savedUser.getUserId());
+
+    mockMvc.perform(
+      get("/api/studyLog/analytics")
+          .header("Authorization", "Bearer " + token)
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value("SUCCESS"));
+  }
+
   @Test
   @DisplayName("正常系: カテゴリ学習分析を取得成功")
   void getCategoryAnalytics_success() throws Exception {
