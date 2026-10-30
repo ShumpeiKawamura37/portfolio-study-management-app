@@ -2,7 +2,6 @@ package com.portfolio.study_management_app.integration.studyLog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
@@ -24,6 +23,7 @@ import com.portfolio.study_management_app.dto.studyLog.StudyLogResponseDto;
 import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.studyLog.StudyLog;
 import com.portfolio.study_management_app.entity.user.User;
+import com.portfolio.study_management_app.exception.ResourceNotFoundException;
 import com.portfolio.study_management_app.exception.ValidationException;
 import com.portfolio.study_management_app.repository.category.CategoryRepository;
 import com.portfolio.study_management_app.repository.studyLog.StudyLogRepository;
@@ -108,7 +108,7 @@ public class IntegrationStudyLogTest {
         1L);
 
     // 実行・検証
-    assertThrows(ValidationException.class, () -> studyLogService.createStudyLog(req));
+    assertThrows(ResourceNotFoundException.class, () -> studyLogService.createStudyLog(req));
   }
 
   @Test
@@ -143,7 +143,7 @@ public class IntegrationStudyLogTest {
         savedCategory.getCategoryId());
 
     // 実行・検証
-    assertThrows(ValidationException.class, () -> studyLogService.createStudyLog(req));
+    assertThrows(ResourceNotFoundException.class, () -> studyLogService.createStudyLog(req));
   }
 
   @Test

@@ -29,7 +29,7 @@ public class UserService {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Long userId = (Long) authentication.getPrincipal();
 
-    User user = userRepository.findById(userId).orElseThrow();
+    User user = userRepository.findById(userId).orElseThrow(() -> new InvalidTokenException("認証エラーが発生しました。再度ログインしてください。"));
 
     return new UserResponseDto(user.getUsername(), user.getEmail());
   }

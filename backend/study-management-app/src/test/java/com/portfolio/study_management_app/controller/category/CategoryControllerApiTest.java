@@ -78,7 +78,7 @@ public class CategoryControllerApiTest {
     String json = """
           {
             "categoryName":"test",
-            "parentCategoryId": "1L"
+            "parentCategoryId": 1
           }
         """;
     mockMvc.perform(
@@ -87,7 +87,7 @@ public class CategoryControllerApiTest {
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isNotFound());
   }
 
   @Test
@@ -178,7 +178,7 @@ public class CategoryControllerApiTest {
         .content(json)
         .header("Authorization", "Bearer " + token)
         .with(csrf()))
-      .andExpect(status().isBadRequest());
+      .andExpect(status().isNotFound());
   }
 
   @Test
@@ -214,6 +214,20 @@ public class CategoryControllerApiTest {
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", "Bearer " + token)
       .with(csrf()))
-    .andExpect(status().isBadRequest());
+    .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @DisplayName("異常系: 存在しないカテゴリの祖先一覧を取得すると取得失敗")
+  void getAncestorCategoryList_notFound() throws Exception {
+    User user = new User("test", "test@example.com", "Password123");
+    userRepository.save(user);
+    String token = jwtProvider.generateToken(user.getUserId());
+
+    mockMvc.perform(
+        get("/api/category/ancestor/999999")
+            .header("Authorization", "Bearer " + token))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.detail").value("指定したカテゴリが見つかりません。"));
   }
 }

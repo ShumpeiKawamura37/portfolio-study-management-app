@@ -89,7 +89,7 @@ public class StudyLogControllerApiTest {
             "endTime":"2000-01-01T00:10:00",
             "studySeconds":10,
             "memo":"test",
-            "categoryId": "1L"
+            "categoryId": 1
           }
         """;
     mockMvc.perform(
@@ -98,7 +98,7 @@ public class StudyLogControllerApiTest {
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isNotFound());
   }
 
   @Test
@@ -131,7 +131,7 @@ public class StudyLogControllerApiTest {
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isNotFound());
   }
 
   @Test

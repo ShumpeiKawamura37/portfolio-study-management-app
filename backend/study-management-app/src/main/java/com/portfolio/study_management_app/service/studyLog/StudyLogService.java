@@ -21,6 +21,8 @@ import com.portfolio.study_management_app.dto.studyLog.StudyLogResponseDto;
 import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.studyLog.StudyLog;
 import com.portfolio.study_management_app.entity.user.User;
+import com.portfolio.study_management_app.exception.InvalidTokenException;
+import com.portfolio.study_management_app.exception.ResourceNotFoundException;
 import com.portfolio.study_management_app.exception.ValidationException;
 import com.portfolio.study_management_app.repository.category.CategoryRepository;
 import com.portfolio.study_management_app.repository.studyLog.StudyLogRepository;
@@ -227,15 +229,10 @@ public class StudyLogService {
   public StudyLogResponseDto createStudyLog(CreateStudyLogRequsetDto req) {
     Long userId = getCurrentUserId();
 
-    User user = userRepository.findById(userId).orElseThrow();
+    User user = userRepository.findById(userId).orElseThrow(() -> new InvalidTokenException("認証エラーが発生しました。再度ログインしてください。"));
 
     Category category = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(req.categoryId(), userId)
-        .orElseThrow(() -> new ValidationException("データの作成に失敗しました。"));
-
-    // 他ユーザーのカテゴリであった場合エラー
-    if (category.getUser() != user) {
-      throw new ValidationException("データの作成に失敗しました。");
-    }
+        .orElseThrow(() -> new ResourceNotFoundException("指定したカテゴリが見つかりません。"));
 
     // 開始時間が終了時間より後の場合エラー
     if (!req.endTime().isAfter(req.startTime())) {
@@ -286,7 +283,7 @@ public class StudyLogService {
 
   public AnalyticsResponseDto getAnalytics() {
     Long userId = getCurrentUserId();
-    User user = userRepository.findById(userId).orElseThrow();
+    User user = userRepository.findById(userId).orElseThrow(() -> new InvalidTokenException("認証エラーが発生しました。再度ログインしてください。"));
     List<StudyLog> studyLogs = studyLogRepository.findByUserUserId(userId);
 
     if (studyLogs.isEmpty()) {
@@ -320,7 +317,7 @@ public class StudyLogService {
     Long userId = getCurrentUserId();
 
     //リクエストのカテゴリがユーザー所有か検証
-    categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId).orElseThrow(() -> new ValidationException("データの取得に失敗しました。"));
+    categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId).orElseThrow(() -> new ResourceNotFoundException("指定したカテゴリが見つかりません。"));
 
     // ユーザーの学習記録を全て取得
     List<StudyLog> studyLogsFilteredByUserId = studyLogRepository.findByUserUserId(userId);
@@ -345,7 +342,7 @@ public class StudyLogService {
   
     if(targetParentCategoryId != null) {
 
-      Category targetParentCategory = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(targetParentCategoryId, userId).orElseThrow(() -> new ValidationException("データの取得に失敗しました。"));
+      Category targetParentCategory = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(targetParentCategoryId, userId).orElseThrow(() -> new ResourceNotFoundException("指定したカテゴリが見つかりません。"));
 
       // 指定した親要素の子孫カテゴリリストを作成
       List<Category> descendantCategoryList = new ArrayList<>();

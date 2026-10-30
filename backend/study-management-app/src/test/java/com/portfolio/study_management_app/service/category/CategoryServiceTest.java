@@ -28,7 +28,7 @@ import com.portfolio.study_management_app.dto.category.CategoryResponseDto;
 import com.portfolio.study_management_app.dto.category.CreateCategoryRequestDto;
 import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.user.User;
-import com.portfolio.study_management_app.exception.ValidationException;
+import com.portfolio.study_management_app.exception.ResourceNotFoundException;
 import com.portfolio.study_management_app.repository.category.CategoryRepository;
 import com.portfolio.study_management_app.repository.studyLog.StudyLogRepository;
 import com.portfolio.study_management_app.repository.user.UserRepository;
@@ -129,7 +129,7 @@ public class CategoryServiceTest {
         .thenReturn(Optional.empty());
 
     // 実行・エラーの確認
-    assertThrows(ValidationException.class,
+    assertThrows(ResourceNotFoundException.class,
         () -> categoryService.createCategory(req));
 
     // 不要な挙動がないか確認
@@ -247,7 +247,7 @@ public class CategoryServiceTest {
     CategoryRequestDto req = new CategoryRequestDto("updated");
 
     // 実行
-    assertThrows(ValidationException.class,
+    assertThrows(ResourceNotFoundException.class,
         () -> categoryService.updateCategory(1L, req));
   }
 
@@ -307,7 +307,7 @@ public class CategoryServiceTest {
         .setAuthentication(auth);
 
     // 実行
-    assertThrows(ValidationException.class, () -> categoryService.deleteCategory(1L));
+    assertThrows(ResourceNotFoundException.class, () -> categoryService.deleteCategory(1L));
 
     verify(categoryRepository, never()).save(any(Category.class));
     }

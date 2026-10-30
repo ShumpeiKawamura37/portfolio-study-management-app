@@ -19,6 +19,9 @@ class NotFoundException {
 class DuplicateException {
   + DuplicateException(String message)
 }
+class ResourceNotFoundException {
+  + ResourceNotFoundException(String message)
+}
 class AuthException {
   + AuthException(String message)
 }
@@ -27,12 +30,14 @@ RuntimeException <|-- InvalidTokenException
 RuntimeException <|-- ValidationException
 RuntimeException <|-- NotFoundException
 RuntimeException <|-- DuplicateException
+RuntimeException <|-- ResourceNotFoundException
 RuntimeException <|-- AuthException
 
 GlobalExceptionHandler ..> InvalidTokenException
 GlobalExceptionHandler ..> ValidationException
 GlobalExceptionHandler ..> NotFoundException
 GlobalExceptionHandler ..> DuplicateException
+GlobalExceptionHandler ..> ResourceNotFoundException
 GlobalExceptionHandler ..> AuthException
 
 @enduml

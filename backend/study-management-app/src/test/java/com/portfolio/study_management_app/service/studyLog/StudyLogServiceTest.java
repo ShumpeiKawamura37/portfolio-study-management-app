@@ -2,7 +2,6 @@ package com.portfolio.study_management_app.service.studyLog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -33,6 +32,7 @@ import com.portfolio.study_management_app.dto.studyLog.StudyLogResponseDto;
 import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.studyLog.StudyLog;
 import com.portfolio.study_management_app.entity.user.User;
+import com.portfolio.study_management_app.exception.ResourceNotFoundException;
 import com.portfolio.study_management_app.exception.ValidationException;
 import com.portfolio.study_management_app.repository.category.CategoryRepository;
 import com.portfolio.study_management_app.repository.studyLog.StudyLogRepository;
@@ -123,7 +123,7 @@ public class StudyLogServiceTest {
     when(userRepository.findById(anyLong()))
         .thenReturn(Optional.of(user));
     // 実行・検証
-    assertThrows(ValidationException.class, () -> studyLogService.createStudyLog(req));
+    assertThrows(ResourceNotFoundException.class, () -> studyLogService.createStudyLog(req));
 
     verify(studyLogRepository, never()).save(any(StudyLog.class));
   }
@@ -163,7 +163,7 @@ public class StudyLogServiceTest {
         .thenReturn(Optional.empty());
 
     // 実行・検証
-    assertThrows(ValidationException.class, () -> studyLogService.createStudyLog(req));
+    assertThrows(ResourceNotFoundException.class, () -> studyLogService.createStudyLog(req));
 
     verify(studyLogRepository, never()).save(any(StudyLog.class));
   }

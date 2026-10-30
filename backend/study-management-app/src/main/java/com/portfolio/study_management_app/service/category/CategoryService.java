@@ -12,7 +12,8 @@ import com.portfolio.study_management_app.dto.category.CategoryResponseDto;
 import com.portfolio.study_management_app.dto.category.CreateCategoryRequestDto;
 import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.user.User;
-import com.portfolio.study_management_app.exception.ValidationException;
+import com.portfolio.study_management_app.exception.InvalidTokenException;
+import com.portfolio.study_management_app.exception.ResourceNotFoundException;
 import com.portfolio.study_management_app.repository.category.CategoryRepository;
 import com.portfolio.study_management_app.repository.studyLog.StudyLogRepository;
 import com.portfolio.study_management_app.repository.user.UserRepository;
@@ -86,14 +87,14 @@ public class CategoryService {
 
     // userが見つからなければエラー
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new ValidationException("データの作成に失敗しました。"));
+        .orElseThrow(() -> new InvalidTokenException("認証エラーが発生しました。再度ログインしてください。"));
 
     Category category = new Category(req.categoryName(), user, null);
 
     // 親要素があるなら、親要素に子要素を、子要素に親要素を加える。
     if (req.parentCategoryId() != null) {
       Category parentCategory = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(req.parentCategoryId(), userId)
-          .orElseThrow(() -> new ValidationException("データの作成に失敗しました。"));
+          .orElseThrow(() -> new ResourceNotFoundException("指定したカテゴリが見つかりません。"));
       parentCategory.addChild(category);
     }
 
@@ -121,7 +122,7 @@ public class CategoryService {
     Long userId = getCurrentUserId();
 
     Category target = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId)
-        .orElseThrow(() -> new ValidationException("データの更新に失敗しました。"));
+        .orElseThrow(() -> new ResourceNotFoundException("指定したカテゴリが見つかりません。"));
 
     target.setCategoryName(req.categoryName());
     Category updatedCategory = categoryRepository.save(target);
@@ -136,7 +137,7 @@ public class CategoryService {
     Long userId = getCurrentUserId();
     
     Category target = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId)
-        .orElseThrow(() -> new ValidationException("データの更新に失敗しました。"));
+        .orElseThrow(() -> new ResourceNotFoundException("指定したカテゴリが見つかりません。"));
 
     studyLogRepository.deleteByCategoryCategoryId(target.getCategoryId());
     
@@ -154,7 +155,7 @@ public class CategoryService {
     List<Category> ancestorCategoryList = new ArrayList<Category>();
 
     Category target = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId)
-      .orElseThrow();
+      .orElseThrow(() -> new ResourceNotFoundException("指定したカテゴリが見つかりません。"));
 
     if(target.getParentCategory() != null) {
       addParentCategory(ancestorCategoryList, target);

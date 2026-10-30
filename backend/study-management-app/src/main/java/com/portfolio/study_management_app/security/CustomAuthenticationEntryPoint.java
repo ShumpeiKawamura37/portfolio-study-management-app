@@ -32,7 +32,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     ProblemDetail body = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED,"認証エラーが発生しました。再度ログインしてください。");
 
     res.setStatus(HttpStatus.UNAUTHORIZED.value());
-    res.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    res.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
     res.setCharacterEncoding("UTF-8");
 
     objectMapper.writeValue(res.getWriter(), body);
