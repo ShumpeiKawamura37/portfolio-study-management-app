@@ -236,4 +236,47 @@ public class UserControllerApiTest {
 
     assertEquals(false, deletedUser.isStatus());
   }
+
+  @Test
+  @DisplayName("異常系: 退会済みユーザーのトークンでは401のProblemDetailを返す")
+  void getUser_deletedUserToken_returns401() throws Exception {
+    User user = new User("test", "test@example.com", passwordEncoder.encode("Password123"));
+    user.setStatus(false);
+    userRepository.save(user);
+    String token = jwtProvider.generateToken(user.getUserId());
+
+    mockMvc.perform(get("/api/user").header("Authorization", "Bearer " + token))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.detail").value("認証エラーが発生しました。再度ログインしてください。"));
+  }
+
+  @Test
+  @DisplayName("異常系: 不正なトークンでは401のProblemDetailを返す")
+  void getUser_invalidToken_returns401() throws Exception {
+    mockMvc.perform(get("/api/user").header("Authorization", "Bearer invalid-token"))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.detail").value("認証エラーが発生しました。再度ログインしてください。"));
+  }
+
+  @Test
+  @DisplayName("正常系: 不正なトークンが付いていてもログインできる")
+  void login_withInvalidToken_succeeds() throws Exception {
+    User user = new User("test", "test@example.com", passwordEncoder.encode("Password123"));
+    userRepository.save(user);
+
+    String loginJson = """
+        {
+          "email": "test@example.com",
+          "password": "Password123"
+        }
+        """;
+
+    mockMvc.perform(
+        post("/api/auth/login")
+            .header("Authorization", "Bearer invalid-token")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(loginJson))
+        .andExpect(status().isOk());
+  }
+
 }

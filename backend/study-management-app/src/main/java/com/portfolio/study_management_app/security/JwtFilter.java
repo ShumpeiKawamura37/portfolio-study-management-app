@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.portfolio.study_management_app.entity.user.User;
-import com.portfolio.study_management_app.exception.AuthenticationException;
 import com.portfolio.study_management_app.exception.InvalidTokenException;
 import com.portfolio.study_management_app.repository.user.UserRepository;
 
@@ -50,9 +49,7 @@ public class JwtFilter extends OncePerRequestFilter  {
 
     try {
       if(!jwtProvider.validateToken(token)) {
-          SecurityContextHolder.clearContext();
-          res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-          return;
+          throw new InvalidTokenException("認証エラーが発生しました。再度ログインしてください。");
       }
       Long userId = jwtProvider.getUserId(token);
 
@@ -67,7 +64,7 @@ public class JwtFilter extends OncePerRequestFilter  {
       
 
       SecurityContextHolder.getContext().setAuthentication(auth);
-    } catch(AuthenticationException e) {
+    } catch(InvalidTokenException e) {
       SecurityContextHolder.clearContext();
     }
 
