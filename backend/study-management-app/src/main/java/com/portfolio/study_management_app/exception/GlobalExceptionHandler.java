@@ -1,5 +1,7 @@
 package com.portfolio.study_management_app.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -14,6 +16,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 // 各エラーを拾い、ProlemDetail形式で返す。
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+  private static final Logger logger =  LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
   // バリデーションエラー
   @ExceptionHandler(ValidationException.class)
@@ -52,5 +56,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(ResourceNotFoundException.class)
   public ProblemDetail handleResourceNotFoundException(ResourceNotFoundException e) {
     return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+  }
+
+  @ExceptionHandler(Exception.class)
+  public ProblemDetail handleUnexpectedException(Exception e) {
+    logger.error("予期しないエラーが発生しました", e);
+    return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "サーバーでエラーが発生しました。時間をおいて再度お試しください。");//e.getMessage()ではなく固定のメッセージで、エラーの中身を開示しない。
   }
 }
