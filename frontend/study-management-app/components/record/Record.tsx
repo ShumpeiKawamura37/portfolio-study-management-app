@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation";
 export default function Record() {
   const router = useRouter();
   const {
-    isTimer, setStudyLogVersion, startTime, endTime, targetCategoryId, setSeconds , isRunning, stop, start, reset , totalStudySeconds, memo, seconds, toggleTimer
+    isTimer, setStudyLogVersion, startTime, endTime, setSeconds, targetCategoryId, isRunning, stop, start, clear, reset , totalStudySeconds, memo, seconds, toggleTimer
   } = useRecord();
 
   const submittable: boolean = startTime !== null && endTime !== null && targetCategoryId !== null;
@@ -39,7 +39,7 @@ export default function Record() {
       await createStudyLog(startTime, endTime, totalStudySeconds, memo, targetCategoryId);
       setStudyLogVersion(prev => prev + 1);
       router.push("/analyzeStudyLog");
-      setSeconds(0);
+      clear();
     } catch(error: Error | any) {
       alert(error);
     }
