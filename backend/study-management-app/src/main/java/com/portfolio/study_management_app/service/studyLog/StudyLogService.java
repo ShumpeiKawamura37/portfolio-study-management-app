@@ -1,5 +1,6 @@
 package com.portfolio.study_management_app.service.studyLog;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -238,6 +239,13 @@ public class StudyLogService {
     if (!req.endTime().isAfter(req.startTime())) {
       throw new ValidationException("データの作成に失敗しました。");
     }
+
+    // 学習時間が「終了時刻 − 開始時刻」を超えている場合エラー
+    long maxStudySeconds = Duration.between(req.startTime(), req.endTime()).getSeconds();
+    if (req.studySeconds() > maxStudySeconds) {
+      throw new ValidationException("学習時間が開始時刻から終了時刻までの時間を超えています。");
+    }
+
 
     // StudyLog作成
     StudyLog studyLog = new StudyLog(req.startTime(), req.endTime(), req.studySeconds(), req.memo(), user, category);
