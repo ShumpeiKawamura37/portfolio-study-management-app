@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.portfolio.study_management_app.config.TimeConfig;
 import com.portfolio.study_management_app.entity.user.User;
 
 import jakarta.persistence.CascadeType;
@@ -59,7 +60,7 @@ public class Category {
 
   public Category(String categoryName,User user, Category parentCategory) {
     this.categoryName = categoryName;
-    this.createdAt = LocalDateTime.now();
+    this.createdAt = LocalDateTime.now(TimeConfig.APP_ZONE);
     this.status = true;
     this.user = user;
     this.parentCategory = parentCategory;

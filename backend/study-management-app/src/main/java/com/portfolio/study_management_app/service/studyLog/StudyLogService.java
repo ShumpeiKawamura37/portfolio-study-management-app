@@ -1,5 +1,6 @@
 package com.portfolio.study_management_app.service.studyLog;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,14 +35,17 @@ public class StudyLogService {
   private UserRepository userRepository;
   private CategoryRepository categoryRepository;
   private StudyLogRepository studyLogRepository;
+  private  Clock clock;
 
   public StudyLogService(
       UserRepository userRepository,
       CategoryRepository categoryRepository,
-      StudyLogRepository studyLogRepository) {
+      StudyLogRepository studyLogRepository,
+      Clock clock) {
     this.userRepository = userRepository;
     this.categoryRepository = categoryRepository;
     this.studyLogRepository = studyLogRepository;
+    this.clock = clock;
   }
 
    // JWTから設定された認証情報のuserIdを取得
@@ -138,7 +142,7 @@ public class StudyLogService {
   // 登録日から当日までの学習率を算出
   public Double calculationStudyDayRate(LocalDateTime createdAt, Integer totalStudyDays) {
     LocalDate createdDate = createdAt.toLocalDate();
-    LocalDate currentDate = LocalDate.now();
+    LocalDate currentDate = LocalDate.now(clock);
     Integer totalDays = (int) (currentDate.toEpochDay() - createdDate.toEpochDay()) + 1;
     return (double) totalStudyDays / totalDays * 100;
   }
@@ -157,7 +161,7 @@ public class StudyLogService {
     }
     studyDates.sort(Comparator.reverseOrder());
 
-    LocalDate expectedDate = LocalDate.now();
+    LocalDate expectedDate = LocalDate.now(clock);
 
     for (LocalDate studyDate : studyDates) {
       if (studyDate.equals(expectedDate)) {

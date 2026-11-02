@@ -16,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.portfolio.study_management_app.config.TimeConfig;
 import com.portfolio.study_management_app.dto.analytics.AnalyticsResponseDto;
 import com.portfolio.study_management_app.dto.analytics.CategoryAnalyticsResponseDto;
 import com.portfolio.study_management_app.dto.studyLog.CreateStudyLogRequsetDto;
@@ -307,7 +308,7 @@ public class IntegrationStudyLogTest {
     assertEquals(2, result.studyDayCount());
     assertEquals(15, result.averageStudySeconds());
     assertEquals("test", result.CategoryNameLongestStudied());
-    assertEquals(2.0 / ((LocalDate.now().toEpochDay() - LocalDate.of(2000, 1, 1).toEpochDay()) + 1) * 100,
+    assertEquals(2.0 / ((LocalDate.now(TimeConfig.APP_ZONE).toEpochDay() - LocalDate.of(2000, 1, 1).toEpochDay()) + 1) * 100,
         result.studyDayRate());
     assertEquals(0, result.studyStreak());
   }
