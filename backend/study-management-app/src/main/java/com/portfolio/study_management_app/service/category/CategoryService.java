@@ -105,7 +105,7 @@ public class CategoryService {
   }
 
   // ユーザーが所有するカテゴリ一覧を取得
-  @Transactional 
+  @Transactional(readOnly = true)
   public List<CategoryResponseDto> getCategoriesByUserId() {
 
     Long userId = getCurrentUserId();
@@ -152,7 +152,7 @@ public class CategoryService {
   }
 
   // 対象の祖先要素リストを取得
-  @Transactional 
+  @Transactional(readOnly = true)
   public List<CategoryResponseDto> getAncestoCategoryList(Long categoryId) {
     Long userId = getCurrentUserId();
 

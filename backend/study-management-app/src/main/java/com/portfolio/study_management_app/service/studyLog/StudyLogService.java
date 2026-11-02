@@ -268,7 +268,7 @@ public class StudyLogService {
   }
 
   // ユーザーの学習記録一覧を取得
-  @Transactional
+  @Transactional(readOnly = true)
   public List<StudyLogResponseDto> getStudyLog() {
 
     Long userId = getCurrentUserId();
@@ -279,7 +279,7 @@ public class StudyLogService {
   }
 
   // 日別の学習記録を取得
-  @Transactional
+  @Transactional(readOnly = true)
   public List<StudyLogResponseDto> getStudyLogByDate(LocalDate date) {
     Long userId = getCurrentUserId();
 
@@ -297,7 +297,7 @@ public class StudyLogService {
     }).toList();
   }
 
-  @Transactional
+  @Transactional(readOnly = true)
   public AnalyticsResponseDto getAnalytics() {
     Long userId = getCurrentUserId();
     User user = userRepository.findById(userId).orElseThrow(() -> new InvalidTokenException("認証エラーが発生しました。再度ログインしてください。"));
@@ -330,7 +330,7 @@ public class StudyLogService {
     );
   }
 
-  @Transactional 
+  @Transactional(readOnly = true)
   public CategoryAnalyticsResponseDto getCategoryAnalytics(Long categoryId, Long targetParentCategoryId) {
     Long userId = getCurrentUserId();
 

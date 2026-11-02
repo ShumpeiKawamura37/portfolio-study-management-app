@@ -25,7 +25,7 @@ public class UserService {
     this.passwordEncoder = passwordEncoder;
   }
 
-  @Transactional 
+  @Transactional(readOnly = true)
   public UserResponseDto getUser() {
     //認証情報からuserIdを取得
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

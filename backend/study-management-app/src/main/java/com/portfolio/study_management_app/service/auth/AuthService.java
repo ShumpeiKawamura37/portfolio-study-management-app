@@ -23,7 +23,7 @@ public class AuthService {
     this.jwtProvider = jwtProvider;
   }
 
-  @Transactional 
+  @Transactional(readOnly = true) 
   public LoginResponseDto authenticate(LoginRequestDto req) {
     User user = userRepository.findByEmail(req.email());
 
