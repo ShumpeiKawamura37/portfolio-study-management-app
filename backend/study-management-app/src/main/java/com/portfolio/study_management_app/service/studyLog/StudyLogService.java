@@ -14,6 +14,7 @@ import java.util.Objects;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.portfolio.study_management_app.dto.analytics.AnalyticsResponseDto;
 import com.portfolio.study_management_app.dto.analytics.CategoryAnalyticsResponseDto;
@@ -231,6 +232,7 @@ public class StudyLogService {
     return descendantCategoryList;
   }
 
+  @Transactional
   public StudyLogResponseDto createStudyLog(CreateStudyLogRequsetDto req) {
     Long userId = getCurrentUserId();
 
@@ -266,6 +268,7 @@ public class StudyLogService {
   }
 
   // ユーザーの学習記録一覧を取得
+  @Transactional
   public List<StudyLogResponseDto> getStudyLog() {
 
     Long userId = getCurrentUserId();
@@ -276,6 +279,7 @@ public class StudyLogService {
   }
 
   // 日別の学習記録を取得
+  @Transactional
   public List<StudyLogResponseDto> getStudyLogByDate(LocalDate date) {
     Long userId = getCurrentUserId();
 
@@ -293,6 +297,7 @@ public class StudyLogService {
     }).toList();
   }
 
+  @Transactional
   public AnalyticsResponseDto getAnalytics() {
     Long userId = getCurrentUserId();
     User user = userRepository.findById(userId).orElseThrow(() -> new InvalidTokenException("認証エラーが発生しました。再度ログインしてください。"));
@@ -325,6 +330,7 @@ public class StudyLogService {
     );
   }
 
+  @Transactional 
   public CategoryAnalyticsResponseDto getCategoryAnalytics(Long categoryId, Long targetParentCategoryId) {
     Long userId = getCurrentUserId();
 

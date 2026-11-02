@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.portfolio.study_management_app.dto.category.CategoryRequestDto;
 import com.portfolio.study_management_app.dto.category.CategoryResponseDto;
@@ -18,7 +19,6 @@ import com.portfolio.study_management_app.repository.category.CategoryRepository
 import com.portfolio.study_management_app.repository.studyLog.StudyLogRepository;
 import com.portfolio.study_management_app.repository.user.UserRepository;
 
-import jakarta.transaction.Transactional;
 
 @Service
 public class CategoryService {
@@ -82,6 +82,7 @@ public class CategoryService {
   }
 
   // Category作成
+  @Transactional 
   public CategoryResponseDto createCategory(CreateCategoryRequestDto req) {
     Long userId = getCurrentUserId();
 
@@ -104,6 +105,7 @@ public class CategoryService {
   }
 
   // ユーザーが所有するカテゴリ一覧を取得
+  @Transactional 
   public List<CategoryResponseDto> getCategoriesByUserId() {
 
     Long userId = getCurrentUserId();
@@ -118,6 +120,7 @@ public class CategoryService {
   }
 
   // カテゴリ名を更新
+  @Transactional 
   public CategoryResponseDto updateCategory(Long categoryId, CategoryRequestDto req) {
     Long userId = getCurrentUserId();
 
@@ -132,7 +135,7 @@ public class CategoryService {
 
 
   // カテゴリ削除　カテゴリの論理削除・対象カテゴリを保有するstudyLogの物理削除を一括で行うため@Transactional 
-  @Transactional
+  @Transactional 
   public void deleteCategory(Long categoryId) {
     Long userId = getCurrentUserId();
     
@@ -149,6 +152,7 @@ public class CategoryService {
   }
 
   // 対象の祖先要素リストを取得
+  @Transactional 
   public List<CategoryResponseDto> getAncestoCategoryList(Long categoryId) {
     Long userId = getCurrentUserId();
 

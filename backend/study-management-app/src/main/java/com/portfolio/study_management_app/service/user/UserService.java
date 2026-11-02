@@ -4,6 +4,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.portfolio.study_management_app.dto.user.CreateUserRequestDto;
 import com.portfolio.study_management_app.dto.user.UpdateUserRequestDto;
@@ -24,6 +25,7 @@ public class UserService {
     this.passwordEncoder = passwordEncoder;
   }
 
+  @Transactional 
   public UserResponseDto getUser() {
     //認証情報からuserIdを取得
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -34,6 +36,7 @@ public class UserService {
     return new UserResponseDto(user.getUsername(), user.getEmail());
   }
 
+  @Transactional 
   public void createUser(CreateUserRequestDto req) {
     if(userRepository.findByEmail(req.email()) != null) {
       throw new ValidationException("既に登録されているメールアドレスです。");
@@ -43,6 +46,7 @@ public class UserService {
     userRepository.save(user);
   }
 
+  @Transactional 
   public UserResponseDto updateUser(UpdateUserRequestDto req) {
     //認証情報からuserIdを取得
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -74,6 +78,7 @@ public class UserService {
     );
   }
 
+  @Transactional 
   public void deleteUser() {
     //認証情報からuserIdを取得
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
