@@ -16,10 +16,6 @@ export async function getUser(): Promise<ApiResponse<UserResponse>> {
 }
 
 export async function register(request: CreateUserRequest): Promise<ApiResponse<null>> {
-  const response = await apiFetch(USER_URL, {
-    method: "POST",
-    body: JSON.stringify(request),
-  });
 
   const errorMessageOfEmail = validateEmail(request.email);
   if(errorMessageOfEmail) {
@@ -29,6 +25,11 @@ export async function register(request: CreateUserRequest): Promise<ApiResponse<
   if(errorMessageOfPassword) {
     throw new Error(errorMessageOfPassword);
   }
+
+  const response = await apiFetch(USER_URL, {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
 
   const result: ApiResponse<null> = await response.json();
 
