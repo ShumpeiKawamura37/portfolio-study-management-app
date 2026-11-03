@@ -9,12 +9,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.portfolio.study_management_app.TestcontainersConfiguration;
 import com.portfolio.study_management_app.dto.user.CreateUserRequestDto;
 import com.portfolio.study_management_app.dto.user.UpdateUserRequestDto;
 import com.portfolio.study_management_app.dto.user.UserResponseDto;
@@ -25,6 +27,7 @@ import com.portfolio.study_management_app.service.user.UserService;
 
 @SpringBootTest
 @Transactional
+@Import(TestcontainersConfiguration.class)
 public class IntegrationUserTest {
   @Autowired UserService userService;
   @Autowired UserRepository userRepository;

@@ -7,8 +7,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.portfolio.study_management_app.TestcontainersConfiguration;
 import com.portfolio.study_management_app.dto.auth.LoginRequestDto;
 import com.portfolio.study_management_app.dto.auth.LoginResponseDto;
 import com.portfolio.study_management_app.entity.user.User;
@@ -20,6 +22,7 @@ import jakarta.transaction.Transactional;
 
 @SpringBootTest
 @Transactional
+@Import(TestcontainersConfiguration.class)
 public class IntegrationAuthTest {
   @Autowired AuthService authService;
   @Autowired UserRepository userRepository;

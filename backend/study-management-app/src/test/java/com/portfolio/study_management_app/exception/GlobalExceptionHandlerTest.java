@@ -13,10 +13,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.portfolio.study_management_app.TestcontainersConfiguration;
 import com.portfolio.study_management_app.entity.user.User;
 import com.portfolio.study_management_app.repository.user.UserRepository;
 import com.portfolio.study_management_app.security.JwtProvider;
@@ -25,6 +27,7 @@ import com.portfolio.study_management_app.service.user.UserService;
 @SpringBootTest 
 @AutoConfigureMockMvc 
 @Transactional 
+@Import(TestcontainersConfiguration.class)
 public class GlobalExceptionHandlerTest {
   @Autowired MockMvc mockMvc;
   @Autowired UserRepository userRepository;
