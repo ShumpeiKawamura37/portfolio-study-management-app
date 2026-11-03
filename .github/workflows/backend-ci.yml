@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        woeking-directory: backend/study-management-app
+        working-directory: backend/study-management-app
     
     steps:
       - name: Checkout
