@@ -21,7 +21,7 @@ export default function AuthGuard({ children }: { children: ReactNode }) {
   const isRedirectingRef = useRef(false);     
 
   useEffect(() => {
-    if (hasToken === false && isRedirectingRef.current) {
+    if (hasToken === false && !isRedirectingRef.current) {
       isRedirectingRef.current = true;
       showError(new Error("ログインし直してください。"));   
       router.replace("/auth");
