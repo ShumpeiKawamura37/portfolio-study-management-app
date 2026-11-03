@@ -1,5 +1,7 @@
 package com.portfolio.study_management_app.service.studyLog;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -7,10 +9,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.portfolio.study_management_app.dto.analytics.AnalyticsResponseDto;
 import com.portfolio.study_management_app.dto.analytics.CategoryAnalyticsResponseDto;
@@ -20,6 +24,8 @@ import com.portfolio.study_management_app.dto.studyLog.StudyLogResponseDto;
 import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.studyLog.StudyLog;
 import com.portfolio.study_management_app.entity.user.User;
+import com.portfolio.study_management_app.exception.InvalidTokenException;
+import com.portfolio.study_management_app.exception.ResourceNotFoundException;
 import com.portfolio.study_management_app.exception.ValidationException;
 import com.portfolio.study_management_app.repository.category.CategoryRepository;
 import com.portfolio.study_management_app.repository.studyLog.StudyLogRepository;
@@ -30,14 +36,17 @@ public class StudyLogService {
   private UserRepository userRepository;
   private CategoryRepository categoryRepository;
   private StudyLogRepository studyLogRepository;
+  private  Clock clock;
 
   public StudyLogService(
       UserRepository userRepository,
       CategoryRepository categoryRepository,
-      StudyLogRepository studyLogRepository) {
+      StudyLogRepository studyLogRepository,
+      Clock clock) {
     this.userRepository = userRepository;
     this.categoryRepository = categoryRepository;
     this.studyLogRepository = studyLogRepository;
+    this.clock = clock;
   }
 
    // JWTから設定された認証情報のuserIdを取得
@@ -123,13 +132,18 @@ public class StudyLogService {
         maxCategory = category;
       }
     }
+
+    // nullに対してgetCategoryName()を呼ぶエラーを回避のため追記修正
+    if(maxCategory == null) {
+      return null;
+    }
     return maxCategory.getCategoryName();
   }
 
   // 登録日から当日までの学習率を算出
   public Double calculationStudyDayRate(LocalDateTime createdAt, Integer totalStudyDays) {
     LocalDate createdDate = createdAt.toLocalDate();
-    LocalDate currentDate = LocalDate.now();
+    LocalDate currentDate = LocalDate.now(clock);
     Integer totalDays = (int) (currentDate.toEpochDay() - createdDate.toEpochDay()) + 1;
     return (double) totalStudyDays / totalDays * 100;
   }
@@ -148,7 +162,7 @@ public class StudyLogService {
     }
     studyDates.sort(Comparator.reverseOrder());
 
-    LocalDate expectedDate = LocalDate.now();
+    LocalDate expectedDate = LocalDate.now(clock);
 
     for (LocalDate studyDate : studyDates) {
       if (studyDate.equals(expectedDate)) {
@@ -218,23 +232,26 @@ public class StudyLogService {
     return descendantCategoryList;
   }
 
+  @Transactional
   public StudyLogResponseDto createStudyLog(CreateStudyLogRequsetDto req) {
     Long userId = getCurrentUserId();
 
-    User user = userRepository.findById(userId).orElseThrow();
+    User user = userRepository.findById(userId).orElseThrow(() -> new InvalidTokenException("認証エラーが発生しました。再度ログインしてください。"));
 
     Category category = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(req.categoryId(), userId)
-        .orElseThrow(() -> new ValidationException("データの作成に失敗しました。"));
-
-    // 他ユーザーのカテゴリであった場合エラー
-    if (category.getUser() != user) {
-      throw new ValidationException("データの作成に失敗しました。");
-    }
+        .orElseThrow(() -> new ResourceNotFoundException("指定したカテゴリが見つかりません。"));
 
     // 開始時間が終了時間より後の場合エラー
     if (!req.endTime().isAfter(req.startTime())) {
       throw new ValidationException("データの作成に失敗しました。");
     }
+
+    // 学習時間が「終了時刻 − 開始時刻」を超えている場合エラー
+    long maxStudySeconds = Duration.between(req.startTime(), req.endTime()).getSeconds();
+    if (req.studySeconds() > maxStudySeconds) {
+      throw new ValidationException("学習時間が開始時刻から終了時刻までの時間を超えています。");
+    }
+
 
     // StudyLog作成
     StudyLog studyLog = new StudyLog(req.startTime(), req.endTime(), req.studySeconds(), req.memo(), user, category);
@@ -251,6 +268,7 @@ public class StudyLogService {
   }
 
   // ユーザーの学習記録一覧を取得
+  @Transactional(readOnly = true)
   public List<StudyLogResponseDto> getStudyLog() {
 
     Long userId = getCurrentUserId();
@@ -261,6 +279,7 @@ public class StudyLogService {
   }
 
   // 日別の学習記録を取得
+  @Transactional(readOnly = true)
   public List<StudyLogResponseDto> getStudyLogByDate(LocalDate date) {
     Long userId = getCurrentUserId();
 
@@ -278,9 +297,10 @@ public class StudyLogService {
     }).toList();
   }
 
+  @Transactional(readOnly = true)
   public AnalyticsResponseDto getAnalytics() {
     Long userId = getCurrentUserId();
-    User user = userRepository.findById(userId).orElseThrow();
+    User user = userRepository.findById(userId).orElseThrow(() -> new InvalidTokenException("認証エラーが発生しました。再度ログインしてください。"));
     List<StudyLog> studyLogs = studyLogRepository.findByUserUserId(userId);
 
     if (studyLogs.isEmpty()) {
@@ -310,17 +330,18 @@ public class StudyLogService {
     );
   }
 
+  @Transactional(readOnly = true)
   public CategoryAnalyticsResponseDto getCategoryAnalytics(Long categoryId, Long targetParentCategoryId) {
     Long userId = getCurrentUserId();
 
     //リクエストのカテゴリがユーザー所有か検証
-    categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId).orElseThrow(() -> new ValidationException("データの取得に失敗しました。"));
+    categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId).orElseThrow(() -> new ResourceNotFoundException("指定したカテゴリが見つかりません。"));
 
     // ユーザーの学習記録を全て取得
     List<StudyLog> studyLogsFilteredByUserId = studyLogRepository.findByUserUserId(userId);
 
     // 指定したカテゴリの学習記録リストを作成
-    List<StudyLog> studyLogsFilteredByCategoryId = studyLogsFilteredByUserId.stream().filter(studyLog -> studyLog.getCategory().getCategoryId() == categoryId).toList();
+    List<StudyLog> studyLogsFilteredByCategoryId = studyLogsFilteredByUserId.stream().filter(studyLog -> Objects.equals(studyLog.getCategory().getCategoryId(), categoryId)).toList();
 
     // ユーザーの合計学習時間を取得
     int totalStudySecondsOfAllCategory = calculationTotalStudySeconds(studyLogsFilteredByUserId);
@@ -339,7 +360,7 @@ public class StudyLogService {
   
     if(targetParentCategoryId != null) {
 
-      Category targetParentCategory = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(targetParentCategoryId, userId).orElseThrow(() -> new ValidationException("データの取得に失敗しました。"));
+      Category targetParentCategory = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(targetParentCategoryId, userId).orElseThrow(() -> new ResourceNotFoundException("指定したカテゴリが見つかりません。"));
 
       // 指定した親要素の子孫カテゴリリストを作成
       List<Category> descendantCategoryList = new ArrayList<>();
@@ -350,7 +371,7 @@ public class StudyLogService {
         .filter(studyLog -> {
           return descendantCategoryList.stream()
             .anyMatch(descendantCategory -> {
-              return studyLog.getCategory().equals(descendantCategory);
+              return Objects.equals(studyLog.getCategory().getCategoryId(), descendantCategory.getCategoryId());
             });
         })
         .toList();

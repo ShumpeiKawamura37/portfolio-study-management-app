@@ -2,6 +2,8 @@ package com.portfolio.study_management_app.entity.user;
 
 import java.time.LocalDateTime;
 
+import com.portfolio.study_management_app.config.TimeConfig;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -59,7 +61,7 @@ public class User {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now(TimeConfig.APP_ZONE);
         this.status = true;
     }
 }

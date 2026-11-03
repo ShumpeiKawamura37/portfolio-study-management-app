@@ -92,8 +92,9 @@ docker compose up -d
 http://localhost:3000
 
 ##　java 単体テスト実施方法
-1. gradle testを実行
- docker compose run --rm backend-test
+1. Dockerを起動した状態で、テストを実行
+cd backend/study-management-app
+./gradlew test
 2. ブラウザから以下のファイルを開きます。
 backend/study-management-app/build/reports/tests/test/index.html
 

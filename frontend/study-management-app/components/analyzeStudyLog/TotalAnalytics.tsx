@@ -64,7 +64,7 @@ export default function TotalAnalytics() {
             />
           </div>
           <div className="text-right  text-lg">
-            {analytics?.CategoryNameLongestStudied}
+            {analytics?.CategoryNameLongestStudied ?? "なし"}
           </div>
         </li>
       </ul>

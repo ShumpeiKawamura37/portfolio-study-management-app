@@ -4,11 +4,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.portfolio.study_management_app.dto.user.CreateUserRequestDto;
 import com.portfolio.study_management_app.dto.user.UpdateUserRequestDto;
 import com.portfolio.study_management_app.dto.user.UserResponseDto;
 import com.portfolio.study_management_app.entity.user.User;
+import com.portfolio.study_management_app.exception.DuplicateException;
 import com.portfolio.study_management_app.exception.InvalidTokenException;
 import com.portfolio.study_management_app.exception.ValidationException;
 import com.portfolio.study_management_app.repository.user.UserRepository;
@@ -23,16 +25,18 @@ public class UserService {
     this.passwordEncoder = passwordEncoder;
   }
 
+  @Transactional(readOnly = true)
   public UserResponseDto getUser() {
     //認証情報からuserIdを取得
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Long userId = (Long) authentication.getPrincipal();
 
-    User user = userRepository.findById(userId).orElseThrow();
+    User user = userRepository.findById(userId).orElseThrow(() -> new InvalidTokenException("認証エラーが発生しました。再度ログインしてください。"));
 
     return new UserResponseDto(user.getUsername(), user.getEmail());
   }
 
+  @Transactional 
   public void createUser(CreateUserRequestDto req) {
     if(userRepository.findByEmail(req.email()) != null) {
       throw new ValidationException("既に登録されているメールアドレスです。");
@@ -42,6 +46,7 @@ public class UserService {
     userRepository.save(user);
   }
 
+  @Transactional 
   public UserResponseDto updateUser(UpdateUserRequestDto req) {
     //認証情報からuserIdを取得
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -56,6 +61,9 @@ public class UserService {
       user.setUsername(req.username());
     }
     if(!req.email().equals(user.getEmail())) {
+      if(userRepository.existsByEmailAndUserIdNot(req.email(), userId)) {
+        throw new DuplicateException("既に登録されているメールアドレスです。");
+      }
       user.setEmail(req.email());
     }
     if(req.password() != null && !req.password().isBlank()) {
@@ -70,6 +78,7 @@ public class UserService {
     );
   }
 
+  @Transactional 
   public void deleteUser() {
     //認証情報からuserIdを取得
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

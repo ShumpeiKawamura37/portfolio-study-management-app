@@ -11,16 +11,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.portfolio.study_management_app.TestcontainersConfiguration;
 import com.portfolio.study_management_app.dto.category.CategoryRequestDto;
 import com.portfolio.study_management_app.dto.category.CategoryResponseDto;
 import com.portfolio.study_management_app.dto.category.CreateCategoryRequestDto;
 import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.user.User;
-import com.portfolio.study_management_app.exception.ValidationException;
+import com.portfolio.study_management_app.exception.ResourceNotFoundException;
 import com.portfolio.study_management_app.repository.category.CategoryRepository;
 import com.portfolio.study_management_app.repository.user.UserRepository;
 import com.portfolio.study_management_app.service.category.CategoryService;
@@ -29,6 +31,7 @@ import jakarta.transaction.Transactional;
 
 @SpringBootTest
 @Transactional
+@Import(TestcontainersConfiguration.class)
 public class IntegrationCategoryTest {
   @Autowired
   UserRepository userRepository;
@@ -94,7 +97,7 @@ public class IntegrationCategoryTest {
     CreateCategoryRequestDto req = new CreateCategoryRequestDto("test", 99L);
 
     // 実行・エラーの確認
-    assertThrows(ValidationException.class,
+    assertThrows(ResourceNotFoundException.class,
         () -> categoryService.createCategory(req));
   }
 
@@ -201,7 +204,7 @@ public class IntegrationCategoryTest {
     CategoryRequestDto req = new CategoryRequestDto("updated");
 
     //実行
-    assertThrows(ValidationException.class,
+    assertThrows(ResourceNotFoundException.class,
         () -> categoryService.updateCategory(1L, req));
   }
 
@@ -256,6 +259,68 @@ public class IntegrationCategoryTest {
         .getContext()
         .setAuthentication(auth);
     
-    assertThrows(ValidationException.class, () -> categoryService.deleteCategory(1L));
+    assertThrows(ResourceNotFoundException.class, () -> categoryService.deleteCategory(1L));
+  }
+
+  @Test
+  @DisplayName("正常系: 削除した子カテゴリはツリーに含まれない")
+  void getCategories_excludesDeletedChild() {
+    User user = new User("test", "test@example.com", "Password123");
+    userRepository.save(user);
+
+    Authentication auth = new UsernamePasswordAuthenticationToken(user.getUserId(), null, null);
+    SecurityContextHolder.getContext().setAuthentication(auth);
+
+    Category parentCategory = new Category("parent", user, null);
+    Category keepCategory = new Category("keep", user, parentCategory);
+    Category deleteCategory = new Category("delete", user, parentCategory);
+
+    parentCategory.addChild(keepCategory);
+    parentCategory.addChild(deleteCategory);
+
+    categoryRepository.save(parentCategory);
+    categoryRepository.save(keepCategory);
+    categoryRepository.save(deleteCategory);
+
+    // 子を削除
+    categoryService.deleteCategory(deleteCategory.getCategoryId());
+
+    List<CategoryResponseDto> result = categoryService.getCategoriesByUserId();
+    CategoryResponseDto resultParent = result.get(0);
+
+    // 削除した子は含まれない
+    assertEquals(1, resultParent.children().size());
+    assertEquals("keep", resultParent.children().get(0).categoryName());
+  }
+
+  @Test
+  @DisplayName("正常系: 親カテゴリを削除すると子孫カテゴリもすべて削除される")
+  void deleteCategory_alsoDeletesDescendants() {
+    // 認証セット
+    User user = new User("test", "test@example.com", "Password123");
+    userRepository.save(user);
+
+    Authentication auth = new UsernamePasswordAuthenticationToken(user.getUserId(), null, null);
+    SecurityContextHolder.getContext().setAuthentication(auth);
+
+    // 前提条件セット
+    Category parentCategory = new Category("parent", user, null);
+    Category childCategory = new Category("child", user, parentCategory);
+    Category grandChildCategory = new Category("grandChild", user, childCategory);
+
+    parentCategory.addChild(childCategory);
+    childCategory.addChild(grandChildCategory);
+
+    categoryRepository.save(parentCategory);
+    categoryRepository.save(childCategory);
+    categoryRepository.save(grandChildCategory);
+
+    categoryService.deleteCategory(parentCategory.getCategoryId());
+
+    // 子と孫も削除済みになり、IDを指定しても取得できない
+    Long userId = user.getUserId();
+    assertTrue(categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(parentCategory.getCategoryId(), userId).isEmpty());
+    assertTrue(categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(childCategory.getCategoryId(), userId).isEmpty());
+    assertTrue(categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(grandChildCategory.getCategoryId(), userId).isEmpty());
   }
 }

@@ -6,18 +6,19 @@ import java.util.List;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.portfolio.study_management_app.dto.category.CategoryRequestDto;
 import com.portfolio.study_management_app.dto.category.CategoryResponseDto;
 import com.portfolio.study_management_app.dto.category.CreateCategoryRequestDto;
 import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.user.User;
-import com.portfolio.study_management_app.exception.ValidationException;
+import com.portfolio.study_management_app.exception.InvalidTokenException;
+import com.portfolio.study_management_app.exception.ResourceNotFoundException;
 import com.portfolio.study_management_app.repository.category.CategoryRepository;
 import com.portfolio.study_management_app.repository.studyLog.StudyLogRepository;
 import com.portfolio.study_management_app.repository.user.UserRepository;
 
-import jakarta.transaction.Transactional;
 
 @Service
 public class CategoryService {
@@ -41,6 +42,7 @@ public class CategoryService {
   private CategoryResponseDto toDto(Category category) {
     List<CategoryResponseDto> children = category.getChildren()
         .stream()
+        .filter(Category::isStatus)
         .map(this::toDto)
         .toList();
 
@@ -59,15 +61,13 @@ public class CategoryService {
         .toList();
   }
 
-  //category削除時に、子カテゴリに所属するstudyLogも再帰的に削除する
-  private void deleteStudyLogsRecursively(Category category) {
-
-      studyLogRepository.deleteByCategoryCategoryId(
-          category.getCategoryId()
-      );
+  //categoryを論理削除し、所属するログは物理削除する
+  private void deleteCategoryAndStudyLogRecursively(Category category) {
+      studyLogRepository.deleteByCategoryCategoryId(category.getCategoryId());
+      category.setStatus(false);
 
       for (Category child : category.getChildren()) {
-          deleteStudyLogsRecursively(child);
+          deleteCategoryAndStudyLogRecursively(child);
       }
   }
 
@@ -82,19 +82,20 @@ public class CategoryService {
   }
 
   // Category作成
+  @Transactional 
   public CategoryResponseDto createCategory(CreateCategoryRequestDto req) {
     Long userId = getCurrentUserId();
 
     // userが見つからなければエラー
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new ValidationException("データの作成に失敗しました。"));
+        .orElseThrow(() -> new InvalidTokenException("認証エラーが発生しました。再度ログインしてください。"));
 
     Category category = new Category(req.categoryName(), user, null);
 
     // 親要素があるなら、親要素に子要素を、子要素に親要素を加える。
     if (req.parentCategoryId() != null) {
       Category parentCategory = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(req.parentCategoryId(), userId)
-          .orElseThrow(() -> new ValidationException("データの作成に失敗しました。"));
+          .orElseThrow(() -> new ResourceNotFoundException("指定したカテゴリが見つかりません。"));
       parentCategory.addChild(category);
     }
 
@@ -104,6 +105,7 @@ public class CategoryService {
   }
 
   // ユーザーが所有するカテゴリ一覧を取得
+  @Transactional(readOnly = true)
   public List<CategoryResponseDto> getCategoriesByUserId() {
 
     Long userId = getCurrentUserId();
@@ -118,11 +120,12 @@ public class CategoryService {
   }
 
   // カテゴリ名を更新
+  @Transactional 
   public CategoryResponseDto updateCategory(Long categoryId, CategoryRequestDto req) {
     Long userId = getCurrentUserId();
 
     Category target = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId)
-        .orElseThrow(() -> new ValidationException("データの更新に失敗しました。"));
+        .orElseThrow(() -> new ResourceNotFoundException("指定したカテゴリが見つかりません。"));
 
     target.setCategoryName(req.categoryName());
     Category updatedCategory = categoryRepository.save(target);
@@ -132,31 +135,31 @@ public class CategoryService {
 
 
   // カテゴリ削除　カテゴリの論理削除・対象カテゴリを保有するstudyLogの物理削除を一括で行うため@Transactional 
-  @Transactional
+  @Transactional 
   public void deleteCategory(Long categoryId) {
     Long userId = getCurrentUserId();
     
     Category target = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId)
-        .orElseThrow(() -> new ValidationException("データの更新に失敗しました。"));
+        .orElseThrow(() -> new ResourceNotFoundException("指定したカテゴリが見つかりません。"));
 
-    studyLogRepository.deleteByCategoryCategoryId(categoryId);
-    deleteStudyLogsRecursively(target);
-
-    // 論理削除して保存
-    target.setStatus(false);
+    studyLogRepository.deleteByCategoryCategoryId(target.getCategoryId());
+    
+    //entityにCascadeType:ALLが付いているので子・孫要素も同時に削除される。
+    deleteCategoryAndStudyLogRecursively(target);
 
     categoryRepository.save(target);
     return;
   }
 
   // 対象の祖先要素リストを取得
+  @Transactional(readOnly = true)
   public List<CategoryResponseDto> getAncestoCategoryList(Long categoryId) {
     Long userId = getCurrentUserId();
 
     List<Category> ancestorCategoryList = new ArrayList<Category>();
 
     Category target = categoryRepository.findByCategoryIdAndUserUserIdAndStatusTrue(categoryId, userId)
-      .orElseThrow();
+      .orElseThrow(() -> new ResourceNotFoundException("指定したカテゴリが見つかりません。"));
 
     if(target.getParentCategory() != null) {
       addParentCategory(ancestorCategoryList, target);

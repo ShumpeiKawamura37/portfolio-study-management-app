@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 
+import com.portfolio.study_management_app.TestcontainersConfiguration;
 import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.studyLog.StudyLog;
 import com.portfolio.study_management_app.entity.user.User;
@@ -21,6 +23,7 @@ import com.portfolio.study_management_app.repository.user.UserRepository;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = Replace.NONE)
+@Import(TestcontainersConfiguration.class)
 public class StudyLogRepositoryTest {
   @Autowired UserRepository userRepository;
   @Autowired CategoryRepository categoryRepository;

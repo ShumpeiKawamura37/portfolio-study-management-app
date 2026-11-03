@@ -2,6 +2,7 @@ package com.portfolio.study_management_app.service.auth;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.portfolio.study_management_app.dto.auth.LoginRequestDto;
 import com.portfolio.study_management_app.dto.auth.LoginResponseDto;
@@ -22,6 +23,7 @@ public class AuthService {
     this.jwtProvider = jwtProvider;
   }
 
+  @Transactional(readOnly = true) 
   public LoginResponseDto authenticate(LoginRequestDto req) {
     User user = userRepository.findByEmail(req.email());
 

@@ -4,6 +4,10 @@ export type ApiResponse<T> = {
   message: string;
 }
 
-export type ErrorResponse = {
-  message: string;
+export type ProblemDetail = {
+  type: string;
+  title: string;
+  status: number;
+  detail?: string;
+  instance?: string;
 };

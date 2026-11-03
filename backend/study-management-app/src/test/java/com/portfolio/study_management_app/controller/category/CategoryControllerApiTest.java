@@ -13,9 +13,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.portfolio.study_management_app.TestcontainersConfiguration;
 import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.user.User;
 import com.portfolio.study_management_app.repository.category.CategoryRepository;
@@ -26,6 +28,7 @@ import jakarta.transaction.Transactional;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@Import(TestcontainersConfiguration.class)
 public class CategoryControllerApiTest {
   @Autowired
   MockMvc mockMvc;
@@ -78,7 +81,7 @@ public class CategoryControllerApiTest {
     String json = """
           {
             "categoryName":"test",
-            "parentCategoryId": "1L"
+            "parentCategoryId": 1
           }
         """;
     mockMvc.perform(
@@ -87,7 +90,7 @@ public class CategoryControllerApiTest {
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isNotFound());
   }
 
   @Test
@@ -178,7 +181,7 @@ public class CategoryControllerApiTest {
         .content(json)
         .header("Authorization", "Bearer " + token)
         .with(csrf()))
-      .andExpect(status().isBadRequest());
+      .andExpect(status().isNotFound());
   }
 
   @Test
@@ -214,6 +217,20 @@ public class CategoryControllerApiTest {
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", "Bearer " + token)
       .with(csrf()))
-    .andExpect(status().isBadRequest());
+    .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @DisplayName("異常系: 存在しないカテゴリの祖先一覧を取得すると取得失敗")
+  void getAncestorCategoryList_notFound() throws Exception {
+    User user = new User("test", "test@example.com", "Password123");
+    userRepository.save(user);
+    String token = jwtProvider.generateToken(user.getUserId());
+
+    mockMvc.perform(
+        get("/api/category/ancestor/999999")
+            .header("Authorization", "Bearer " + token))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.detail").value("指定したカテゴリが見つかりません。"));
   }
 }

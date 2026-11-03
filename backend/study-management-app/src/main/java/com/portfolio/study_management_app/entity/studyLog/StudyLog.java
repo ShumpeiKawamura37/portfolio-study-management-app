@@ -2,6 +2,7 @@ package com.portfolio.study_management_app.entity.studyLog;
 
 import java.time.LocalDateTime;
 
+import com.portfolio.study_management_app.config.TimeConfig;
 import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.user.User;
 
@@ -62,6 +63,6 @@ public class StudyLog {
     this.memo = memo;
     this.user = user;
     this.category = category;
-    this.createdAt = LocalDateTime.now();
+    this.createdAt = LocalDateTime.now(TimeConfig.APP_ZONE);
   }
 }

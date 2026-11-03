@@ -13,9 +13,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.portfolio.study_management_app.TestcontainersConfiguration;
 import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.studyLog.StudyLog;
 import com.portfolio.study_management_app.entity.user.User;
@@ -29,6 +31,7 @@ import jakarta.transaction.Transactional;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@Import(TestcontainersConfiguration.class)
 public class StudyLogControllerApiTest {
   @Autowired MockMvc mockMvc;
   @Autowired UserRepository userRepository;
@@ -89,7 +92,7 @@ public class StudyLogControllerApiTest {
             "endTime":"2000-01-01T00:10:00",
             "studySeconds":10,
             "memo":"test",
-            "categoryId": "1L"
+            "categoryId": 1
           }
         """;
     mockMvc.perform(
@@ -98,7 +101,7 @@ public class StudyLogControllerApiTest {
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isNotFound());
   }
 
   @Test
@@ -131,7 +134,7 @@ public class StudyLogControllerApiTest {
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isNotFound());
   }
 
   @Test
@@ -267,6 +270,53 @@ public class StudyLogControllerApiTest {
           .andExpect(jsonPath("$.data").exists());
           
   }
+
+  @Test
+  @DisplayName("正常系: 学習記録がすべて0秒でも学習分析を取得できる")
+  void getAnalytics_allZeroSeconds() throws Exception {
+    User user = new User("test", "test@example.com", "Password123");
+    User savedUser = userRepository.save(user);
+    savedUser.setCreatedAt(LocalDateTime.of(2000, 1, 1, 0, 0));
+    String token = jwtProvider.generateToken(savedUser.getUserId());
+
+    Category category = new Category("test", savedUser, null);
+    categoryRepository.save(category);
+
+    StudyLog studyLog = new StudyLog(
+        LocalDateTime.of(2000, 1, 1, 0, 0),
+        LocalDateTime.of(2000, 1, 1, 0, 0),
+        0,
+        "test",
+        savedUser,
+        category);
+    studyLogRepository.save(studyLog);
+
+    mockMvc.perform(
+      get("/api/studyLog/analytics")
+          .header("Authorization", "Bearer " + token)
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.data.totalStudySeconds").value(0))
+          .andExpect(jsonPath("$.data.CategoryNameLongestStudied").doesNotExist());
+  }
+
+  @Test
+  @DisplayName("正常系: 学習記録が0件でも学習分析を取得できる")
+  void getAnalytics_noStudyLogs() throws Exception {
+    User user = new User("test", "test@example.com", "Password123");
+    User savedUser = userRepository.save(user);
+    String token = jwtProvider.generateToken(savedUser.getUserId());
+
+    mockMvc.perform(
+      get("/api/studyLog/analytics")
+          .header("Authorization", "Bearer " + token)
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value("SUCCESS"));
+  }
+
   @Test
   @DisplayName("正常系: カテゴリ学習分析を取得成功")
   void getCategoryAnalytics_success() throws Exception {

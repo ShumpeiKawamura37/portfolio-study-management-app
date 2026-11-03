@@ -2,7 +2,6 @@ package com.portfolio.study_management_app.integration.studyLog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
@@ -13,10 +12,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.portfolio.study_management_app.TestcontainersConfiguration;
+import com.portfolio.study_management_app.config.TimeConfig;
 import com.portfolio.study_management_app.dto.analytics.AnalyticsResponseDto;
 import com.portfolio.study_management_app.dto.analytics.CategoryAnalyticsResponseDto;
 import com.portfolio.study_management_app.dto.studyLog.CreateStudyLogRequsetDto;
@@ -24,6 +26,7 @@ import com.portfolio.study_management_app.dto.studyLog.StudyLogResponseDto;
 import com.portfolio.study_management_app.entity.category.Category;
 import com.portfolio.study_management_app.entity.studyLog.StudyLog;
 import com.portfolio.study_management_app.entity.user.User;
+import com.portfolio.study_management_app.exception.ResourceNotFoundException;
 import com.portfolio.study_management_app.exception.ValidationException;
 import com.portfolio.study_management_app.repository.category.CategoryRepository;
 import com.portfolio.study_management_app.repository.studyLog.StudyLogRepository;
@@ -34,6 +37,7 @@ import jakarta.transaction.Transactional;
 
 @SpringBootTest
 @Transactional
+@Import(TestcontainersConfiguration.class)
 public class IntegrationStudyLogTest {
   @Autowired
   UserRepository userRepository;
@@ -108,7 +112,7 @@ public class IntegrationStudyLogTest {
         1L);
 
     // 実行・検証
-    assertThrows(ValidationException.class, () -> studyLogService.createStudyLog(req));
+    assertThrows(ResourceNotFoundException.class, () -> studyLogService.createStudyLog(req));
   }
 
   @Test
@@ -143,7 +147,7 @@ public class IntegrationStudyLogTest {
         savedCategory.getCategoryId());
 
     // 実行・検証
-    assertThrows(ValidationException.class, () -> studyLogService.createStudyLog(req));
+    assertThrows(ResourceNotFoundException.class, () -> studyLogService.createStudyLog(req));
   }
 
   @Test
@@ -307,7 +311,7 @@ public class IntegrationStudyLogTest {
     assertEquals(2, result.studyDayCount());
     assertEquals(15, result.averageStudySeconds());
     assertEquals("test", result.CategoryNameLongestStudied());
-    assertEquals(2.0 / ((LocalDate.now().toEpochDay() - LocalDate.of(2000, 1, 1).toEpochDay()) + 1) * 100,
+    assertEquals(2.0 / ((LocalDate.now(TimeConfig.APP_ZONE).toEpochDay() - LocalDate.of(2000, 1, 1).toEpochDay()) + 1) * 100,
         result.studyDayRate());
     assertEquals(0, result.studyStreak());
   }

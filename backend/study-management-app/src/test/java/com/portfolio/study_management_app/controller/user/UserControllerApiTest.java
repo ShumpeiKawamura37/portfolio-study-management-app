@@ -5,11 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.portfolio.study_management_app.TestcontainersConfiguration;
 import com.portfolio.study_management_app.entity.user.User;
 import com.portfolio.study_management_app.repository.user.UserRepository;
 import com.portfolio.study_management_app.security.JwtProvider;
@@ -23,10 +25,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@Import(TestcontainersConfiguration.class)
 public class UserControllerApiTest {
   @Autowired
   private MockMvc mockMvc;
@@ -147,6 +152,71 @@ public class UserControllerApiTest {
         .andExpect(jsonPath("$.data.token").exists());
   }
 
+  @Test
+  @DisplayName("異常系: 他のユーザーが使っているメールアドレスには更新できない")
+  void updateUser_duplicateEmail_conflict() throws Exception {
+    User userA = new User("userA", "a@example.com", passwordEncoder.encode("Password123"));
+    User userB = new User("userB", "b@example.com", passwordEncoder.encode("Password123"));
+    userRepository.save(userA);
+    userRepository.save(userB);
+
+    String token = jwtProvider.generateToken(userB.getUserId());
+
+    String json = """
+        {
+          "username": "userB",
+          "email": "a@example.com"
+        }
+        """;
+
+    mockMvc.perform(
+        put("/api/user")
+            .header("Authorization", "Bearer " + token)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.detail").value("既に登録されているメールアドレスです。"));
+
+    // userB のメールアドレスは変わっていない
+    assertEquals("b@example.com", userRepository.findById(userB.getUserId()).orElseThrow().getEmail());
+  }
+
+  @Test
+  @DisplayName ("異常系: 入力チェックのエラーはProblemDetail形式で返す")
+  void updateUser_invalidEmail_returnProblemDetail() throws Exception {
+    //認証セット
+    User user = new User("test", "test@example.com", passwordEncoder.encode("Password123"));
+    userRepository.save(user);
+    String token = jwtProvider.generateToken(user.getUserId());
+
+    //リクエスト
+    String json = """
+        {
+            "username": "test",
+            "email": "invalid"
+        }
+        """;
+
+    mockMvc.perform(
+        put("/api/user")
+            .header("Authorization", "Bearer " + token)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.detail").value("メールアドレスの形式が正しくありません。"));
+  }
+
+  @Test
+  @DisplayName("異常系: トークンなしのリクエストは 401 の ProblemDetail 形式で返る")
+  void getUser_withoutToken_returnsProblemDetail() throws Exception {
+    mockMvc.perform(get("/api/user"))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401))
+        .andExpect(jsonPath("$.detail").value("認証エラーが発生しました。再度ログインしてください。"));
+  }
 
   @Test
   @DisplayName("正常系: User削除成功")
@@ -169,4 +239,47 @@ public class UserControllerApiTest {
 
     assertEquals(false, deletedUser.isStatus());
   }
+
+  @Test
+  @DisplayName("異常系: 退会済みユーザーのトークンでは401のProblemDetailを返す")
+  void getUser_deletedUserToken_returns401() throws Exception {
+    User user = new User("test", "test@example.com", passwordEncoder.encode("Password123"));
+    user.setStatus(false);
+    userRepository.save(user);
+    String token = jwtProvider.generateToken(user.getUserId());
+
+    mockMvc.perform(get("/api/user").header("Authorization", "Bearer " + token))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.detail").value("認証エラーが発生しました。再度ログインしてください。"));
+  }
+
+  @Test
+  @DisplayName("異常系: 不正なトークンでは401のProblemDetailを返す")
+  void getUser_invalidToken_returns401() throws Exception {
+    mockMvc.perform(get("/api/user").header("Authorization", "Bearer invalid-token"))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.detail").value("認証エラーが発生しました。再度ログインしてください。"));
+  }
+
+  @Test
+  @DisplayName("正常系: 不正なトークンが付いていてもログインできる")
+  void login_withInvalidToken_succeeds() throws Exception {
+    User user = new User("test", "test@example.com", passwordEncoder.encode("Password123"));
+    userRepository.save(user);
+
+    String loginJson = """
+        {
+          "email": "test@example.com",
+          "password": "Password123"
+        }
+        """;
+
+    mockMvc.perform(
+        post("/api/auth/login")
+            .header("Authorization", "Bearer invalid-token")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(loginJson))
+        .andExpect(status().isOk());
+  }
+
 }

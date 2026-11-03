@@ -14,9 +14,6 @@ export async function getAnalytics(): Promise<ApiResponse<AnalyticsResponse>> {
 
   const result: ApiResponse<AnalyticsResponse> = await response.json();
 
-  if (!response.ok) {
-    throw new Error(result.message);
-  }
   return result;
 }
 
@@ -34,10 +31,6 @@ export async function getCategoryAnalytics(
   });
 
   const result: ApiResponse<CategoryAnalyticsResponse> = await response.json();
-
-  if (!response.ok) {
-    throw new Error(result.message);
-  }
 
   return result;
 }
