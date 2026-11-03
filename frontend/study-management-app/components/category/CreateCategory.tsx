@@ -6,11 +6,8 @@ import EditCategoryName from "./EditCategoryName";
 import { useState } from "react";
 import { useCategory } from "@/hooks/category/UseCategory";
 
-type CreateCategoryProps = {
-}
 
-export default function CreateCategory({
-}: CreateCategoryProps) {
+export default function CreateCategory() {
   const category = useCategory();
   const [isEditing, setIsEditing] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -27,7 +24,7 @@ export default function CreateCategory({
       category?.addCategory(null, res.data);
       setNewCategoryName("");
       setIsEditing(false);
-    } catch(error: Error | any) {
+    } catch(error) {
       alert(error);
     }
   }

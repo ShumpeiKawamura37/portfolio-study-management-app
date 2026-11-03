@@ -8,6 +8,8 @@ export const useAuthState = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if(token) {
+      //　ESLint(テストツール)でエラー回避のため以下コメント
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLogin(true);
     }
   }, []);

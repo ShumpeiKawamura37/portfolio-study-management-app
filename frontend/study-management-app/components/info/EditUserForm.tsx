@@ -47,7 +47,7 @@ export default function EditUserForm() {
       setPassword("********");
       setInitialPassword("********");
       alert("ユーザー情報を更新しました。")
-    } catch (error: Error | any) {
+    } catch (error) {
         showError(error);
     }
   }
@@ -64,7 +64,7 @@ export default function EditUserForm() {
       localStorage.removeItem("token");
       router.replace("/auth");
 
-    } catch(error: Error | any) {
+    } catch(error) {
       showError(error);
     }
   }
@@ -86,7 +86,7 @@ export default function EditUserForm() {
         }
       }
       fetchUser();
-    } catch (error: Error | any) {
+    } catch (error) {
       showError(error);
     }
   }, []);

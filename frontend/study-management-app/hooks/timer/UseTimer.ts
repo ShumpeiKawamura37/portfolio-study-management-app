@@ -1,6 +1,5 @@
 "use client";
 
-import { current } from "@reduxjs/toolkit";
 import { useRef, useState } from "react";
 export const useTimer = () => {
   const [seconds, setSeconds] = useState(0); //学習時間
@@ -23,6 +22,20 @@ export const useTimer = () => {
       return 0;
     }
     return Math.floor((now - firstStartRef.current - pausedSecondsRef.current) / 1000);
+  }
+
+  const stop = () => {
+    if(intervalRef.current == null) {
+      return;
+    }
+    window.clearInterval(intervalRef.current);
+    intervalRef.current = null;
+
+      const now = Date.now();
+      pausedAtRef.current = now;
+      setTotalStudySeconds(getElapsedSeconds(now));
+      setIsRunning(false);
+      setEndTime(new Date(now));
   }
 
   const start = (isTimer: boolean) => {
@@ -60,20 +73,6 @@ export const useTimer = () => {
       }
       setSeconds(remaining);
     }, 1000);
-  }
-
-  const stop = () => {
-    if(intervalRef.current == null) {
-      return;
-    }
-    window.clearInterval(intervalRef.current);
-    intervalRef.current = null;
-
-      const now = Date.now();
-      pausedAtRef.current = now;
-      setTotalStudySeconds(getElapsedSeconds(now));
-      setIsRunning(false);
-      setEndTime(new Date(now));
   }
 
   const clear = () => {

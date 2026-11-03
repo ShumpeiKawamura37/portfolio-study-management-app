@@ -2,7 +2,10 @@
 
 import { getUser } from "@/service/user/userService";
 import { useEffect, useMemo, useState } from "react";
-import { getStudyLogByDate, getStudyLogs } from "@/service/studyLog/StudyLogService";
+import {
+  getStudyLogByDate,
+  getStudyLogs,
+} from "@/service/studyLog/StudyLogService";
 import { CategoryResponse } from "@/types/category/category";
 import {
   getAnalytics,
@@ -61,8 +64,6 @@ export const useAnalyticsState = () => {
   const [targetParentCategoryId, setTargetParentCategoryId] = useState<
     number | null
   >(null);
-  const [studySecondsByCategory, setStudySecondsByCategory] =
-    useState<StudySecondsByCategory>([]);
   const [analytics, setAnalytics] = useState<Analytics>();
   const [categoryAnalytics, setCategoryAnalytics] =
     useState<CategoryAnalytics>();
@@ -132,9 +133,9 @@ export const useAnalyticsState = () => {
   // 学習ログと学習分析を取得
   useEffect(() => {
     const fetchStudyLogs = async () => {
-    const resOfStudyLogs = await getStudyLogs();
-    setStudyLogs(resOfStudyLogs.data);
-  };
+      const resOfStudyLogs = await getStudyLogs();
+      setStudyLogs(resOfStudyLogs.data);
+    };
 
     const fetchAnalytics = async () => {
       const resOfAnalytics = await getAnalytics();
@@ -146,10 +147,10 @@ export const useAnalyticsState = () => {
   }, [categories, studyLogVersion]);
 
   // 円グラフ用 periodで指定した期間のログを、pie用データに変換
-  useEffect(() => {
+  const studySecondsByCategory = useMemo(() => {
     const filteredStudyLogs = filterStudyLogByPeriod(studyLogs);
 
-    const result = filteredStudyLogs.reduce<StudySecondsByCategory>((acc, studyLog) => {
+    return filteredStudyLogs.reduce<StudySecondsByCategory>((acc, studyLog) => {
       const categoryId = studyLog.category.categoryId;
       const categoryName = studyLog.category.categoryName;
 
@@ -168,7 +169,6 @@ export const useAnalyticsState = () => {
       }
       return acc;
     }, []);
-    setStudySecondsByCategory(result);
   }, [period, studyLogs]);
 
   //カテゴリ分析を取得
@@ -196,7 +196,7 @@ export const useAnalyticsState = () => {
           return;
         }
         setCategoryAnalytics(res.data);
-      } catch (error: Error | any) {
+      } catch (error) {
         if (cancelled) {
           return;
         }
@@ -225,14 +225,14 @@ export const useAnalyticsState = () => {
     fetchAncestorCategoryList();
   }, [targetCategoryId]);
 
-  // categoriesか対象が変わった時、targetCategory useMemoなら無駄な際レンダリング防げる
+  // categoriesか対象が変わった時、targetCategoryにセット。 useMemoなら変更のない時に無駄なレンダリングを防げる
   const targetCategory = useMemo(() => {
     return getTargetCategory(categories);
   }, [categories, targetCategoryId]);
 
   // 日付に対応した学習ログを取得
   useEffect(() => {
-    const fetchStudyLogByDate = async() => {
+    const fetchStudyLogByDate = async () => {
       const res = await getStudyLogByDate(targetDate);
       setTargetStudyLog(res.data);
     };
@@ -254,8 +254,6 @@ export const useAnalyticsState = () => {
     targetDate,
     setTargetDate,
     targetStudyLog,
-    setTargetStudyLog
+    setTargetStudyLog,
   };
 };
-
-

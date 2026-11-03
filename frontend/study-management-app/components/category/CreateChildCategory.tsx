@@ -33,7 +33,7 @@ export default function CreateChildCategory({
       actionForCategory?.setAction(null);
       category?.addCategory(parentCategoryId, res.data)
       setNewCategoryName("");
-    } catch(error: Error | any) {
+    } catch(error) {
       alert(error);
     }
   }

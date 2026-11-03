@@ -50,7 +50,7 @@ categoryName,
       setIsOpen(false);
       actionForCategory?.setAction(null);
       setTargetCategoryId(null);
-    } catch(error: Error | any) {
+    } catch(error) {
       alert(error);
     }
   } 
@@ -62,7 +62,7 @@ categoryName,
       category?.removeCategory(categoryId);
       setIsOpen(false);
       setTargetCategoryId(null);
-    } catch(error: Error | any) {
+    } catch(error) {
       alert(error);
     }
   }

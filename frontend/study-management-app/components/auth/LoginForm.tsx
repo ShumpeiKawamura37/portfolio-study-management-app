@@ -51,7 +51,7 @@ export default function LoginForm() {
             setIsLogin(true);
             router.push("menu");
           }
-        } catch (error: Error | any) {
+        } catch (error) {
           showError(error);
         } finally {
           setIsLoading(false);
@@ -62,7 +62,7 @@ export default function LoginForm() {
           if(res.status === "SUCCESS") {
             alert("ユーザーを登録しました。ログインしてください。");
           }
-        } catch (error: Error | any) {
+        } catch (error) {
           showError(error);
         }
       } else {

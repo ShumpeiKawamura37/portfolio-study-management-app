@@ -40,7 +40,7 @@ export default function Record() {
       setStudyLogVersion(prev => prev + 1);
       router.push("/analyzeStudyLog");
       clear();
-    } catch(error: Error | any) {
+    } catch(error) {
       alert(error);
     }
   }

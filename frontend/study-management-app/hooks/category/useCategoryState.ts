@@ -90,7 +90,7 @@ export function useCategoryState() {
         try {
           const res = await getCategories();
           setCategories(res.data);
-        } catch(error: Error | any) {
+        } catch(error) {
           alert(error);
         }     
       }
